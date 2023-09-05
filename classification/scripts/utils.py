@@ -2,6 +2,11 @@ import json
 from os.path import join
 from collections import defaultdict
 from itertools import chain
+import torch
+from torch.utils.data import DataLoader
+from torchvision import transforms as T
+
+from glob import glob
 
 group_dict = {
     "body_type": [
@@ -52,7 +57,7 @@ def get_meta(picset, mode="meta.json"):
 def get_meta_id(picset, mode=""):
     my_js = get_meta(picset, mode)
     return {
-        item["origin"]["filename"] : item
+        item["origin"]["filename"]: item
         for item in my_js["items"]
         if len(item["origin"]["filename"]) > 5
     }
@@ -102,15 +107,13 @@ def parse_meta(path_models, InferDataset, Aug, Pre, DATASETS, CATEGORYS, META, P
                     id_meta = metas[picset]
                 except:
                     continue
-                # list_jpeg = glob(picset + "/picture/*.jpeg")
-                # list_jpeg.extend(glob(picset + "/picture/*.jpg"))
+
                 list_jpeg = list(id_meta.keys())
                 list_jpeg = [join(PICTURE, pic) for pic in list_jpeg]
-                list_keys = {key.split('.')[0] : key for key in id_meta.keys()}
+                list_keys = {key.split(".")[0]: key for key in id_meta.keys()}
+                
                 infer = InferDataset(list_jpeg, Pre)
-                loader = DataLoader(infer, 320, 
-                                    num_workers=32, pin_memory=True
-                                    )
+                loader = DataLoader(infer, 320, num_workers=32, pin_memory=True)
 
                 for batch in loader:
                     with torch.no_grad():
@@ -119,9 +122,7 @@ def parse_meta(path_models, InferDataset, Aug, Pre, DATASETS, CATEGORYS, META, P
                         )
                         ret_ = ret_.to("cpu")
                         val, idx = ret_.max(axis=1)
-                        # print(val, idx)
                         for num, id_ in enumerate(batch[1]):
-                            # if id_ in id_meta.keys():
                             if id_ in list_keys:
                                 if val[num] > 0.7:
                                     tag = [num2label[str(int(idx[num]))]]
@@ -145,6 +146,220 @@ def parse_meta(path_models, InferDataset, Aug, Pre, DATASETS, CATEGORYS, META, P
                                             ],
                                         }
                                     ]
+    return metas
+
+
+def yolo_proc(yolo_model_path, InferDataset, Pre):
+    from ultralytics import YOLO
+    import os
+    from tqdm import tqdm
+
+    yolo_model = YOLO(yolo_model_path)
+    os.makedirs("/home/timssh/ML/TAGGING/DATA/segmentation/picture", exist_ok=True)
+    os.makedirs("/home/timssh/ML/TAGGING/DATA/segmentation/boxes", exist_ok=True)
+
+    list_of_paths = glob("/home/timssh/ML/TAGGING/DATA/picture/*")
+    list_2_intersect = glob("/home/timssh/ML/TAGGING/DATA/segmentation/boxes/*")
+    list_2_intersect = [item.split('/')[-1].split('.')[0] for item in list_2_intersect]
+    list_of_paths = [item for item in list_of_paths if item.split('/')[-1].split('.')[0] not in list_2_intersect]
+    infer = InferDataset(list_of_paths, Pre)
+    loader = DataLoader(infer, 40, num_workers=32, pin_memory=True, shuffle=False)
+    gender_dict = {'girl' : 'female', 'man' : 'male'}
+    for batch in tqdm(loader):
+        yolo_results = yolo_model(batch[0])
+        for image_id, result in enumerate(yolo_results):
+            image_tensor = batch[0][image_id]
+            yolo_meta_dict = {}
+            for j in range(len(result.boxes.xyxy)):
+                if result.boxes.conf[j] >= 0.8:
+                    bbox_tensor = result.boxes.xyxy[j].to(torch.float16)
+                    bbox_cls = result.boxes.cls[j].to(int)
+                    bbox_cls = result.names[int(bbox_cls)]
+                    bbox_tensor[0], bbox_tensor[2] = (
+                        bbox_tensor[0] / 640,
+                        bbox_tensor[2] / 640,
+                    )
+                    bbox_tensor[1], bbox_tensor[3] = (
+                        bbox_tensor[1] / 480,
+                        bbox_tensor[3] / 480,
+                    )
+                    tensor_image = T.ToPILImage()(
+                        image_tensor * result.masks.data[j].to("cpu").unsqueeze(0)
+                    )
+                    tensor_image.save(
+                        f"/home/timssh/ML/TAGGING/DATA/segmentation/picture/{batch[1][image_id]}_{j}.jpeg"
+                    )
+                    yolo_meta_dict[j] = {
+                        "conf": float(result.boxes.conf[j]),
+                        "bbox": bbox_tensor.tolist(),
+                        "cls": gender_dict[bbox_cls] if bbox_cls in gender_dict.keys() else bbox_cls,
+                    }
+            if len(yolo_meta_dict) > 0:
+                with open(
+                    f"/home/timssh/ML/TAGGING/DATA/segmentation/boxes/{batch[1][image_id]}.json",
+                    "w",
+                ) as f:
+                    json.dump(
+                        yolo_meta_dict,
+                        f,
+                    )
+    print("done")
+
+
+def get_box(id_item):
+    with open(id_item, 'r') as json_file:
+        json_ = json.load(json_file)
+    for key in list(json_.keys()):
+        json_[id_item.split('/')[-1].split('.')[0] + '_' + key] = json_.pop(key)
+    return json_
+
+def get_boxes_meta(list_keys):
+    import os
+    bbox_meta = '/home/timssh/ML/TAGGING/DATA/segmentation/boxes/'
+    list_seg_json = { key.split(".")[0]: key for key in os.listdir(bbox_meta)}
+    proc_dict = list_keys.keys() & list_seg_json.keys()
+    proc_dict_meta = {}
+    for key in proc_dict:
+        proc_box = get_box(bbox_meta + list_seg_json[key])
+        for key_ in proc_box.keys():
+            proc_box[key_]['origin'] = key
+            proc_dict_meta[key_] = proc_box[key_]
+    return proc_dict_meta
+
+def parse_meta_v2(
+    path_models,
+    InferDataset,
+    Aug,
+    Pre,
+    DATASETS,
+    CATEGORYS,
+    META,
+    PICTURE,
+):
+    if META is None:
+        META = "/home/timssh/ML/TAGGING/DATA/meta"
+    PICTURE_SEG = "/home/timssh/ML/TAGGING/DATA/segmentation/picture"
+    metas = {}
+    for model_cat, model_path in path_models.items():
+        with open(f"{DATASETS}/{model_cat}.json") as json_file:
+            json_ = json.load(json_file)
+            num2label = json_["num2label"]
+
+        model = torch.jit.load(model_path, "cuda")
+        model.eval()
+        model.to(torch.float16)
+
+        for cat in CATEGORYS:
+            print(cat)
+            PICSET_LIST = glob(META + f"/{cat}/*")
+            for picset in PICSET_LIST:
+                print(picset)
+                try:
+                    if picset not in metas.keys():
+                        metas[picset] = get_meta_id(picset, "meta.json")
+                    id_meta = metas[picset]
+                except:
+                    continue
+
+                list_jpeg = list(id_meta.keys())
+                list_jpeg = [join(PICTURE, pic) for pic in list_jpeg]
+                list_keys = {key.split(".")[0]: key for key in id_meta.keys()}
+                dict_boxes = get_boxes_meta(list_keys)
+                list_boxes_jpeg = [join(PICTURE_SEG, pic + '.jpeg') for pic in dict_boxes.keys()]
+
+
+
+                infer = InferDataset(sorted(list_boxes_jpeg), Pre)
+
+                samplt = infer[0]
+
+                loader = DataLoader(
+                    infer, 4, num_workers=32, pin_memory=True, shuffle=False
+                )
+
+                for batch in loader:
+                    with torch.no_grad():
+                        ret_ = torch.round(
+                            torch.sigmoid(model(Aug(batch[0].to("cuda")))), decimals=2
+                        )
+                        ret_ = ret_.to("cpu")
+                        val, idx = ret_.max(axis=1)
+                        # print(val, idx)
+                        for num, id_ in enumerate(batch[1]):
+                            if val[num] > 0.7:
+                                tag = [num2label[str(int(idx[num]))]]
+                            else:
+                                tag = [model_cat + ' trash']
+                            # ids = int(id_.split('_')[-1].split('.')[0])
+                            if len(id_meta[list_keys[dict_boxes[id_]['origin']]]["trained"]) > 0 and 'bbox' in  id_meta[list_keys[dict_boxes[id_]['origin']]]["trained"][0].keys():
+                                find = False
+                                for values in id_meta[list_keys[dict_boxes[id_]['origin']]]["trained"]:
+                                    if values["bbox"] == dict_boxes[id_]['bbox']:
+                                        values["groups"].append(
+                                            {   
+                                                "group": model_cat,
+                                                "category": [
+                                                    " ".join(tg.split("-")) for tg in tag
+                                                ],
+                                            }
+                                        )
+                                        find= True
+                                        break
+                                if not find:
+                                    id_meta[list_keys[dict_boxes[id_]['origin']]]["trained"].append({   
+                                        "gender" : dict_boxes[id_]['cls'],
+                                        "groups" : [{"group": model_cat,
+                                        "category": [
+                                            " ".join(tg.split("-")) for tg in tag
+                                        ]}],
+                                        'bbox': dict_boxes[id_]['bbox'],
+                                    }
+                                ) 
+                            else:
+                                id_meta[list_keys[dict_boxes[id_]['origin']]]["trained"] = [
+                                    {   
+                                        "gender" : dict_boxes[id_]['cls'],
+                                        "groups" : [{"group": model_cat,
+                                        "category": [
+                                            " ".join(tg.split("-")) for tg in tag
+                                        ]}],
+                                        'bbox': dict_boxes[id_]['bbox'],
+                                    }
+                                ]
+
+
+                                # print(ids, id_meta[list_keys[dict_boxes[id_]['origin']]]["trained"]), 
+                                # print(id_meta[list_keys[dict_boxes[id_]['origin']]]["trained"][int(ids)])
+                            #     id_meta[list_keys[dict_boxes[id_]['origin']]]["trained"][int(ids)]["groups"].append(
+                            #         {   
+                            #             "group": model_cat,
+                            #             "category": [
+                            #                 " ".join(tg.split("-")) for tg in tag
+                            #             ],
+                            #         }
+                            #     )
+                            # elif ids > len(id_meta[list_keys[dict_boxes[id_]['origin']]]["trained"]):
+                            #     id_meta[list_keys[dict_boxes[id_]['origin']]]["trained"].append(
+                            #         {   
+                            #             "gender" : dict_boxes[id_]['cls'],
+                            #             "groups" : [{"group": model_cat,
+                            #             "category": [
+                            #                 " ".join(tg.split("-")) for tg in tag
+                            #             ]}],
+                            #             'bbox': dict_boxes[id_]['bbox'],
+                            #         }
+                            #     )
+                            # else:
+                            #     id_meta[list_keys[dict_boxes[id_]['origin']]]["trained"] = [
+                            #         {   
+                            #             "gender" : dict_boxes[id_]['cls'],
+                            #             "groups" : [{"group": model_cat,
+                            #             "category": [
+                            #                 " ".join(tg.split("-")) for tg in tag
+                            #             ]}],
+                            #             'bbox': dict_boxes[id_]['bbox'],
+                            #         }
+                            #     ]
     return metas
 
 

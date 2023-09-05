@@ -2,9 +2,11 @@ import requests
 import json
 from glob import glob
 
+stand = 'dev.'
+# stand = ''
 
 # GROUPS = ['body_type', 'sex_positions', 'tits_size']
-GROUPS = ['hair_type']
+GROUPS = ['test']
 ROOT = '/home/timssh/ML/TAGGING/DATA/meta'
 
 headers = {
@@ -17,7 +19,7 @@ data_log = {
 
 if __name__ == "__main__":
 
-    url = "https://yapics.collect.monster/v1/login"
+    url = f"https://yapics.{stand}collect.monster/v1/login"
     r = requests.post(url, data=json.dumps(data_log), headers=headers)
     token = eval(r.text)['token']
 
@@ -31,14 +33,14 @@ if __name__ == "__main__":
         for js_path in paths:
             print(js_path)
             data = get_meta(js_path)
-            for item in data['items']:
-                item['trained'].append({
-                        "group": "group_of_girls",
-                        "category": ['one girl'
+            # for item in data['items']:
+            #     item['trained'].append({
+            #             "group": "group_of_girls",
+            #             "category": ['one girl'
                             
-                        ]
-                    })
-            url = 'https://yapics.collect.monster/v1/picset/trained'
+            #             ]
+            #         })
+            url = f'https://yapics.{stand}collect.monster/v1/picset/trained'
             head = {"Authorization":f"token {token}"}
             r1 = requests.post(url, data=json.dumps(data), headers=head, timeout=500000)
             print(r1, r1.text)

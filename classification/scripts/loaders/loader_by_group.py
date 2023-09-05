@@ -33,7 +33,7 @@ def get_data():
     url = f"https://yapics.{stand}collect.monster/v1/meta/pictures"
     head = {"Authorization": f"bearer {token}", "Content-Type": "application/json"}
 
-    groups = {"listBy": 0, "categories": [], "groups": [group]}
+    groups = {"listBy": 0, "categories": [], "groups": [group], "mode" : ["PREPARING","CHECKING","VALIDATED"]}
 
     r1 = requests.post(url, data=json.dumps(groups), headers=head, timeout=500000)
     data = r1.json()["data"]
@@ -43,7 +43,7 @@ def get_data():
 # function that build 1-hot-encodeing pandas dataset from data
 def get_meta_id(data, key):
     my_js = data[key]["pictures"]
-    return {item["filepath"]: item for item in my_js}, {str(item["picsetGuid"]) for item in my_js[:5]}
+    return {item["filepath"]: item for item in my_js}, {str(item["picsetGuid"]) for item in my_js}
 
 
 def builder(data):

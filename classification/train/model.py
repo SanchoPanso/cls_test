@@ -70,8 +70,7 @@ class ModelBuilder:
 
 def image_to_tensor(path):
     tensor = Image.open(path)
-    return T.ToTensor()(tensor.convert("RGB")).float()
-
+    return T.ToTensor()(tensor.convert("RGB")).float()    
 
 class ImageDataset(Dataset):
     """

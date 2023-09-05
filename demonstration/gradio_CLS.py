@@ -9,9 +9,6 @@ from classification.train.service import get_class_decoder
 from torchvision.transforms import transforms as T
 import torch
 import gradio as gr
-import argparse
-import numpy as np
-import kornia as K
 
 
 # IMAGE_DIR = "/home/timssh/ML/TAGGING/data"
@@ -52,18 +49,7 @@ def decode_ret(decoder_str, ret_, prefix):
 
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser(
-    #     description="Type path to: model, json, data(optional)"
-    # )
-    # parser.add_argument(
-    #     "--model", dest="model", type=str, help="Path to model", required=True
-    # )
-    # args = parser.parse_args()
-
     logger = "wandb"
-
-    # cat = args.model.replace(join(SOURCE, logger), "").split("/")[1]
-    # print(cat)
 
     cats = [
         # "body type",
@@ -125,16 +111,6 @@ if __name__ == "__main__":
         models[cat].eval()
         models[cat](zeros)
 
-    # ###############################
-    # cat_ex = "tits_size"
-    # _, _, data, _ = get_class_decoder(cat_ex)
-    # ###############################
-
-    # data = data.sample(100)
-    # exemples = []
-    # for i in range(len(data)):
-    #     ser = data.iloc[i]
-    #     exemples.append(ser["path"])
 
     Pre = PreProcess(keepdim=False, gray=False, vflip=False, arch="eff")
     Aug = DataAugmentation()
@@ -145,5 +121,4 @@ if __name__ == "__main__":
         fn=wrap(num2label),
         inputs=gr.Image(type="pil"),
         outputs=[gr.Label(num_top_classes=len(num2label) * 10)],
-        # examples=exemples,
     ).launch(share=True)

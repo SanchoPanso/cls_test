@@ -110,7 +110,7 @@ class TrainWrapper:
         log_dir = join(self.MODEL, self.cat)
         os.makedirs(log_dir, exist_ok=True)
         self.save_dir = self.MODEL
-        self.experiment_name = f"version_{str(len(os.listdir(log_dir)))}_{self.mode}_{self.arch}_{self.batch_size}_{self.decay}"
+        self.experiment_name = f"v_{str(len(os.listdir(log_dir)))}_{self.mode}_{self.arch}_{self.batch_size}_{self.decay}"
 
     # @staticmethod
     def get_callbacks(self, monitor="val_F1_Macro_epoch", mode="max"):

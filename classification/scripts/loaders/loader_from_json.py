@@ -13,12 +13,14 @@ from utils import build_label, save_label
 DATASET_PATH = "/home/timssh/ML/TAGGING/DATA/datasets"
 META_PATH = "/home/timssh/ML/TAGGING/DATA/meta"
 
+# stand = 'dev.'
+stand = ''
 
 def get_token():
     headers = {"Content-Type": "application/json"}
     data_log = {"login": "admin", "password": "nC82JpRPLx61901c"}
 
-    url = f"https://yapics.collect.monster/v1/login"
+    url = f"https://yapics.{stand}collect.monster/v1/login"
 
     r = requests.post(url, data=json.dumps(data_log), headers=headers)
     token = eval(r.text)["token"]
@@ -26,7 +28,7 @@ def get_token():
 
 
 def load_meta(token, picset_ids):
-    url = "https://yapics.collect.monster/v1/meta/picsets"
+    url = f"https://yapics.{stand}collect.monster/v1/meta/picsets"
     head = {"Authorization": f"bearer {token}", "Content-Type": "application/json"}
 
     guids = {"guids": picset_ids}

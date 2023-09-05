@@ -13,18 +13,20 @@ import numpy as np
 import kornia as K
 
 
-SOURCE = "/home/timssh/ML/TAGGING/DATA/datasets"
-MODELS = "/home/timssh/ML/TAGGING/DATA/models"
+# SOURCE = "/home/timssh/ML/TAGGING/DATA/datasets"
+# MODELS = "/home/timssh/ML/TAGGING/DATA/models"
+SOURCE = "/home/timssh/ML/TAGGING/source/source_valid"
+MODELS = "/home/timssh/ML/TAGGING/source/source_valid/wandb"
 
 yolo_model = YOLO(
-    "/home/timssh/ML/TAGGING/CLS/instance/runs/segment/train/weights/best.pt"
+    "/home/timssh/ML/TAGGING/CLS/instance/runs/segment/train7/weights/best.pt"
 )
 
 
 def get_yolo(image):
     list_of_crops = []
-    img = image.resize((640, 480))
-    res = yolo_model(img)
+    image = image.resize((640, 480))
+    res = yolo_model(image)
     for result in res:
         for mask, bbox in zip(result.masks, result.boxes):
             r = bbox.xyxy[0].to(int)
@@ -32,14 +34,14 @@ def get_yolo(image):
                 list_of_crops.append(
                     [
                         K.augmentation.PadTo((480, 640), keepdim=True)(
-                            T.ToTensor()(np.array(img)[r[1] : r[3], r[0] : r[2]])
+                            T.ToTensor()(np.array(image)[r[1] : r[3], r[0] : r[2]])
                             * mask.data[:, r[1] : r[3], r[0] : r[2]].to("cpu")
                         ),
                         result.names[int(bbox.cls[0])],
                     ]
                 )
 
-    return list_of_crops
+    return res[0].plot(), list_of_crops
 
 
 @torch.no_grad()
@@ -51,7 +53,7 @@ def get_ret(model, tensor):
 def decode_ret(decoder_str, ret_, prefix):
     out = {}
     i = int(ret_.argmax())
-    out[prefix + decoder_str[str(i)]] = float(ret_[i]) if float(ret_[i]) > 0.75 else 0.0
+    out[prefix + decoder_str[str(i)]] = float(ret_[i]) if float(ret_[i]) > 0.85 else 0.0
     return out
 
 
@@ -76,7 +78,7 @@ def wrap(classes_list):
             ret_ = get_ret(model_poses, tensor)
             out = decode_ret(decoder_poses, ret_, "")
             gender = []
-            list_of_crops = get_yolo(inp)
+            plot, list_of_crops = get_yolo(inp)
             if len(list_of_crops) > 0:
                 for index, crop in enumerate(list_of_crops):
                     tensor = Pre(crop[0].to(torch.float32))
@@ -89,7 +91,7 @@ def wrap(classes_list):
                             )
                     gender.append(f"{index}_{crop[1]}")
 
-            return out, get_porn_cat(gender) + "   ".join(gender)
+            return plot, out, get_porn_cat(gender) + "   ".join(gender)
 
     return predict
 
@@ -126,33 +128,33 @@ if __name__ == "__main__":
         ),
         "body_decoration_body_painting": join(
             MODELS,
-            "body_decoration_body_painting/version_0_train_eff_32_0.001/checkpoints/epoch=65-step=7854.pt",
+            "body_decoration_body_painting/version_0_train_eff_32_0.001/checkpoints/epoch=78-step=13667.pt",
         ),
         "body_decoration_piercing": join(
             MODELS,
-            "body_decoration_piercing/version_0_train_eff_32_0.001/checkpoints/epoch=9-step=1790.pt",
+            "body_decoration_piercing/version_0_train_eff_32_0.001/checkpoints/epoch=68-step=17940.pt",
         ),
         "body_decoration_tatto": join(
             MODELS,
-            "body_decoration_tatto/version_0_train_eff_32_0.001/checkpoints/epoch=38-step=5031.pt",
+            "body_decoration_tatto/version_0_train_eff_32_0.001/checkpoints/epoch=50-step=10353.pt",
         ),
     }
 
     poses = "sex_positions"
     model_poses = torch.jit.load(
         join(
-            MODELS,
+            '/home/timssh/ML/TAGGING/source/source_valid/wandb',
             f"{poses}/version_0_train_eff_32_0.001/checkpoints/epoch=69-step=119560.pt",
         )
     )
     model_poses.to("cuda").eval()
-    decoder_poses, _ = get_class_decoder(poses, SOURCE)
+    decoder_poses, _ = get_class_decoder(poses, '/home/timssh/ML/TAGGING/source/source_valid/sex_positions')
 
     num2label = {}
     models = {}
     zeros = torch.zeros((4, 3, 480, 640)).to("cuda")
     for cat in cats:
-        num2label[cat], _ = get_class_decoder(cat, SOURCE)
+        num2label[cat], _ = get_class_decoder(cat, SOURCE + "/" + cat)
         models[cat] = torch.jit.load(model_paths[cat])
         models[cat].to("cuda")
         models[cat].eval()
@@ -166,5 +168,5 @@ if __name__ == "__main__":
     gr.Interface(
         fn=wrap(num2label),
         inputs=gr.Image(type="pil"),
-        outputs=[gr.Label(num_top_classes=len(num2label) * 10), "text"],
+        outputs=[gr.Image(type="pil"), gr.Label(num_top_classes=len(num2label) * 10), "text"],
     ).launch(share=True)
