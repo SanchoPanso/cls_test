@@ -29,9 +29,11 @@ class TrainWrapper:
         arch: architecture
 
     """
+
     SOURCE = "/home/timssh/ML/TAGGING/DATA/datasets"
-    DATA = "/home/timssh/ML/TAGGING/DATA/picture"
+    # DATA = "/home/timssh/ML/TAGGING/DATA/picture"
     MODEL = "/home/timssh/ML/TAGGING/DATA/models"
+    ROOT = "/home/timssh/ML/TAGGING/DATA/"
 
     def __init__(
         self, cfg, imageDataset, preProc, num_workers=32, pre_train=True
@@ -43,6 +45,7 @@ class TrainWrapper:
         self.gray = cfg.gray
         self.vflip = cfg.vflip
         self.batch_size = cfg.batch_size
+        self.DATA = self.ROOT + "masks" if cfg.masks else self.ROOT + "picture"
         self.num_workers = num_workers
         self.__imageDataset = imageDataset
         self.__preProc = preProc
@@ -110,13 +113,13 @@ class TrainWrapper:
         log_dir = join(self.MODEL, self.cat)
         os.makedirs(log_dir, exist_ok=True)
         self.save_dir = self.MODEL
-        self.experiment_name = f"v_{str(len(os.listdir(log_dir)))}_{self.mode}_{self.arch}_{self.batch_size}_{self.decay}"
+        self.experiment_name = f"v__{str(len(os.listdir(log_dir)))}_{self.mode}_{self.arch}_{self.batch_size}_{self.decay}"
 
     # @staticmethod
     def get_callbacks(self, monitor="val_F1_Macro_epoch", mode="max"):
         if len(self.num2label) <= 1:
-            monitor = "val_loss_epoch"
-            mode = "min"
+            monitor = "val_acc_micro_epoch"
+            mode = "max"
         checkpoint_callback = ModelCheckpoint(
             save_top_k=1, monitor=monitor, mode=mode, save_weights_only=True
         )
@@ -133,7 +136,12 @@ class TrainWrapper:
             model.eval()
             script = torch.jit.script(model.model)
             # save for use in production environment
-            torch.jit.save(script, path.replace("ckpt", "pt"))
+            extra_files = json.dumps(self.num2label)
+            torch.jit.save(
+                script,
+                path.replace("ckpt", "pt"),
+                _extra_files={"num2label.txt": extra_files},
+            )
         return path_
 
 

@@ -63,6 +63,14 @@ if __name__ == "__main__":
         help="vflip aug",
         required=False,
     )
+    parser.add_argument(
+        "--masks",
+        dest="masks",
+        type=bool,
+        default=False,
+        help="using masks instead regular images",
+        required=False,
+    )
     args = parser.parse_args()
 
     WRAPPER = TrainWrapper(

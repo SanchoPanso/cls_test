@@ -3,7 +3,7 @@ import asyncio
 from os.path import join, exists
 
 DATA = "/home/timssh/ML/TAGGING/DATA/picture"
-URL = "https://static.yapics.dev.collect.monster/"
+URL = "https://static.yapics.collect.monster/"
 
 
 async def download_file(session, url):

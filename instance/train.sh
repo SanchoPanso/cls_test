@@ -1,3 +1,3 @@
 #!/bin/bash
-# nohup $(pwd)/script.sh &
+# nohup $(pwd)/train.sh &
 python  yolo_train.py> ~/nohup.out

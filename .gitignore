@@ -4,3 +4,10 @@ instance/runs
 instance/wandb
 instance/__pycache__/gradio.cpython-310.pyc
 instance/yolov8x-seg.pt
+instance/data
+instance/yolov8n.pt
+*.pyc
+*.pt
+*.jpg
+*.out
+*.sh

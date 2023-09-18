@@ -1,51 +1,13 @@
-/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/pytorch_lightning/utilities/parsing.py:197: UserWarning: Attribute 'model' is an instance of `nn.Module` and is already saved during checkpointing. It is recommended to ignore them using `self.save_hyperparameters(ignore=['model'])`.
-  rank_zero_warn(
-wandb: Currently logged in as: timasaviin (tsu). Use `wandb login --relogin` to force relogin
-wandb: Tracking run with wandb version 0.15.5
-wandb: Run data is saved locally in /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230716_155341-version_1_all_eff_36_0.001
-wandb: Run `wandb offline` to turn off syncing.
-wandb: Syncing run version_1_all_eff_36_0.001
-wandb: ⭐️ View project at https://wandb.ai/tsu/tits_size
-wandb: 🚀 View run at https://wandb.ai/tsu/tits_size/runs/version_1_all_eff_36_0.001
-/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/lightning_fabric/connector.py:562: UserWarning: 16 is supported for historical reasons but its usage is discouraged. Please set your precision to 16-mixed instead!
-  rank_zero_warn(
-Using 16bit Automatic Mixed Precision (AMP)
-GPU available: True (cuda), used: True
-TPU available: False, using: 0 TPU cores
-IPU available: False, using: 0 IPUs
-HPU available: False, using: 0 HPUs
-You are using a CUDA device ('NVIDIA GeForce RTX 4090') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
-LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1]
-
-  | Name          | Type               | Params
------------------------------------------------------
-0 | model         | EfficientNet       | 20.2 M
-1 | transform     | DataAugmentation   | 0     
-2 | sigmoid       | Sigmoid            | 0     
-3 | cross_entropy | BCEWithLogitsLoss  | 0     
-4 | accuracy1     | MultilabelAccuracy | 0     
-5 | F1_M          | MultilabelF1Score  | 0     
-6 | F1_m          | MultilabelF1Score  | 0     
-7 | F1_N          | MultilabelF1Score  | 0     
------------------------------------------------------
-20.2 M    Trainable params
-0         Non-trainable params
-20.2 M    Total params
-80.730    Total estimated model params size (MB)
-/home/timssh/ML/TAGGING/CLS/classification/script.sh: line 13: 494755 Killed                  python train_wb.py --cat tits_size --batch 36 --arch eff --mode all --decay 0.001 > ~/nohup.out
-/home/timssh/ML/TAGGING/CLS/classification/script.sh: line 14: 500076 Killed                  python train_wb.py --cat hair_type --batch 36 --arch eff --mode all --decay 0.001 > ~/nohup.out
-/home/timssh/ML/TAGGING/CLS/classification/script.sh: line 15: 500080 Killed                  python train_wb.py --cat sex_positions --batch 36 --arch eff --mode all --decay 0.001 > ~/nohup.out
-/home/timssh/ML/TAGGING/CLS/classification/script.sh: line 16: 500086 Killed                  python train_wb.py --cat hair_color --batch 36 --arch eff --mode all --decay 0.001 > ~/nohup.out
 Global seed set to 1
 /home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/pytorch_lightning/utilities/parsing.py:197: UserWarning: Attribute 'model' is an instance of `nn.Module` and is already saved during checkpointing. It is recommended to ignore them using `self.save_hyperparameters(ignore=['model'])`.
   rank_zero_warn(
 wandb: Currently logged in as: timasaviin (tsu). Use `wandb login --relogin` to force relogin
-wandb: Tracking run with wandb version 0.15.5
-wandb: Run data is saved locally in /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230716_163151-version_2_all_eff_36_0.001
+wandb: Tracking run with wandb version 0.15.10
+wandb: Run data is saved locally in /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230911_104209-v__0_all_eff_36_0.001
 wandb: Run `wandb offline` to turn off syncing.
-wandb: Syncing run version_2_all_eff_36_0.001
+wandb: Syncing run v__0_all_eff_36_0.001
 wandb: ⭐️ View project at https://wandb.ai/tsu/tits_size
-wandb: 🚀 View run at https://wandb.ai/tsu/tits_size/runs/version_2_all_eff_36_0.001
+wandb: 🚀 View run at https://wandb.ai/tsu/tits_size/runs/v__0_all_eff_36_0.001
 /home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/lightning_fabric/connector.py:562: UserWarning: 16 is supported for historical reasons but its usage is discouraged. Please set your precision to 16-mixed instead!
   rank_zero_warn(
 Using 16bit Automatic Mixed Precision (AMP)
@@ -71,80 +33,263 @@ LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1]
 0         Non-trainable params
 20.2 M    Total params
 80.730    Total estimated model params size (MB)
+Traceback (most recent call last):
+  File "/home/timssh/ML/TAGGING/CLS/classification/train_wb.py", line 1, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
+Global seed set to 1
+/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/pytorch_lightning/utilities/parsing.py:197: UserWarning: Attribute 'model' is an instance of `nn.Module` and is already saved during checkpointing. It is recommended to ignore them using `self.save_hyperparameters(ignore=['model'])`.
+  rank_zero_warn(
+wandb: Currently logged in as: timasaviin (tsu). Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.15.10
+wandb: Run data is saved locally in /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230911_173143-v__2_all_eff_36_0.001
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run v__2_all_eff_36_0.001
+wandb: ⭐️ View project at https://wandb.ai/tsu/body_decoration_body_painting
+wandb: 🚀 View run at https://wandb.ai/tsu/body_decoration_body_painting/runs/v__2_all_eff_36_0.001
+/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/lightning_fabric/connector.py:562: UserWarning: 16 is supported for historical reasons but its usage is discouraged. Please set your precision to 16-mixed instead!
+  rank_zero_warn(
+Using 16bit Automatic Mixed Precision (AMP)
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+You are using a CUDA device ('NVIDIA GeForce RTX 4090') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1]
+
+  | Name          | Type              | Params
+----------------------------------------------------
+0 | model         | EfficientNet      | 20.2 M
+1 | transform     | DataAugmentation  | 0     
+2 | sigmoid       | Sigmoid           | 0     
+3 | cross_entropy | BCEWithLogitsLoss | 0     
+4 | accuracy1     | BinaryAccuracy    | 0     
+----------------------------------------------------
+20.2 M    Trainable params
+0         Non-trainable params
+20.2 M    Total params
+80.715    Total estimated model params size (MB)
 `Trainer.fit` stopped: `max_epochs=60` reached.
 wandb: Waiting for W&B process to finish... (success).
-wandb: 
+wandb: - 78.144 MB of 78.144 MB uploaded (0.000 MB deduped)wandb: \ 78.144 MB of 78.144 MB uploaded (0.000 MB deduped)wandb: | 78.144 MB of 78.144 MB uploaded (0.000 MB deduped)wandb: / 78.144 MB of 78.144 MB uploaded (0.000 MB deduped)wandb: - 78.144 MB of 78.144 MB uploaded (0.000 MB deduped)wandb: \ 78.144 MB of 78.144 MB uploaded (0.000 MB deduped)wandb: 
 wandb: Run history:
-wandb:                        LR ████████████████████▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▁▁▁▁▁
-wandb:                     epoch ▁▁▁▂▂▂▂▂▂▃▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▆▆▆▆▆▆▇▇▇▇▇▇███
-wandb:            train_F1_Macro ▁▂▂▂▃▃▄▅▂▆▃▂▆▄▃▄▄▇▃▅▄▅▆▆▅▆▆▃█▃▇▅▅▄▆▅▄▃▅▇
-wandb:            train_F1_micro ▁▂▁▂▂▃▄▄▂▄▃▃▆▅▃▄▅▆▄▄▅▅▄▅█▆▅▆█▄▆▅▄▄▆▅▄▆▅▇
-wandb:           train_acc_micro ▁▂▂▂▃▃▅▅▂▅▄▄▆▆▄▅▆▆▅▅▆▆▅▆█▇▆▆█▅▇▆▅▅▇▆▅▆▆▇
-wandb:         train_f1_big tits ▄▁▁▃▅▃▇▅▅▂▃█▄▅▅▅▆▅▂▅█▆▄▅▇▆▆▇▆▆▆▄▅▄▇█▆▇▆▇
-wandb:     train_f1_flat chested ▂▅▂▃▄▄▅▄▃▆▅▁▆▅█▅▆▆▇▆▇▇▇▇▅▇▇▁█▃▆▆▇▄▆▅▅▂█▇
-wandb:        train_f1_huge tits ▄▁▄▄▅▅▅█▃█▁▃▄▁▁▃▁▇▁▄▁▁▅▅▁▄▅▁▅▃▆▃▃▅▄▅▁▁▃▄
-wandb:       train_f1_small tits ▁▄▅▃▂▄▁▃▂▅▅▂▆▆▁▆▅▇▅▄▃▅▅▅▇▆▄▇█▄▅▇▅▆▄▃▅▇▄▇
-wandb:                train_loss ▆▄█▅▅▇▃▃▄▅▃▄▃▂▅▄▃▂▃▄▂▃▄▄▁▂▂▂▁▃▂▂▃▆▃▂▂▂▃▁
-wandb:       trainer/global_step ▁▁▁▂▂▂▂▂▂▃▃▃▃▃▄▄▄▄▄▄▅▅▅▅▅▅▆▆▆▆▆▇▇▇▇▇▇███
-wandb:        val_F1_Macro_epoch ▁▂▃▂▄▃▄▄▄▄▅▅▆▆▆▆▇▆▇▆▇▇▇█████████████████
-wandb:         val_F1_Macro_step ▁▂▃▂▆▄▅▃▃▅▅▄▆▄▅▅▅▃▇▆█▄▇▄██▇██████▇▇▅██▅▅
-wandb:        val_F1_micro_epoch ▁▂▃▃▄▄▄▄▅▅▅▅▆▆▆▆▆▆▇▇▇▇▇█████████████████
-wandb:         val_F1_micro_step ▁▂▃▃▅▃▄▃▅▅▅▇▆▆▅▆▇▆▆▆█▇█▇▇█▇██████▇▇█▇███
-wandb:       val_acc_micro_epoch ▁▂▃▃▄▄▅▅▅▅▆▆▆▆▇▇▇▇▇▇▇███████████████████
-wandb:        val_acc_micro_step ▁▂▃▄▆▄▅▃▆▆▆▇▇▇▆▆▇▇▇▇█▇█▇██▇██████▇▇█████
-wandb:     val_f1_big tits_epoch ▁▂▂▃▃▃▄▄▄▄▅▄▅▅▆▆▆▇▆▆▇█▇█████████████████
-wandb:      val_f1_big tits_step ▃▂▁▅▅▇▆▃▆▄▅▇▆▆▆▆▇▇▇▅█▇██▇█▇█▇██▇▇▇▇█▇███
-wandb: val_f1_flat chested_epoch ▁▁▃▂▄▄▄▅▅▄▅▅▆▆▆▆▆▅▇▆▇▇██████▇███████████
-wandb:  val_f1_flat chested_step ▂▁▅▅▆▄▆▃▇▅▇▇▇▇▇▆█▅▇██▇█▇██▇███▇▇██████▇█
-wandb:    val_f1_huge tits_epoch ▁▁▃▂▅▃▄▄▄▄▅▆▆▆▆▆▇▆▇▇█▆▇▇█▇███▇██████████
-wandb:     val_f1_huge tits_step ▁▄▄▁▇▅▆▅▁▆▅▁▆▁▅▅▁▁█▆█▁▆▁█████████▇▇▁██▁▁
-wandb:   val_f1_small tits_epoch ▁▂▃▄▃▄▄▄▄▅▅▅▅▆▅▆▆▆▆▇▇▇█▇██▇██▇▇█████████
-wandb:    val_f1_small tits_step ▃▄▄▂▃▁▂▃▄▆▃▆▆▆▃▆▇▆▅█▇▆█▆▇█▇██▆███▆▇█▇███
-wandb:            val_loss_epoch █▇▆▆▅▅▄▄▃▃▃▃▃▂▂▂▂▂▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
-wandb:             val_loss_step ▅▆▄█▃▄▃▄▃▃▄▂▂▂▂▂▂▂▂▂▁▂▁▁▁▁▂▁▁▁▁▁▁▁▂▁▂▁▁▁
+wandb:                        LR ███████████████████████▃▃▃▃▃▃▃▃▁▁▁▁▁▁▁▁▁
+wandb:                     epoch ▁▁▁▁▂▂▂▂▂▃▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▆▆▆▆▆▆▇▇▇▇▇▇███
+wandb:            train_F1_Macro ▁▂▄▁▄▂▃▃▄▅▆▆▃▄▂▆▅▃▄▁▆▅▃▅▄▅▆▄▆▄▆▆▃▇▇█▅▃▄▄
+wandb:            train_F1_micro ▁▁▃▁▃▃▄▄▃▅▆▆▃▅▆▅▆▂▃▄▅▅▃▄▄▅▇▄▆▅▅▆▅▇▇█▆▅▄▄
+wandb:           train_acc_micro ▁▁▃▂▄▃▅▅▃▅▆▆▄▅▆▆▆▄▄▆▅▆▄▄▅▆▇▄▆▅▅█▅▇▆██▆▅▆
+wandb:         train_f1_big tits ▃▁▄▂▁▅▄▄▅▆▆▇▂▅█▄▄▂▂█▄▆▅▂▄▆▇▅▅▆▄▅▇█▇▆▅▇▅▄
+wandb:     train_f1_flat chested ▄▄▄▄▇▃▄▅▅▅▇▅▆▅▃█▄▄▄▁▅▅▅▆▅▆▅▅▅▅▅▅▄█▆▆▆▅▅▅
+wandb:        train_f1_huge tits ▃▃▆▁▄▁▁▁▃▄▅▄▁▁▁▄▄▁█▁▆▄▁▆▃▄▁▁▄▁█▆▁▁▄▅▁▁▁▁
+wandb:       train_f1_small tits ▁▄▄▃▃▄▄▅▂▄▄▆▅▄▄▃█▆▅▃▆▆▃▅▆▄▆▆▇▅▅▅▃▅▅█▆▁▅▆
+wandb:                train_loss ▄▆▄▃▃▃▃▄▆▂▂▂▃▃▁▃▆▃▄▂▃▂▃▅▃▃▂▃▃▂█▃▂▂▂▁▁▂▂▂
+wandb:       trainer/global_step ▁▁▁▁▂▂▂▂▂▃▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▅▆▆▆▆▆▆▇▇▇▇▇███
+wandb:        val_F1_Macro_epoch ▁▁▃▃▃▃▄▄▄▄▅▅▅▆▅▆▆▇▆▇▇▆▇▇▇█▇█████████████
+wandb:         val_F1_Macro_step ▁▁▂▁▄▃▄▃▃▃▃▇▄▅▄▇▃▄▄▄▆▇▄█▄▆▇██▇▅▅▅▅█▄▇█▅█
+wandb:        val_F1_micro_epoch ▁▁▃▃▃▄▄▄▅▄▅▅▅▆▅▆▆▇▆▇▇▆▇▇▇███████████████
+wandb:         val_F1_micro_step ▁▂▃▂▄▄▄▄▅▅▄▆▇▆▆▆▅▆▆▇▇▇▆▇▇▇▇██▆▇█████████
+wandb:       val_acc_micro_epoch ▁▁▃▄▄▅▅▅▅▅▆▆▆▆▆▇▇▇▇▇▇▇▇▇████████████████
+wandb:        val_acc_micro_step ▁▂▄▄▅▅▅▆▆▆▆▇▇▇▇▇▇▇▇▇▇█▇█▇████▇██████████
+wandb:     val_f1_big tits_epoch ▁▁▃▃▄▄▄▄▅▄▄▆▅▆▆▆▇▆▇▆▇▇▆▇█▇██████████████
+wandb:      val_f1_big tits_step ▂▄▄▁▆▆▇▇▆▆▄▇▇▇▇▇▇█▆▇▇▇▇██████▇███▇██████
+wandb: val_f1_flat chested_epoch ▂▁▂▂▃▃▄▃▃▄▆▅▅▆▆▆▆▆▅▆▇▅▇▆▇▇▇██▇▇█████████
+wandb:  val_f1_flat chested_step ▃▂▅▅▄▁▇▃▄▆▇██▄▇▆▆███▇▆██▇▇▅▇█▇██▇██▆▆█▆█
+wandb:    val_f1_huge tits_epoch ▁▁▄▅▄▄▂▆▆▅▆▇▅▆▄▆▇█▇▇█▇████▇█████████████
+wandb:     val_f1_huge tits_step ▁▁▁▁▅▄▁▁▁▁▁█▁▆▁█▁▁▁▁▆█▁█▁▆████▁▁▁▁█▁██▁█
+wandb:   val_f1_small tits_epoch ▁▁▂▂▃▃▄▃▄▄▄▄▅▄▅▅▆▆▆▆▆▆▇▆▇▇██▇███████████
+wandb:    val_f1_small tits_step ▂▁▂▃▂▄▃▄▄▄▄▆▃▇▃▆▁▁▅▆▇▇▁▆▅▇▇██▄▇██▇▇█▇███
+wandb:            val_loss_epoch ██▆▅▅▄▄▄▄▄▃▃▃▂▃▂▂▂▂▂▂▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:             val_loss_step ▄▅▄▄▃█▂▂▂▂▂▂▂▂▂▁▃▁▂▁▂▁▂▁▁▁▁▁▁▁▂▁▁▁▁▁▁▁▁▁
 wandb: 
 wandb: Run summary:
 wandb:                        LR 3e-05
 wandb:                     epoch 59
-wandb:            train_F1_Macro 0.58889
-wandb:            train_F1_micro 0.64516
-wandb:           train_acc_micro 0.725
-wandb:         train_f1_big tits 0.66667
-wandb:     train_f1_flat chested 0.66667
-wandb:        train_f1_huge tits 0.22222
-wandb:       train_f1_small tits 0.8
-wandb:                train_loss 73.53866
-wandb:       trainer/global_step 47579
-wandb:        val_F1_Macro_epoch 0.91526
-wandb:         val_F1_Macro_step 0.71875
-wandb:        val_F1_micro_epoch 0.98371
-wandb:         val_F1_micro_step 0.95238
-wandb:       val_acc_micro_epoch 0.99161
-wandb:        val_acc_micro_step 0.975
-wandb:     val_f1_big tits_epoch 0.98613
+wandb:            train_F1_Macro 0.4533
+wandb:            train_F1_micro 0.54839
+wandb:           train_acc_micro 0.70833
+wandb:         train_f1_big tits 0.76923
+wandb:     train_f1_flat chested 0.61538
+wandb:        train_f1_huge tits 0.0
+wandb:       train_f1_small tits 0.42857
+wandb:                train_loss 101.49103
+wandb:       trainer/global_step 39119
+wandb:        val_F1_Macro_epoch 0.84378
+wandb:         val_F1_Macro_step 0.75
+wandb:        val_F1_micro_epoch 0.97285
+wandb:         val_F1_micro_step 1.0
+wandb:       val_acc_micro_epoch 0.98944
+wandb:        val_acc_micro_step 1.0
+wandb:     val_f1_big tits_epoch 0.98789
 wandb:      val_f1_big tits_step 1.0
-wandb: val_f1_flat chested_epoch 0.98279
+wandb: val_f1_flat chested_epoch 0.94875
 wandb:  val_f1_flat chested_step 1.0
-wandb:    val_f1_huge tits_epoch 0.71248
+wandb:    val_f1_huge tits_epoch 0.48742
 wandb:     val_f1_huge tits_step 0.0
-wandb:   val_f1_small tits_epoch 0.97964
-wandb:    val_f1_small tits_step 0.875
-wandb:            val_loss_epoch 5.45758
-wandb:             val_loss_step 4.93269
+wandb:   val_f1_small tits_epoch 0.95105
+wandb:    val_f1_small tits_step 1.0
+wandb:            val_loss_epoch 6.78946
+wandb:             val_loss_step 0.09252
 wandb: 
-wandb: 🚀 View run version_2_all_eff_36_0.001 at: https://wandb.ai/tsu/tits_size/runs/version_2_all_eff_36_0.001
+wandb: 🚀 View run v__0_all_eff_36_0.001 at: https://wandb.ai/tsu/tits_size/runs/v__0_all_eff_36_0.001
+wandb: ️⚡ View job at https://wandb.ai/tsu/tits_size/jobs/QXJ0aWZhY3RDb2xsZWN0aW9uOjkwMjAxNDA5/version_details/v1
 wandb: Synced 6 W&B file(s), 0 media file(s), 3 artifact file(s) and 0 other file(s)
-wandb: Find logs at: /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230716_163151-version_2_all_eff_36_0.001/logs
+wandb: Find logs at: /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230911_104209-v__0_all_eff_36_0.001/logs
+Exception in thread ChkStopThr:
+Traceback (most recent call last):
+  File "/home/timssh/miniconda3/envs/tagging/lib/python3.10/threading.py", line 1016, in _bootstrap_inner
+    self.run()
+  File "/home/timssh/miniconda3/envs/tagging/lib/python3.10/threading.py", line 953, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 285, in check_stop_status
+    self._loop_check_status(
+  File "/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 223, in _loop_check_status
+    local_handle = request()
+  File "/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 727, in deliver_stop_status
+    return self._deliver_stop_status(status)
+  File "/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 450, in _deliver_stop_status
+    return self._deliver_record(record)
+  File "/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 425, in _deliver_record
+    handle = mailbox._deliver_record(record, interface=self)
+  File "/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/wandb/sdk/lib/mailbox.py", line 455, in _deliver_record
+    interface._publish(record)
+  File "/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 51, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 221, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 155, in send_server_request
+    self._send_message(msg)
+  File "/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 152, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 130, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+`Trainer.fit` stopped: `max_epochs=60` reached.
+Traceback (most recent call last):
+  File "/home/timssh/ML/TAGGING/CLS/classification/train_wb.py", line 105, in <module>
+    path_ = WRAPPER.get_best_model(model)
+  File "/home/timssh/ML/TAGGING/CLS/classification/train/service.py", line 136, in get_best_model
+    extra_files = torch._C.ExtraFilesMap()
+AttributeError: module 'torch._C' has no attribute 'ExtraFilesMap'
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /home/timssh/ML/TAGGING/CLS/classification/train_wb.py:105 in <module>       │
+│                                                                              │
+│   102 │   # Train the model ⚡                                               │
+│   103 │   trainer.fit(model, WRAPPER.train_loader, WRAPPER.val_loader)       │
+│   104 │                                                                      │
+│ ❱ 105 │   path_ = WRAPPER.get_best_model(model)                              │
+│   106                                                                        │
+│                                                                              │
+│ /home/timssh/ML/TAGGING/CLS/classification/train/service.py:136 in           │
+│ get_best_model                                                               │
+│                                                                              │
+│   133 │   │   │   model.eval()                                               │
+│   134 │   │   │   script = torch.jit.script(model.model)                     │
+│   135 │   │   │   # save for use in production environment                   │
+│ ❱ 136 │   │   │   extra_files = torch._C.ExtraFilesMap()                     │
+│   137 │   │   │   extra_files["num2label.json"] = json.dumps(self.num2label) │
+│   138 │   │   │   torch.jit.save(script, path.replace("ckpt", "pt"), _extra_ │
+│   139 │   │   return path_                                                   │
+╰──────────────────────────────────────────────────────────────────────────────╯
+AttributeError: module 'torch._C' has no attribute 'ExtraFilesMap'
+wandb: Waiting for W&B process to finish... (failed 1). Press Control-C to abort syncing.
+wandb: 
+wandb: Run history:
+wandb:                  LR ████████████▄▄▄▄▄▄▄▄▄▄▂▂▂▂▂▂▂▂▂▂▂▂▁▁▁▁▁▁
+wandb:               epoch ▁▁▁▂▂▂▂▂▂▃▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▅▆▆▆▆▆▇▇▇▇▇▇███
+wandb:     train_acc_micro ▅▄▄▅▅▅▅▂▃▅▄▄▅▂▅▇▇▂▆▅█▅▃▁▄▄▇▆▅▂▇▃▄▅▄▇▅▇▇█
+wandb:          train_loss █▂▃▆▆█▄▃▅▁▁▄▃▄▄▁▃▅▄▃▁▄▅▅▅▅▂▂▁▃▂▄▁▅▆▂▂▁▄▁
+wandb: trainer/global_step ▁▁▁▂▂▂▂▂▂▃▃▃▃▃▄▄▄▄▄▄▅▅▅▅▅▅▆▆▆▆▆▇▇▇▇▇▇███
+wandb: val_acc_micro_epoch ▁▅▆▇█▇▆█████████████████████████████████
+wandb:  val_acc_micro_step ▁█▃███▆█████████████████████████████████
+wandb:      val_loss_epoch █▄▃▃▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:       val_loss_step █▁▅▁▁▁▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb: 
+wandb: Run summary:
+wandb:                  LR 1e-05
+wandb:               epoch 59
+wandb:     train_acc_micro 0.75758
+wandb:          train_loss 6.33249
+wandb: trainer/global_step 6839
+wandb: val_acc_micro_epoch 1.0
+wandb:  val_acc_micro_step 1.0
+wandb:      val_loss_epoch 0.00027
+wandb:       val_loss_step 0.00022
+wandb: 
+wandb: 🚀 View run v__2_all_eff_36_0.001 at: https://wandb.ai/tsu/body_decoration_body_painting/runs/v__2_all_eff_36_0.001
+wandb: ️⚡ View job at https://wandb.ai/tsu/body_decoration_body_painting/jobs/QXJ0aWZhY3RDb2xsZWN0aW9uOjk2MTUwNzEx/version_details/v1
+wandb: Synced 6 W&B file(s), 0 media file(s), 3 artifact file(s) and 0 other file(s)
+wandb: Find logs at: /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230911_173143-v__2_all_eff_36_0.001/logs
 Global seed set to 1
 /home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/pytorch_lightning/utilities/parsing.py:197: UserWarning: Attribute 'model' is an instance of `nn.Module` and is already saved during checkpointing. It is recommended to ignore them using `self.save_hyperparameters(ignore=['model'])`.
   rank_zero_warn(
 wandb: Currently logged in as: timasaviin (tsu). Use `wandb login --relogin` to force relogin
-wandb: Tracking run with wandb version 0.15.5
-wandb: Run data is saved locally in /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230717_004243-version_0_all_eff_36_0.001
+wandb: Tracking run with wandb version 0.15.10
+wandb: Run data is saved locally in /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230912_065446-v__3_train_eff_36_0.001
 wandb: Run `wandb offline` to turn off syncing.
-wandb: Syncing run version_0_all_eff_36_0.001
-wandb: ⭐️ View project at https://wandb.ai/tsu/hair_type
-wandb: 🚀 View run at https://wandb.ai/tsu/hair_type/runs/version_0_all_eff_36_0.001
+wandb: Syncing run v__3_train_eff_36_0.001
+wandb: ⭐️ View project at https://wandb.ai/tsu/body_decoration_body_painting
+wandb: 🚀 View run at https://wandb.ai/tsu/body_decoration_body_painting/runs/v__3_train_eff_36_0.001
+/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/lightning_fabric/connector.py:562: UserWarning: 16 is supported for historical reasons but its usage is discouraged. Please set your precision to 16-mixed instead!
+  rank_zero_warn(
+Using 16bit Automatic Mixed Precision (AMP)
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+You are using a CUDA device ('NVIDIA GeForce RTX 4090') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1]
+
+  | Name          | Type              | Params
+----------------------------------------------------
+0 | model         | EfficientNet      | 20.2 M
+1 | transform     | DataAugmentation  | 0     
+2 | sigmoid       | Sigmoid           | 0     
+3 | cross_entropy | BCEWithLogitsLoss | 0     
+4 | accuracy1     | BinaryAccuracy    | 0     
+----------------------------------------------------
+20.2 M    Trainable params
+0         Non-trainable params
+20.2 M    Total params
+80.715    Total estimated model params size (MB)
+`Trainer.fit` stopped: `max_epochs=60` reached.
+wandb: Waiting for W&B process to finish... (success).
+wandb: 
+wandb: Run history:
+wandb:                  LR ████████████████████▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:               epoch ▁▁▁▁▂▂▂▂▂▃▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▆▆▆▆▆▆▇▇▇▇▇████
+wandb:     train_acc_micro █▁▅▁▆▆▄▂█▅▅▃▄▇▅▇▇█▇▅▆▅▅▆▇▂▅▅▇▇▄▇▄▇▄▆▅▇▅▂
+wandb:          train_loss ▇▃█▇▁▅▅▄▃▇▅▅▄▁▄▃▂▅▅▅▄▁▂▃▃▄▄▄▅▄█▇▄▁▄▅▂▆▄▅
+wandb: trainer/global_step ▁▁▁▁▂▂▂▂▂▃▃▃▃▃▃▄▄▄▄▂▅▅▅▅▂▅▆▆▆▆▆▇▇▇▇▇▇███
+wandb: val_acc_micro_epoch ▁▄▇▇▇▇▇█▇█▇▆▇▇▂▇▇█▆█▇▇▇██▇▇█▇█▇▇▇▇██▇█▇█
+wandb:  val_acc_micro_step ▁█████▅▅██▅█▅██▅▅████████▅██▅█████████▅▁
+wandb:      val_loss_epoch █▅▃▄▂▂▄▃▃▂▂▄▃▄▇▃▂▁▂▂▂▂▃▂▁▃▁▂▂▂▂▂▂▂▁▁▂▂▁▁
+wandb:       val_loss_step █▄▁▃▁▁▂▃▁▁▁▁▄▁▂▄▂▁▂▁▁▁▁▁▁▁▁▁▃▁▁▃▁▁▁▁▂▁▂▅
+wandb: 
+wandb: Run summary:
+wandb:                  LR 5e-05
+wandb:               epoch 59
+wandb:     train_acc_micro 0.5
+wandb:          train_loss 0.79769
+wandb: trainer/global_step 5519
+wandb: val_acc_micro_epoch 0.99517
+wandb:  val_acc_micro_step 1.0
+wandb:      val_loss_epoch 0.5578
+wandb:       val_loss_step 0.07171
+wandb: 
+wandb: 🚀 View run v__3_train_eff_36_0.001 at: https://wandb.ai/tsu/body_decoration_body_painting/runs/v__3_train_eff_36_0.001
+wandb: ️⚡ View job at https://wandb.ai/tsu/body_decoration_body_painting/jobs/QXJ0aWZhY3RDb2xsZWN0aW9uOjk2MTUwNzEx/version_details/v1
+wandb: Synced 6 W&B file(s), 0 media file(s), 1 artifact file(s) and 0 other file(s)
+wandb: Find logs at: /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230912_065446-v__3_train_eff_36_0.001/logs
+Global seed set to 1
+/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/pytorch_lightning/utilities/parsing.py:197: UserWarning: Attribute 'model' is an instance of `nn.Module` and is already saved during checkpointing. It is recommended to ignore them using `self.save_hyperparameters(ignore=['model'])`.
+  rank_zero_warn(
+wandb: Currently logged in as: timasaviin (tsu). Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.15.10
+wandb: Run data is saved locally in /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230912_105510-v__1_train_eff_36_0.001
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run v__1_train_eff_36_0.001
+wandb: ⭐️ View project at https://wandb.ai/tsu/tits_size
+wandb: 🚀 View run at https://wandb.ai/tsu/tits_size/runs/v__1_train_eff_36_0.001
 /home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/lightning_fabric/connector.py:562: UserWarning: 16 is supported for historical reasons but its usage is discouraged. Please set your precision to 16-mixed instead!
   rank_zero_warn(
 Using 16bit Automatic Mixed Precision (AMP)
@@ -169,75 +314,182 @@ LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1]
 20.2 M    Trainable params
 0         Non-trainable params
 20.2 M    Total params
-80.725    Total estimated model params size (MB)
+80.730    Total estimated model params size (MB)
 `Trainer.fit` stopped: `max_epochs=60` reached.
 wandb: Waiting for W&B process to finish... (success).
 wandb: 
 wandb: Run history:
-wandb:                         LR ████████████████████████▃▃▃▃▃▃▃▃▃▃▃▁▁▁▁▁
-wandb:                      epoch ▁▁▁▂▂▂▂▂▂▃▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▆▆▆▆▆▆▇▇▇▇▇▇███
-wandb:             train_F1_Macro ▁▅▅▄▄▅▃▄▄▅▃▆▅▁▅▄▃▄▄▇▆▆▅▆▇▅▄█▇▇▂▄▅▇▆▆▆▇█▅
-wandb:             train_F1_micro ▁▂▂▁▂▄▁▂▂▂▂▄▄▃▄▂▄▂█▅▄▄▄▆█▆▅▅▅▅▂▃▄▄▆▅▆▅█▆
-wandb:            train_acc_micro ▂▃▂▁▃▄▁▂▂▃▂▅▄▄▄▂▅▂█▆▄▄▅▆█▆▅▆▆▆▂▃▄▄▆▅▆▆█▆
-wandb:      train_f1_curly haired ▁▄▆▄▃▅▂▅▅▆▃▅▃▁▅▅▁▄▁▆▅█▅▄▅▄▁█▅█▂▁▃▇▃▅▄▇▆▃
-wandb:     train_f1_straight hair ▄▃▃▄▃▅▃▄▁▃▄▂▆▇▅▅▄▅▇▂▄▅▆▅▆█▇▂▃▆▆▄▄▅▅▆▇▅▇▆
-wandb:         train_f1_wavy hair ▃▅▄▄▆▅▅▄▅▄▄▇▅▁▄▂▆▃▇█▆▄▅▇▇▄▆▇█▅▂▆▆▆▇▅▆▆▇▇
-wandb:                 train_loss ▄▆▅▅▄▄▄▅▃▆▅▂▄▃▇▆▂▄▁▂▅█▃▂▁▂▂▆▄▂▃▃▅▂▂▃▁▅▁▄
-wandb:        trainer/global_step ▁▁▁▂▂▂▂▂▂▃▃▃▃▃▄▄▄▄▄▄▅▅▅▅▅▆▆▆▆▆▆▇▇▇▇▇▇███
-wandb:         val_F1_Macro_epoch ▂▁▂▃▃▂▅▄▃▅▄▄▆▆▅▅▆▆▆▇▆▇▆▇▇▇██████████████
-wandb:          val_F1_Macro_step ▆▄▄▅▂▃▆▁▆▄▅▄▆▇▆▅▄▇▇█▂▇▆▇██▆███████▂▇████
-wandb:         val_F1_micro_epoch ▁▁▂▃▃▂▄▄▃▅▄▄▅▅▅▅▅▆▆▆▆▇▆▆▇▇██████████████
-wandb:          val_F1_micro_step ▂▁▂▄▂▂▃▃▄▄▃▄▄▅▅▃▂▅▆█▇▆▅▆▇█▇▇█▇█████▇████
-wandb:        val_acc_micro_epoch ▁▁▃▄▃▃▅▄▄▅▅▄▅▆▆▅▆▆▆▇▇▇▆▇▇▇██████████████
-wandb:         val_acc_micro_step ▂▁▂▄▂▂▄▃▄▅▄▄▄▅▅▄▂▅▇█▇▇▅▇▇█▇▇█▇█████▇████
-wandb:  val_f1_curly haired_epoch ▃▁▃▃▂▂▅▅▄▆▃▄▇▇▆▆▇▆▆█▆▇▇▇█▇██████▇███████
-wandb:   val_f1_curly haired_step █▆▆▇▃▅█▁█▄▇▅██▇▆▆███▁█████▆███████▁▇████
-wandb: val_f1_straight hair_epoch ▁▂▁▃▃▃▄▂▄▅▅▄▅▄▅▆▄▅▆▆▆▆▅▆▇▇▇█████████████
-wandb:  val_f1_straight hair_step ▃▃▁▇▆█▄▂▆▅▅▇▃▅█▄▂▅█▇▆▆▇▆▇▇██▇▆██████████
-wandb:     val_f1_wavy hair_epoch ▁▁▃▄▃▂▄▅▃▄▄▄▄▆▅▃▆▆▅▆▆▇▆▆▇▇█▇███▇██▇█████
-wandb:      val_f1_wavy hair_step ▄▃▅▄▄▁▅▆▄▇▅▄▆▆▅▅▆▆▅██▇▄▇▇█▇▇██████▇█▇███
-wandb:             val_loss_epoch ▇█▆▆▅▆▄▅▅▄▄▄▃▃▃▄▃▃▂▂▂▂▂▂▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁
-wandb:              val_loss_step ▆▇▆▄▇▆▆▇█▃▄▅▃▂▂▄▃▆▁▂▂▂▃▃▂▁▁▂▁▁▁▁▁▁▁▄▁▁▁▁
+wandb:                        LR █████████████████████▄▄▄▄▄▄▄▄▂▂▂▂▂▂▂▁▁▁▁
+wandb:                     epoch ▁▁▁▁▂▂▂▂▂▃▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▆▆▆▆▆▆▇▇▇▇▇▇███
+wandb:            train_F1_Macro ▁▁▁▂▃▃▄▂▄▃▂▄▂▃▃▂▃▄▃▅▃▅▃▅▅▅▆▅▃▄▆▃██▄█▄▄▆█
+wandb:            train_F1_micro ▁▁▁▂▂▂▄▂▄▂▃▄▂▄▃▃▃▅▄▅▄▅▄▅▄▄▆▅▃▄▅▃▇▆▅▇▅▄▆█
+wandb:           train_acc_micro ▁▃▃▄▄▄▅▄▅▄▅▆▃▅▅▅▄▆▆▆▅▆▆▇▆▇▆▇▅▆▆▅▇▇▆█▆▆▇█
+wandb:         train_f1_big tits ▁▃▁▄▄▂▆▂▄▂▂▃▄▆▄▂▅▂▆▃▆▅▇▅▆▂▅▄▃▅▆▅█▅▅▄▆▃██
+wandb:     train_f1_flat chested ▃▁▂▂▄▄▄▂▅▄▃▅▃▅▄▃▃▅▃▆▄▅▃▅▅▃▇▃▅▅▄▂▇▇▃▆▄▆▅█
+wandb:        train_f1_huge tits ▁▃▁▁▆▃▄▆▄▄▁▁▃▁▁▁▃▁▁▅▁▅▁▁▅█▁▇▁▁▄▁█▇▁▇▁▁▁▁
+wandb:       train_f1_small tits ▃▃▄▄▁▄▃▄▃▃▅▆▂▃▄▆▄▇▅▅▄▅▄▆▄▇▆▇▅▃▇▆▄▇▇█▆▆▇▇
+wandb:                train_loss █▄▆▄█▄▄▃▅▄▄▃█▅▄▃█▃▂▃▃▆▂▃▄▁▃▁▄▂▅▃▂▂▃▃▂▃▁▁
+wandb:       trainer/global_step ▁▁▁▂▂▂▂▂▂▃▃▁▃▃▄▄▂▄▄▄▅▅▅▅▅▅▆▂▆▆▆▇▂▇▇▇▇███
+wandb:        val_F1_Macro_epoch ▁▂▂▃▄▄▅▄▅▅▆▅▅▆▆▆▆▆▇▇▇▆▇▇█▇▇█████████████
+wandb:         val_F1_Macro_step ▁▁▂▂▃▂▃▃▃▂▆▃▄▃▅▃▅▃▆▄▄▆▃▇▅█▃▇▃▇▄▇▄█▄█▅█▅▄
+wandb:        val_F1_micro_epoch ▁▂▃▃▄▄▅▄▅▅▅▅▆▆▆▆▆▆▇▇▇▇▇█▇▇▇█▇███████████
+wandb:         val_F1_micro_step ▁▂▂▃▃▄▄▅▄▄▅▆▄▅▆▆▅▅▆▆▇▆▆▇█▇▆▇▅▆▇▇▇▇█▇█▇█▇
+wandb:       val_acc_micro_epoch ▁▃▃▄▅▅▆▅▆▆▆▆▆▇▇▇▇▆▇▇▇▇▇█████████████████
+wandb:        val_acc_micro_step ▁▃▃▄▄▅▅▆▅▅▆▇▆▆▆▇▆▆▇▇▇▇▇██▇▇▇▇▇██▇███████
+wandb:     val_f1_big tits_epoch ▁▁▂▄▄▃▄▄▅▅▆▅▆▅▆▆▆▅▇▆▆▆▇▇▇▇▇▇▇▇▇▇▇██████▇
+wandb:      val_f1_big tits_step ▁▁▂▃▃▃▄▇▅▄▆▇▅▅▅▅▄▄▅▃▄▄▅▆▇▅▄▆▄▅█▆▇▆█▆█▆█▇
+wandb: val_f1_flat chested_epoch ▁▂▂▃▃▅▄▅▄▅▆▆▅▅▆▇▆▆▇▇▇▇▆▇▇▇██████████████
+wandb:  val_f1_flat chested_step ▁▃▂▄▂▄▃▄▃▃▄▅▄▄▆▅▅▅▅▆▆▇▄█▆█▅▇▆▇▆▆▆█▆█▆█▅▆
+wandb:    val_f1_huge tits_epoch ▁▃▂▃▅▆▅▃▆▅▆▅▅▆▅▇▇▅▇▇▇▆████▇████████▇▇███
+wandb:     val_f1_huge tits_step ▂▁▂▁▅▁▃▁▄▁█▁▄▁▅▁▆▁▆▁▁▆▁▆▁█▁█▁█▁█▁█▁█▁█▁▁
+wandb:   val_f1_small tits_epoch ▁▁▃▂▃▄▅▅▅▄▄▅▆▆▆▆▅▅▇▇▇▇▇▇▇▇▇█▇████▇██████
+wandb:    val_f1_small tits_step ▁▂▂▂▂▃▃▄▂▃▅▄▃▅▄▅▃▆▅▆▇▅▅▅█▄▆▄▃▄▅▅▄▅▆▆▇▆█▅
+wandb:            val_loss_epoch ▄▃▃▂▂▂▁▂▁▁▂▁▂▁▂▂▂▂▃▂▃▄▃▅▄▅▄▅▆▆▆▇▅▆█▇█▇█▇
+wandb:             val_loss_step ▆▂▇▂▄▂▄▂▄▂▃▁▄▂▃▁▃▂▅▂▂▄▁▄▁▆▁█▂▆▂█▂▇▂█▂█▂▂
 wandb: 
 wandb: Run summary:
-wandb:                         LR 3e-05
-wandb:                      epoch 59
-wandb:             train_F1_Macro 0.72415
-wandb:             train_F1_micro 0.80769
-wandb:            train_acc_micro 0.84848
-wandb:      train_f1_curly haired 0.5
-wandb:     train_f1_straight hair 0.90323
-wandb:         train_f1_wavy hair 0.76923
-wandb:                 train_loss 37.17967
-wandb:        trainer/global_step 54359
-wandb:         val_F1_Macro_epoch 0.92315
-wandb:          val_F1_Macro_step 1.0
-wandb:         val_F1_micro_epoch 0.99104
-wandb:          val_F1_micro_step 1.0
-wandb:        val_acc_micro_epoch 0.9939
-wandb:         val_acc_micro_step 1.0
-wandb:  val_f1_curly haired_epoch 0.79234
-wandb:   val_f1_curly haired_step 1.0
-wandb: val_f1_straight hair_epoch 0.99427
-wandb:  val_f1_straight hair_step 1.0
-wandb:     val_f1_wavy hair_epoch 0.98285
-wandb:      val_f1_wavy hair_step 1.0
-wandb:             val_loss_epoch 2.73898
-wandb:              val_loss_step 0.06204
+wandb:                        LR 1e-05
+wandb:                     epoch 59
+wandb:            train_F1_Macro 0.58929
+wandb:            train_F1_micro 0.71429
+wandb:           train_acc_micro 0.83333
+wandb:         train_f1_big tits 0.5
+wandb:     train_f1_flat chested 1.0
+wandb:        train_f1_huge tits 0.0
+wandb:       train_f1_small tits 0.85714
+wandb:                train_loss 21.1631
+wandb:       trainer/global_step 30659
+wandb:        val_F1_Macro_epoch 0.68228
+wandb:         val_F1_Macro_step 0.5997
+wandb:        val_F1_micro_epoch 0.80732
+wandb:         val_F1_micro_step 0.8125
+wandb:       val_acc_micro_epoch 0.92183
+wandb:        val_acc_micro_step 0.925
+wandb:     val_f1_big tits_epoch 0.85322
+wandb:      val_f1_big tits_step 0.875
+wandb: val_f1_flat chested_epoch 0.76556
+wandb:  val_f1_flat chested_step 0.85714
+wandb:    val_f1_huge tits_epoch 0.3888
+wandb:     val_f1_huge tits_step 0.0
+wandb:   val_f1_small tits_epoch 0.72153
+wandb:    val_f1_small tits_step 0.66667
+wandb:            val_loss_epoch 249.53261
+wandb:             val_loss_step 55.72646
 wandb: 
-wandb: 🚀 View run version_0_all_eff_36_0.001 at: https://wandb.ai/tsu/hair_type/runs/version_0_all_eff_36_0.001
-wandb: Synced 6 W&B file(s), 0 media file(s), 3 artifact file(s) and 0 other file(s)
-wandb: Find logs at: /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230717_004243-version_0_all_eff_36_0.001/logs
+wandb: 🚀 View run v__1_train_eff_36_0.001 at: https://wandb.ai/tsu/tits_size/runs/v__1_train_eff_36_0.001
+wandb: ️⚡ View job at https://wandb.ai/tsu/tits_size/jobs/QXJ0aWZhY3RDb2xsZWN0aW9uOjkwMjAxNDA5/version_details/v1
+wandb: Synced 6 W&B file(s), 0 media file(s), 1 artifact file(s) and 0 other file(s)
+wandb: Find logs at: /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230912_105510-v__1_train_eff_36_0.001/logs
 Global seed set to 1
 /home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/pytorch_lightning/utilities/parsing.py:197: UserWarning: Attribute 'model' is an instance of `nn.Module` and is already saved during checkpointing. It is recommended to ignore them using `self.save_hyperparameters(ignore=['model'])`.
   rank_zero_warn(
 wandb: Currently logged in as: timasaviin (tsu). Use `wandb login --relogin` to force relogin
-wandb: Tracking run with wandb version 0.15.5
-wandb: Run data is saved locally in /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230717_100143-version_0_all_eff_36_0.001
+wandb: Tracking run with wandb version 0.15.10
+wandb: Run data is saved locally in /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230913_060922-v__2_all_eff_36_0.001
 wandb: Run `wandb offline` to turn off syncing.
-wandb: Syncing run version_0_all_eff_36_0.001
+wandb: Syncing run v__2_all_eff_36_0.001
+wandb: ⭐️ View project at https://wandb.ai/tsu/tits_size
+wandb: 🚀 View run at https://wandb.ai/tsu/tits_size/runs/v__2_all_eff_36_0.001
+/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/lightning_fabric/connector.py:562: UserWarning: 16 is supported for historical reasons but its usage is discouraged. Please set your precision to 16-mixed instead!
+  rank_zero_warn(
+Using 16bit Automatic Mixed Precision (AMP)
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+You are using a CUDA device ('NVIDIA GeForce RTX 4090') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1]
+
+  | Name          | Type               | Params
+-----------------------------------------------------
+0 | model         | EfficientNet       | 20.2 M
+1 | transform     | DataAugmentation   | 0     
+2 | sigmoid       | Sigmoid            | 0     
+3 | cross_entropy | BCEWithLogitsLoss  | 0     
+4 | accuracy1     | MultilabelAccuracy | 0     
+5 | F1_M          | MultilabelF1Score  | 0     
+6 | F1_m          | MultilabelF1Score  | 0     
+7 | F1_N          | MultilabelF1Score  | 0     
+-----------------------------------------------------
+20.2 M    Trainable params
+0         Non-trainable params
+20.2 M    Total params
+80.730    Total estimated model params size (MB)
+`Trainer.fit` stopped: `max_epochs=60` reached.
+wandb: Waiting for W&B process to finish... (success).
+wandb: 
+wandb: Run history:
+wandb:                        LR ████████████████▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▁▁▁▁
+wandb:                     epoch ▁▁▁▁▂▂▂▂▂▃▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▅▆▆▆▆▆▇▇▇▇▇▇███
+wandb:            train_F1_Macro ▂▂▃▄▃▂▃▆▁▄▃▁▅▃▃▅▄▂▃▅▅▄▅▄▅▄▅▄▆▅▄▆▄▆▅▄█▄▄▄
+wandb:            train_F1_micro ▂▂▃▃▃▂▃▅▁▅▃▃▅▃▄▆▅▃▄▅▆▅▅▄▆▄▅▄▇▅▅▇▅█▆▅█▄▅▅
+wandb:           train_acc_micro ▁▁▃▄▃▃▄▅▂▅▄▄▆▄▅▇▆▄▅▅▇▅▅▅▆▅▅▅▇▆▆▆▅█▇▆█▄▅▆
+wandb:         train_f1_big tits ▄▂▃▃▅▂▁▅▁▆▂▇▆▄▆▇▃▇▆▅▅▅▆▄▃▆▆▅▇▄▇▆▅█▆▅▆▅▇▅
+wandb:     train_f1_flat chested ▁▆▆▅▆▄▆▆▅▅▅▂█▆▄▄▅▅▃▇▇▅▃▄█▆▆▃█▅▅█▄▇▇▄▆▆▄▆
+wandb:        train_f1_huge tits ▂▁▁▃▁▁▁▆▁▁▄▁▅▁▁▅▁▁▁▃▁▁█▁▁▁▅▃▁▃▁▁▃▁▁▁█▁▁▁
+wandb:       train_f1_small tits ▅▃▄▄▄▄▅▅▃▅▄▁▂▄▅▄█▁▅▅▇▆▅▇▇▄▃▆▆▇▆▆▇▇▅▇█▅▆▄
+wandb:                train_loss ▃▃▃█▃▃▃▄▃▂▃▂▂▂▂▂▁▂▂▂▂▂▅▃▂▂▄▂▂▂▂▂▄▁▂▂▁▂▂▁
+wandb:       trainer/global_step ▁▁▁▁▂▂▂▂▂▃▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▆▆▆▆▆▆▇▇▇▇▇▇███
+wandb:        val_F1_Macro_epoch ▁▁▂▃▃▄▄▄▄▄▄▄▅▄▅▆▆▆▆▆▇▇▇▇▇▇▇▇▇▇█▇███▇████
+wandb:         val_F1_Macro_step ▂▃▂▄▂▂▃▁▅▃▃▄▄▆▆▅▄▆▄▄▄▆▆▆▄▇▇▅▄█▇▅▂▇▅▇██▄▄
+wandb:        val_F1_micro_epoch ▁▁▂▃▃▄▄▄▄▄▄▄▄▅▅▅▆▆▆▆▇▇▇▇▇▇▇▇▇▇█▇███▇████
+wandb:         val_F1_micro_step ▁▁▂▃▂▃▄▁▃▄▅▅▄▄▄▅▅▆▆▆▇▇▆▆▇▇▇▇▆█▇█▇▆█▇▇█▇▇
+wandb:       val_acc_micro_epoch ▁▂▃▄▄▅▅▅▅▅▅▅▅▆▆▆▆▇▇▇▇▇▇▇▇▇▇█████████████
+wandb:        val_acc_micro_step ▁▂▂▄▃▃▅▃▅▅▅▆▆▅▆▆▆▇▇▇▇▇▇▇▇█▇▇▇█▇██▇█▇████
+wandb:     val_f1_big tits_epoch ▁▁▂▃▃▄▄▃▄▅▅▄▃▅▅▅▆▆▆▆▇▆▇▆▇▇▇▇▇▇▇▇▇█▇▇▇███
+wandb:      val_f1_big tits_step ▂▁▁▄▄▃▄▂▂▄▇▄▄▂▂▃▇▆▆▅▇▆▃▅▆▇▇▇▆█▇▇▇▇█▇▆█▇▇
+wandb: val_f1_flat chested_epoch ▁▂▃▃▃▃▃▄▃▃▄▄▅▄▅▆▆▆▆▇▆▇▇▇▇▇▇▇▇▇██████████
+wandb:  val_f1_flat chested_step ▅▅▅▆▅▅▆▂▆▆▆▇▅▇▅▇▇▆▆█▇▅▇▇▆▇▆▇█▇▇█▁▆▇▇██▇▇
+wandb:    val_f1_huge tits_epoch ▁▁▂▄▂▅▅▆▄▅▆▆▆▅▆▇▆▇▇▇██▇▇▇██▇█████▇▇█████
+wandb:     val_f1_huge tits_step ▃▄▁▆▁▁▁▁█▁▁▁▄██▅▁▆▁▁▁▆▆▇▁██▁▁██▁▁█▁███▁▁
+wandb:   val_f1_small tits_epoch ▁▁▂▂▃▃▃▃▃▄▃▄▄▄▅▅▅▆▆▅▆▆▆▆▆▇▆▇▇▇▇▇▇██▇████
+wandb:    val_f1_small tits_step ▁▂▄▃▄▅▃▄▄▄▃▅▆▄▆▄▄▇▇▅▇█▇▇▇▇▆▆▆█▇█▇▆▇▆▇▇▇▇
+wandb:            val_loss_epoch █▇▆▅▅▄▅▄▄▄▃▄▃▃▃▃▃▂▂▂▂▂▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:             val_loss_step ██▇▅▆█▄█▅▄▄▃▄█▃▄▅▂▂▃▁▂▂▂▂▁▁▁▂▁▁▁▁▂▁▂▁▁▂▁
+wandb: 
+wandb: Run summary:
+wandb:                        LR 3e-05
+wandb:                     epoch 59
+wandb:            train_F1_Macro 0.45281
+wandb:            train_F1_micro 0.52632
+wandb:           train_acc_micro 0.65385
+wandb:         train_f1_big tits 0.76923
+wandb:     train_f1_flat chested 0.26667
+wandb:        train_f1_huge tits 0.16667
+wandb:       train_f1_small tits 0.6087
+wandb:                train_loss 175.81104
+wandb:       trainer/global_step 38279
+wandb:        val_F1_Macro_epoch 0.83542
+wandb:         val_F1_Macro_step 0.75
+wandb:        val_F1_micro_epoch 0.96366
+wandb:         val_F1_micro_step 1.0
+wandb:       val_acc_micro_epoch 0.98577
+wandb:        val_acc_micro_step 1.0
+wandb:     val_f1_big tits_epoch 0.98392
+wandb:      val_f1_big tits_step 1.0
+wandb: val_f1_flat chested_epoch 0.93336
+wandb:  val_f1_flat chested_step 1.0
+wandb:    val_f1_huge tits_epoch 0.48933
+wandb:     val_f1_huge tits_step 0.0
+wandb:   val_f1_small tits_epoch 0.93507
+wandb:    val_f1_small tits_step 1.0
+wandb:            val_loss_epoch 8.46111
+wandb:             val_loss_step 0.14482
+wandb: 
+wandb: 🚀 View run v__2_all_eff_36_0.001 at: https://wandb.ai/tsu/tits_size/runs/v__2_all_eff_36_0.001
+wandb: ️⚡ View job at https://wandb.ai/tsu/tits_size/jobs/QXJ0aWZhY3RDb2xsZWN0aW9uOjkwMjAxNDA5/version_details/v1
+wandb: Synced 6 W&B file(s), 0 media file(s), 1 artifact file(s) and 0 other file(s)
+wandb: Find logs at: /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230913_060922-v__2_all_eff_36_0.001/logs
+Global seed set to 1
+/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/pytorch_lightning/utilities/parsing.py:197: UserWarning: Attribute 'model' is an instance of `nn.Module` and is already saved during checkpointing. It is recommended to ignore them using `self.save_hyperparameters(ignore=['model'])`.
+  rank_zero_warn(
+wandb: Currently logged in as: timasaviin (tsu). Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.15.10
+wandb: Run data is saved locally in /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230915_092749-v__0_train_eff_36_0.001
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run v__0_train_eff_36_0.001
 wandb: ⭐️ View project at https://wandb.ai/tsu/sex_positions
-wandb: 🚀 View run at https://wandb.ai/tsu/sex_positions/runs/version_0_all_eff_36_0.001
+wandb: 🚀 View run at https://wandb.ai/tsu/sex_positions/runs/v__0_train_eff_36_0.001
 /home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/lightning_fabric/connector.py:562: UserWarning: 16 is supported for historical reasons but its usage is discouraged. Please set your precision to 16-mixed instead!
   rank_zero_warn(
 Using 16bit Automatic Mixed Precision (AMP)
@@ -267,233 +519,76 @@ LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1]
 wandb: Waiting for W&B process to finish... (success).
 wandb: 
 wandb: Run history:
-wandb:                           LR ██████████████▄▄▄▄▄▄▄▂▂▂▂▂▂▂▂▁▁▁▁▁▁▁▁▁▁▁
-wandb:                        epoch ▁▁▁▁▂▂▂▂▂▃▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▅▆▆▆▆▆▇▇▇▇▇▇███
-wandb:               train_F1_Macro ▂▃▅▅▄▇▄▄▁▃▆▅▁▂▂▂█▅▁▆▃▃▅▃▄▇▅▆▆▁▇▁▆▃▆▃▂▂▅▄
-wandb:               train_F1_micro ▁▃▅▅▄▆▄▄▁▃▅▅▂▂▅▂█▅▁▆▄▃▅▂▃█▄▆▅▂▇▂▅▃▅▃▂▂▅▄
-wandb:              train_acc_micro ▁▃▅▆▄▇▅▅▁▄▆▅▃▂▆▂█▅▂▇▄▄▅▃▄█▅▇▆▂▇▂▅▄▆▃▃▂▅▅
-wandb:                  train_f1_69 ▅▅█▆▄▆▆▅▄▃▅▅▅▆▁▄█▆▅▄▄▅▆▃▆▅▃▆▇▄▆▅▆▃▄▅▃▅▆▅
-wandb:             train_f1_cowgirl ▂▅▁▂▅▆█▅▆▆▄▅▃▂▅▅▆▆▂▇▄▆▆▅▅▇▆▅▅▂▃▅▇▅▇▅▄▆▇▆
-wandb:         train_f1_doggy style ▁▃▆▆▆▄▅▄▃▆▆▄▆▆▆▃█▆▁▅▇▃▄▅▅▃▅▆▄▄█▄▅▄▅▂▅▃▄▅
-wandb:          train_f1_missionary ▄▃▅▃▅▆▄▄▃▆▇▄▂▄▂▂▃▄▃▆▃▃▆▅▄█▅▂▅▃▇▁▄▃▅▂▅▂▃▄
-wandb:     train_f1_reverse cowgirl ▄▄▄▅▄█▂█▁▆▇▅▂▂▇▅▅▂▅▄▂▄▂▄▅▆▅█▄▄▆▃▆▆▆▅▄▅▂▂
-wandb:            train_f1_spooning ▇▇▆▇▅▆▂▄▅▁▆▇▄▅█▅▆▆▆█▇▆▇▅▅█▅▆█▆▆▅▅▆▅▆▅▃▇▆
-wandb:                   train_loss █▇▄▄▅▃▅▅█▅▃▄▇▆▃▇▁▄▇▃▄▅▄▇▆▂▅▂▃▇▂▇▄▅▄▆▇█▄▅
-wandb:          trainer/global_step ▁▁▁▁▂▂▂▂▂▃▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▅▆▆▆▆▆▇▇▇▇▇▇███
-wandb:           val_F1_Macro_epoch ▁▃▆▆▆▆▇▇▇▇▇▇▇▇██████████████████████████
-wandb:            val_F1_Macro_step ▁▃▅▅▇▇▇▅▇▆█▇▇▇██████████████████████████
-wandb:           val_F1_micro_epoch ▁▃▆▆▇▆▇▇▇▇▇▇█▇██████████████████████████
-wandb:            val_F1_micro_step ▁▃▄▄▆▆█▆▇▇█▇█▇██████████████████████████
-wandb:          val_acc_micro_epoch ▁▃▆▆▇▇▇▇█▇▇▇█▇██████████████████████████
-wandb:           val_acc_micro_step ▁▃▄▅▇▇█▆▇▇█▇█▇██████████████████████████
-wandb:              val_f1_69_epoch ▁▁▆▇█▆▇█▇█▇█████████████████████████████
-wandb:               val_f1_69_step ▄▆██████▅▁██████████████████████████████
-wandb:         val_f1_cowgirl_epoch ▁▂▅▆▆▆▇▇▇▇▇▆▇▆██████████████████████████
-wandb:          val_f1_cowgirl_step ▂▁▆▇▇██▂▇██▇▆▇█████████████▇██████████▇█
-wandb:     val_f1_doggy style_epoch ▁▃▆▇▆▇▇█████████████████████████████████
-wandb:      val_f1_doggy style_step ▅█▃▄▁▃██████████████████████████████████
-wandb:      val_f1_missionary_epoch ▁▅▇▆▇▆▇▇██▇▇████████████████████████████
-wandb:       val_f1_missionary_step ▁▇▅██▇▆████▇████████████████████████████
-wandb: val_f1_reverse cowgirl_epoch ▁▁▄▄▅▆▆▇▇▆▇▇▇▇██████████████████████████
-wandb:  val_f1_reverse cowgirl_step ▄▅▅▁▇▇█▆█████▆████████▇███▇█████████████
-wandb:        val_f1_spooning_epoch ▁▆▅▃▇▆▇▇█▄█▇▇███▇███████████████████████
-wandb:         val_f1_spooning_step █▄███▅██████████▁███████████████████████
-wandb:               val_loss_epoch █▆▃▃▂▂▂▁▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
-wandb:                val_loss_step █▇▃▄▂▂▁▄▁▁▁▁▁▁▁▁▂▁▁▁▁▁▂▁▁▁▂▁▁▁▁▁▁▁▁▁▁▁▂▁
+wandb:                           LR ████████▄▄▄▄▄▄▄▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▁
+wandb:                        epoch ▁▁▁▁▂▂▂▂▂▃▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▆▆▆▆▆▆▇▇▇▇▇▇███
+wandb:               train_F1_Macro ▃▁▅▆▇▃▁▆▄█▅▂▁▃▇▅▂▄▄▂▂▄▃▆▄▃▃▂▆▆▇▁▅▄▄▄▅▃▅▅
+wandb:               train_F1_micro ▃▂▆▆▇▃▂▇▄█▇▂▁▃▆▅▂▅▄▂▂▄▄▇▄▄▄▂▆▆▆▁▆▄▅▅▄▃▅▅
+wandb:              train_acc_micro ▄▁▆▆▇▃▃▆▄▇█▂▁▅▇▇▁▄▅▃▄▅▅▇▅▆▄▁▅▆▆▄▆▃▅▅▅▄▆▆
+wandb:                  train_f1_69 ▄▂▇▃█▅▃▃▃▇▁▂▄▄▅▄▁▂▅▄▇▅▁▅▅▃▅▃▇▇▅▄▁▆▃▄▅▃▅▄
+wandb:             train_f1_cowgirl ▁▁▃▄▆▁▄▇▅▅█▁▄▆▆▄▅▄▆▄▄▅▂▆▄█▇▂▄▄▆▃▇▄█▃▇▄▆▄
+wandb:         train_f1_doggy style █▆█▇▃▅▅▇▄▇▃▇▃▄▆▅▅▇▁▃▂▄▄▇▇▃▃▆▅▅▅▅▆▄▆▃▅▅▇▆
+wandb:          train_f1_missionary ▄▃▅▆▄▄▂▅▂▅█▂▃▄▇▅▃▂▆▃▃▆▆▇▄▃▃▁▅▃▅▅▇▄▃▆▅▂▃▇
+wandb:     train_f1_reverse cowgirl ▂▃▁▄▇▅▁▆▇▇▅▅▂▁▅█▄▆▄▄▂▃▆▁▃▄▅▄▅▅▆▁▄▃▃▆▅▇▄▅
+wandb:            train_f1_spooning ▅▅▆█▅▂▅▇▆█▆▃▃▅▄▂▃▆▄▂▃▆▄▆▄▅▅▇▆▇▆▁▆▅▅▅▁▂▁▄
+wandb:                   train_loss ▃█▃▃▆▅▅▄▅▅▁▅▅▂▃▄▅▆▃▆▆▇▂▄▆▃▅▆▃▃▃▂▃█▄▄▃▅▄▄
+wandb:          trainer/global_step ▁▁▁▂▂▂▂▂▂▁▃▁▃▃▃▄▄▄▄▄▂▅▅▅▅▅▆▆▆▆▆▇▇▇▇▂▇▃██
+wandb:           val_F1_Macro_epoch ▁▂▄▅▆▅▆▆▇▇▇▇▇▇██████████████████████████
+wandb:            val_F1_Macro_step ▂▃▆▆▄▆▇▅▇▇▄▅▇█▇▇███▆▇▇▇█▇█▇▆▆▇▆▇▅▇▁▇▇▇▇█
+wandb:           val_F1_micro_epoch ▁▂▄▅▆▅▆▆▇▇▇▇▇▇██████████████████████████
+wandb:            val_F1_micro_step ▁▃▆▆▆▅▇▇▇▇▅▇▇█▆▇▇████▇▆█▇█▇█▇▇█▇▇▇▆▇▇█▇█
+wandb:          val_acc_micro_epoch ▁▃▅▆▇▆▇▇▇█▇██▇██████████████████████████
+wandb:           val_acc_micro_step ▁▃▆▆▆▅▇▇▇▇▆▇▇█▆▇▇████▇▇█▇█▇█▇▇█▇▇▇▇▇▇█▇█
+wandb:              val_f1_69_epoch ▁▁▄▄▇▇▇█▇█▇███████▇█████████▇███████████
+wandb:               val_f1_69_step ▅▆█▆▆██▇██▁████████▁▆▆▇█▇████▆██▇█▁███▇█
+wandb:         val_f1_cowgirl_epoch ▁▂▄▅▆▅▆▇▇▇▇▇▇▇███▇██████████████████████
+wandb:          val_f1_cowgirl_step ▁▅██▆▇▇▆█▇▇▇██▇█▇▇███▇▇▇██████▁███▇▇▇███
+wandb:     val_f1_doggy style_epoch ▁▄▆▇▇▆▅▇▇▇▆▇▇▇▇▇██████▇█████████████████
+wandb:      val_f1_doggy style_step ▄▇▇█▇▆▇█▇█▆▇▆██▇▇████████▇▆█▁██▆█▇▇█████
+wandb:      val_f1_missionary_epoch ▁▃▂▅▄▁▅▆▆▇█▇▇▇█▇█▇▇███▇▇█▇█████▇████████
+wandb:       val_f1_missionary_step ▆▅▅█▁▇▇▁█▇█▁██████████▇█▇███████▁█▁█████
+wandb: val_f1_reverse cowgirl_epoch ▂▁▃▅▆▅▆▆▆▇▇▇▇▇█▇▇███▇▇▇██▇█▇██████▇██▇██
+wandb:  val_f1_reverse cowgirl_step ▇▅█▆█▇██▅█▇███▇███▇███▇█████▇███▇▆▁█▇▆██
+wandb:        val_f1_spooning_epoch ▁▄▂▄▆▆▇▂▇█▇█▇▇███▇█████████▇████████████
+wandb:         val_f1_spooning_step ▆▇▇▇██████▇▇▇█▇▇███████████▁█▇██▇██▇██▇█
+wandb:               val_loss_epoch █▅▃▃▂▂▂▂▁▁▁▁▂▁▂▁▁▂▁▂▂▂▂▃▃▃▂▂▃▂▃▃▃▃▄▄▄▃▄▄
+wandb:                val_loss_step ▃▃▂█▂▇▁▂▁▂▅▂▃▁▆▂▆▁▁▁▁▁▃▁▂▁▁▁▂▁▁▂▆▂█▁▅▂▁▁
 wandb: 
 wandb: Run summary:
 wandb:                           LR 1e-05
 wandb:                        epoch 59
-wandb:               train_F1_Macro 0.61538
-wandb:               train_F1_micro 0.74194
-wandb:              train_acc_micro 0.88406
-wandb:                  train_f1_69 0.66667
-wandb:             train_f1_cowgirl 0.5
-wandb:         train_f1_doggy style 0.72727
-wandb:          train_f1_missionary 0.0
-wandb:     train_f1_reverse cowgirl 0.85714
-wandb:            train_f1_spooning 0.94118
-wandb:                   train_loss 46.51409
-wandb:          trainer/global_step 26279
-wandb:           val_F1_Macro_epoch 0.99048
-wandb:            val_F1_Macro_step 1.0
-wandb:           val_F1_micro_epoch 0.99925
+wandb:               train_F1_Macro 0.39423
+wandb:               train_F1_micro 0.46154
+wandb:              train_acc_micro 0.70833
+wandb:                  train_f1_69 0.0
+wandb:             train_f1_cowgirl 0.72727
+wandb:         train_f1_doggy style 0.33333
+wandb:          train_f1_missionary 0.33333
+wandb:     train_f1_reverse cowgirl 0.4
+wandb:            train_f1_spooning 0.57143
+wandb:                   train_loss 64.15136
+wandb:          trainer/global_step 37079
+wandb:           val_F1_Macro_epoch 0.9038
+wandb:            val_F1_Macro_step 0.66667
+wandb:           val_F1_micro_epoch 0.95636
 wandb:            val_F1_micro_step 1.0
-wandb:          val_acc_micro_epoch 0.99975
+wandb:          val_acc_micro_epoch 0.99253
 wandb:           val_acc_micro_step 1.0
-wandb:              val_f1_69_epoch 0.9863
-wandb:               val_f1_69_step 1.0
-wandb:         val_f1_cowgirl_epoch 0.99506
+wandb:              val_f1_69_epoch 0.86097
+wandb:               val_f1_69_step 0.0
+wandb:         val_f1_cowgirl_epoch 0.88122
 wandb:          val_f1_cowgirl_step 1.0
-wandb:     val_f1_doggy style_epoch 1.0
+wandb:     val_f1_doggy style_epoch 0.94332
 wandb:      val_f1_doggy style_step 1.0
-wandb:      val_f1_missionary_epoch 0.96347
-wandb:       val_f1_missionary_step 1.0
-wandb: val_f1_reverse cowgirl_epoch 0.99807
+wandb:      val_f1_missionary_epoch 0.87183
+wandb:       val_f1_missionary_step 0.0
+wandb: val_f1_reverse cowgirl_epoch 0.90905
 wandb:  val_f1_reverse cowgirl_step 1.0
-wandb:        val_f1_spooning_epoch 1.0
+wandb:        val_f1_spooning_epoch 0.95642
 wandb:         val_f1_spooning_step 1.0
-wandb:               val_loss_epoch 0.32201
-wandb:                val_loss_step 0.00575
+wandb:               val_loss_epoch 50.33625
+wandb:                val_loss_step 0.00517
 wandb: 
-wandb: 🚀 View run version_0_all_eff_36_0.001 at: https://wandb.ai/tsu/sex_positions/runs/version_0_all_eff_36_0.001
+wandb: 🚀 View run v__0_train_eff_36_0.001 at: https://wandb.ai/tsu/sex_positions/runs/v__0_train_eff_36_0.001
+wandb: ️⚡ View job at https://wandb.ai/tsu/sex_positions/jobs/QXJ0aWZhY3RDb2xsZWN0aW9uOjk3ODIzNTkw/version_details/v0
 wandb: Synced 6 W&B file(s), 0 media file(s), 3 artifact file(s) and 0 other file(s)
-wandb: Find logs at: /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230717_100143-version_0_all_eff_36_0.001/logs
-Global seed set to 1
-/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/pytorch_lightning/utilities/parsing.py:197: UserWarning: Attribute 'model' is an instance of `nn.Module` and is already saved during checkpointing. It is recommended to ignore them using `self.save_hyperparameters(ignore=['model'])`.
-  rank_zero_warn(
-wandb: Currently logged in as: timasaviin (tsu). Use `wandb login --relogin` to force relogin
-wandb: Tracking run with wandb version 0.15.5
-wandb: Run data is saved locally in /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230717_140108-version_0_all_eff_36_0.001
-wandb: Run `wandb offline` to turn off syncing.
-wandb: Syncing run version_0_all_eff_36_0.001
-wandb: ⭐️ View project at https://wandb.ai/tsu/hair_color
-wandb: 🚀 View run at https://wandb.ai/tsu/hair_color/runs/version_0_all_eff_36_0.001
-/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/lightning_fabric/connector.py:562: UserWarning: 16 is supported for historical reasons but its usage is discouraged. Please set your precision to 16-mixed instead!
-  rank_zero_warn(
-Using 16bit Automatic Mixed Precision (AMP)
-GPU available: True (cuda), used: True
-TPU available: False, using: 0 TPU cores
-IPU available: False, using: 0 IPUs
-HPU available: False, using: 0 HPUs
-You are using a CUDA device ('NVIDIA GeForce RTX 4090') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
-LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1]
-
-  | Name          | Type               | Params
------------------------------------------------------
-0 | model         | EfficientNet       | 20.2 M
-1 | transform     | DataAugmentation   | 0     
-2 | sigmoid       | Sigmoid            | 0     
-3 | cross_entropy | BCEWithLogitsLoss  | 0     
-4 | accuracy1     | MultilabelAccuracy | 0     
-5 | F1_M          | MultilabelF1Score  | 0     
-6 | F1_m          | MultilabelF1Score  | 0     
-7 | F1_N          | MultilabelF1Score  | 0     
------------------------------------------------------
-20.2 M    Trainable params
-0         Non-trainable params
-20.2 M    Total params
-80.751    Total estimated model params size (MB)
-`Trainer.fit` stopped: `max_epochs=60` reached.
-wandb: Waiting for W&B process to finish... (success).
-wandb: 
-wandb: Run history:
-wandb:                       LR ███████████████▄▄▄▄▄▄▄▄▄▂▂▂▂▂▂▂▁▁▁▁▁▁▁▁▁
-wandb:                    epoch ▁▁▁▁▂▂▂▂▂▃▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▆▆▆▆▆▆▆▇▇▇▇▇███
-wandb:           train_F1_Macro ▁▂▄▃▂▄▅▃▇▄▆▅▃▁▄▃▃▅▄▄▅▄▃▃█▄▃▃▃█▆▂▆▃▅▂▃▂█▄
-wandb:           train_F1_micro ▂▂▃▄▁▃▄▄▄▄▆▄▃▁▄▄▄▄▄▄▄▄▃▂▇▃▃▃▂█▆▂▄▄▃▃▂▄▄▃
-wandb:          train_acc_micro ▃▃▄▅▁▄▅▅▅▅▇▅▄▂▅▅▅▅▅▅▅▅▃▃█▄▄▄▃█▇▂▅▅▅▄▃▅▆▅
-wandb:      train_f1_black hair ▆▆▄▇▃▁▅█▅▅▅▅▆▄▅▇▇▅▆▃▇▅▄▆▆▅▅▅▅▇▅▆▄▆▆▇▄▆▆▆
-wandb:     train_f1_blonde hair ▁▄▆▅▂▆▇▃▃▆█▅▃▄▄▅▅▄▄▇▅▆▆▂█▅▅▅▂▇█▄▆▄▃▅▄▃▅▃
-wandb:       train_f1_blue hair ▁▁▅▁▃▆▁▁▇▁▁▁▄▁▇▁▁▄▄▄▆▄▅▇▆▆▃▁▁▇▁▁▄▁▆▁▃▁█▄
-wandb:      train_f1_brown hair ▅▂▄▄▅▅▅▁▅▃▄▅▄▅▆▅▅▅▆▇▂▅▅▂▆▅▆▇▆█▆▄▆█▅▆▆▆▄▄
-wandb:      train_f1_green hair ▁▁▁▁▆▅▅▅█▁▁▅▅▁▅▁▁▁▅▁▅▁▁▄▁▁▄▁▁▁▁▁▁▅▁▁▁▁▅▅
-wandb:       train_f1_pink hair ▁▁▄▁▂▅▅▃▆▃▆▆▁▂▁▃▁▅▄▅▃▃▁▁▄▃▃▁▄█▄▁▄▁▄▁▁▃▅▃
-wandb:        train_f1_red hair ▄▅▄▆▂▃▃▆▆█▆▅▄▂▃▃▆█▁▃▅▄▄▆▅▄▁▅▄▁█▄▅▃▅▃▅▁▇▄
-wandb:     train_f1_violet hair ▁▁▁▁▃▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▆▁▁▄▅▁▁▁▄▅▁▁
-wandb:               train_loss ▂▂▃▂█▄▁▂▃▂▁▂▂▂▁▁▂▁▃▂▄▂▂▄▁▂▂▁▂▁▁▂▇▁▂▁▃▆▂▄
-wandb:      trainer/global_step ▁▁▁▂▂▂▂▂▂▃▃▃▃▃▄▄▄▄▄▄▅▅▅▅▅▅▆▆▆▆▆▇▇▇▇▇▇███
-wandb:       val_F1_Macro_epoch ▁▂▂▄▃▃▃▄▃▄▄▃▅▅▄▅▅▆▆▆▇▇▇▆▇▇▇▇▇███████████
-wandb:        val_F1_Macro_step ▄▂▁▁▃▄▄▄▃▂▃▂▆▂▆▃▅▆▆▆▃▅▂▅▂▄▆▄▆▃▆▄▄▆▄▄▃▂▆█
-wandb:       val_F1_micro_epoch ▁▂▂▃▃▃▃▄▃▄▄▃▄▄▄▅▅▆▆▆▆▆▆▆▇▇▇▇▇▇██████████
-wandb:        val_F1_micro_step ▁▂▄▄▅▂▃▄▁▄▅▂▃▃▄▄▄▆▆▆▅▆▆▆▇▇▆▇▇▆████▇▇▇▇█▇
-wandb:      val_acc_micro_epoch ▁▂▃▄▄▃▃▄▄▅▅▃▅▅▅▅▆▆▆▆▇▇▇▇▇▇▇█████████████
-wandb:       val_acc_micro_step ▁▂▅▄▅▂▃▅▁▅▅▃▃▄▄▅▅▇▇▇▆▇▆▇▇█▇█▇▇█████▇▇███
-wandb:  val_f1_black hair_epoch ▁▂▃▃▄▃▃▃▄▂▄▃▄▄▄▃▅▅▅▆▅▆▆▆▆▇▆▇██▇▇████████
-wandb:   val_f1_black hair_step ▁▆▅▄█▅▆▇▃▆▅▄▄▆▅▇▇▆▇▅▅▇▄█▇█▆▇▆▆▇█████▇▇█▇
-wandb: val_f1_blonde hair_epoch ▂▂▃▂▃▄▄▃▄▄▄▁▃▄▆▅▄▅▇▅▇▆▆▅██▇█▇▇██████████
-wandb:  val_f1_blonde hair_step ▂▃▅▆█▃▅▁▄▇█▃▂▄▅▄▄▅▇██▅█▄█▆▆▆▄▇████▄▆████
-wandb:   val_f1_blue hair_epoch ▁▆▆▇▇▇▆▆▆▆▇▆▇▇▇▇▇▇█▇█▇█▇██▇█████████████
-wandb:    val_f1_blue hair_step ██▁▁▁▇▁▆▇▁██▆██▁████▁█▁▁▁▁█▁████▁▁███▁▁▁
-wandb:  val_f1_brown hair_epoch ▁▂▂▂▂▁▂▃▂▃▃▂▃▃▃▅▅▅▅▅▅▆▆▆▆▆▇▇▇▇▇█▇███████
-wandb:   val_f1_brown hair_step ▅▅▆▅▅▄▂▃▄▂▄▅▅▆▄▅▁▇▅▇▅▇▇▆▇▇▇██▇█▆█▇█▇▇██▇
-wandb:  val_f1_green hair_epoch ▃▁▂▆▄▄▆▇▄▇█▅██▆████████▇████████████████
-wandb:   val_f1_green hair_step ▁▁▁▁█▄█▁▁▁▁▁█▁█▁▁██▁▆▁██▁▁█▁▁▁▁▁▁█▁▁▁▁██
-wandb:   val_f1_pink hair_epoch ▆▁▃▅▁▆▆▆▂▆▂▆▇▇▇▇▇▇▇▇█▇█▇████████████████
-wandb:    val_f1_pink hair_step █▁█▁▁█▁█▄▆▁▁█▁███▁▁█▁▇▁█▁█▁██▁█▁██▁▁▁▁▁█
-wandb:    val_f1_red hair_epoch ▂▃▃▄▄▃▁▄▃▅▄▃▅▅▄▄▅▆▆▇▇▇▇▇▇▇█▇▇██▇████████
-wandb:     val_f1_red hair_step ▅▅▁▇▆▄▃█▅█▇▅▇▃▆▆██████▁▇█████▇██████▆███
-wandb: val_f1_violet hair_epoch ▁▅▅▇▅▅▅▅▇▆▆▅▇▇▇█▇▇█████▆████████████████
-wandb:  val_f1_violet hair_step ▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁██
-wandb:           val_loss_epoch █▅▄▄▄▄▄▃▄▃▃▄▃▃▃▂▃▂▂▂▂▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
-wandb:            val_loss_step ▃▃▂▂▂▂█▂▃▁▂▂▃▂▂▂▂▁▁▁▁▁▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
-wandb: 
-wandb: Run summary:
-wandb:                       LR 1e-05
-wandb:                    epoch 59
-wandb:           train_F1_Macro 0.39168
-wandb:           train_F1_micro 0.47761
-wandb:          train_acc_micro 0.72656
-wandb:      train_f1_black hair 0.44444
-wandb:     train_f1_blonde hair 0.90909
-wandb:       train_f1_blue hair 0.33333
-wandb:      train_f1_brown hair 0.61538
-wandb:      train_f1_green hair 0.0
-wandb:       train_f1_pink hair 0.28571
-wandb:        train_f1_red hair 0.54545
-wandb:     train_f1_violet hair 0.0
-wandb:               train_loss 171.3885
-wandb:      trainer/global_step 56159
-wandb:       val_F1_Macro_epoch 0.67683
-wandb:        val_F1_Macro_step 0.6
-wandb:       val_F1_micro_epoch 0.98292
-wandb:        val_F1_micro_step 0.94118
-wandb:      val_acc_micro_epoch 0.99561
-wandb:       val_acc_micro_step 0.98438
-wandb:  val_f1_black hair_epoch 0.98111
-wandb:   val_f1_black hair_step 1.0
-wandb: val_f1_blonde hair_epoch 0.99173
-wandb:  val_f1_blonde hair_step 0.0
-wandb:   val_f1_blue hair_epoch 0.56709
-wandb:    val_f1_blue hair_step 1.0
-wandb:  val_f1_brown hair_epoch 0.97412
-wandb:   val_f1_brown hair_step 1.0
-wandb:  val_f1_green hair_epoch 0.29217
-wandb:   val_f1_green hair_step 0.0
-wandb:   val_f1_pink hair_epoch 0.62764
-wandb:    val_f1_pink hair_step 1.0
-wandb:    val_f1_red hair_epoch 0.87821
-wandb:     val_f1_red hair_step 0.8
-wandb: val_f1_violet hair_epoch 0.10256
-wandb:  val_f1_violet hair_step 0.0
-wandb:           val_loss_epoch 5.03568
-wandb:            val_loss_step 15.7856
-wandb: 
-wandb: 🚀 View run version_0_all_eff_36_0.001 at: https://wandb.ai/tsu/hair_color/runs/version_0_all_eff_36_0.001
-wandb: Synced 6 W&B file(s), 0 media file(s), 3 artifact file(s) and 0 other file(s)
-wandb: Find logs at: /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230717_140108-version_0_all_eff_36_0.001/logs
-Global seed set to 1
-/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/pytorch_lightning/utilities/parsing.py:197: UserWarning: Attribute 'model' is an instance of `nn.Module` and is already saved during checkpointing. It is recommended to ignore them using `self.save_hyperparameters(ignore=['model'])`.
-  rank_zero_warn(
-wandb: Currently logged in as: timasaviin (tsu). Use `wandb login --relogin` to force relogin
-wandb: Tracking run with wandb version 0.15.5
-wandb: Run data is saved locally in /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230720_080654-version_0_all_eff_36_0.001
-wandb: Run `wandb offline` to turn off syncing.
-wandb: Syncing run version_0_all_eff_36_0.001
-wandb: ⭐️ View project at https://wandb.ai/tsu/body_type
-wandb: 🚀 View run at https://wandb.ai/tsu/body_type/runs/version_0_all_eff_36_0.001
-/home/timssh/miniconda3/envs/tagging/lib/python3.10/site-packages/lightning_fabric/connector.py:562: UserWarning: 16 is supported for historical reasons but its usage is discouraged. Please set your precision to 16-mixed instead!
-  rank_zero_warn(
-Using 16bit Automatic Mixed Precision (AMP)
-GPU available: True (cuda), used: True
-TPU available: False, using: 0 TPU cores
-IPU available: False, using: 0 IPUs
-HPU available: False, using: 0 HPUs
-You are using a CUDA device ('NVIDIA GeForce RTX 4090') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
-LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1]
-
-  | Name          | Type               | Params
------------------------------------------------------
-0 | model         | EfficientNet       | 20.2 M
-1 | transform     | DataAugmentation   | 0     
-2 | sigmoid       | Sigmoid            | 0     
-3 | cross_entropy | BCEWithLogitsLoss  | 0     
-4 | accuracy1     | MultilabelAccuracy | 0     
-5 | F1_M          | MultilabelF1Score  | 0     
-6 | F1_m          | MultilabelF1Score  | 0     
-7 | F1_N          | MultilabelF1Score  | 0     
------------------------------------------------------
-20.2 M    Trainable params
-0         Non-trainable params
-20.2 M    Total params
-80.741    Total estimated model params size (MB)
+wandb: Find logs at: /home/timssh/ML/TAGGING/DATA/models/wandb/run-20230915_092749-v__0_train_eff_36_0.001/logs

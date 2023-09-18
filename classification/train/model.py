@@ -6,6 +6,7 @@ from torchvision.transforms import transforms as T
 from torchmetrics.classification import MultilabelAccuracy, MultilabelF1Score, BinaryAccuracy
 
 import pytorch_lightning as pl
+import kornia as K
 from PIL import Image
 import pandas as pd
 from os.path import join
@@ -68,9 +69,15 @@ class ModelBuilder:
         )
         return model
 
+def image_to_tensor_train(path):
+    tensor = Image.open(path)
+    if tensor.size[1] > tensor.size[0] and torch.rand(1) > 0.5:
+        tensor = tensor.rotate(90, expand=True)
+    return T.ToTensor()(tensor.convert("RGB")).float()  
+
 def image_to_tensor(path):
     tensor = Image.open(path)
-    return T.ToTensor()(tensor.convert("RGB")).float()    
+    return T.ToTensor()(tensor.convert("RGB")).float()   
 
 class ImageDataset(Dataset):
     """
@@ -96,10 +103,21 @@ class ImageDataset(Dataset):
 
     def parse_data(self, data):
         path = join(self.root, data["path"])
-        img, label = image_to_tensor(path), data[1:].values.astype(int)
+        img, label = image_to_tensor_train(path), data[1:].values.astype(int)
         if self.train and torch.rand(1) > 0.7:
-            img = T.Resize(size=(240, 320), antialias=True)(img)
-        return img, label
+            if img.size()[1] < img.size()[2]:                    
+                img = K.augmentation.LongestMaxSize(320)(img)
+            else:
+                img = K.augmentation.LongestMaxSize(240)(img)
+            img = K.augmentation.PadTo((240, 320), keepdim=True)(img)
+        else:
+            if img.size()[1] < img.size()[2]:                    
+                img = K.augmentation.LongestMaxSize(640)(img)
+            else:
+                img = K.augmentation.LongestMaxSize(480)(img)
+            img = K.augmentation.PadTo((480, 640), keepdim=True)(img)
+
+        return img.squeeze(0), label
 
     @torch.no_grad()
     def __getitem__(self, idx):
@@ -162,6 +180,7 @@ class EfficientLightning(pl.LightningModule):
         self.num2label = num2label
 
         self.model = model
+        self.model.num2label = num2label
         self.transform = augmentation()
 
         self.batch_size = batch_size

@@ -13,7 +13,7 @@ from utils import build_label, save_label
 DATASET_PATH = "/home/timssh/ML/TAGGING/DATA/datasets"
 
 # Choose group
-group = "tits_size"
+group = "sex_positions"
 # Choose stand
 stand = ""
 

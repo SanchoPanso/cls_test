@@ -47,8 +47,10 @@ from ultralytics import YOLO
 
 # Load a model
 # model = YOLO("yolov8n.yaml")  # build a new model from scratch
+# path = "/home/timssh/ML/TAGGING/CLS/instance/runs/segment/train7/weights/best.pt"
+path = "/home/timssh/ML/TAGGING/CLS/instance/best.pt"
 model = YOLO(
-    "/home/timssh/ML/TAGGING/CLS/instance/runs/segment/train7/weights/best.pt"
+    path
 )  # load a pretrained model (recommended for training)
 
 
@@ -62,7 +64,7 @@ def yolo(image):
     #     im = upscale(im)
     # im = im.resize((640,480))
     # image = image.resize((640,480))
-
+    # image = T.Resize(size = 480)(image)
     image = T.ToTensor()(image)
     results = model(im)  # inference
     # results.render()  # updates results.imgs with boxes and labels

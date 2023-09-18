@@ -3,13 +3,13 @@ import asyncio
 import json
 import os
 
-group = "tits_size"
-guids = {
-    "guids": [
-    "af076d1f-0286-4db8-9dd9-d94809e89005", 
-    "4f837bde-d89c-4987-8ac0-feacda5ba1c7"
-  ]
-}
+# group = "tits_size"
+# guids = {
+#     "guids": [
+#     "af076d1f-0286-4db8-9dd9-d94809e89005", 
+#     "4f837bde-d89c-4987-8ac0-feacda5ba1c7"
+#   ]
+# }
 bearer = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODk4NjEyNTksIklkZW50aXR5Ijp7IkdVSUQiOiIzYTZjYmRiMy0wYmFiLTQxNDQtOWViNC00NDc0NWExY2ZiYmIiLCJMb2dpbiI6ImFkbWluIiwiUm9sZXMiOlt7IkdVSUQiOiJmMmQyNDA4Zi03MDc1LTRmOTctOTVlZi0zMjgzMWJiMDgyZjQiLCJOYW1lIjoiYWRtaW4iLCJUaXRsZSI6ImFkbWluIiwiRGVzY3JpcHRpb24iOiIifV19fQ.LIgtSc_NrWHvaEsoBUVQMPvFMokTSsrFsPSqPOEVE_w'
 
 
@@ -38,7 +38,7 @@ async def fetch_meta(session, url, headers, guid, group):
 async def get_meta(bearer, guids, group):
     URL = 'https://yapics.collect.monster/v1/meta/picsets'
     head = get_head(bearer)
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env = True) as session:
         tasks = [fetch_meta(session, URL, head, guid, group) for guid in guids["guids"]]
         await asyncio.gather(*tasks)
 
