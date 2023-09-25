@@ -78,7 +78,7 @@ def calc_acc_by_category(meta1, meta2, all_values):
     return acc
 
 
-def parse_meta(path_models, InferDataset, Aug, Pre, DATASETS, CATEGORYS, META, PICTURE):
+def parse_meta(path_models, InferDataset, Aug, Pre, DATASETS, CATEGORYS, META, PICTURE, MODE = "ret_meta.json"):
     import torch
     from torch.utils.data import DataLoader
     from glob import glob
@@ -103,7 +103,7 @@ def parse_meta(path_models, InferDataset, Aug, Pre, DATASETS, CATEGORYS, META, P
                 print(picset)
                 try:
                     if picset not in metas.keys():
-                        metas[picset] = get_meta_id(picset, "meta.json")
+                        metas[picset] = get_meta_id(picset, MODE)
                     id_meta = metas[picset]
                 except:
                     continue
@@ -129,17 +129,33 @@ def parse_meta(path_models, InferDataset, Aug, Pre, DATASETS, CATEGORYS, META, P
                                 else:
                                     tag = []
                                 if "trained" in id_meta[list_keys[id_]].keys():
-                                    id_meta[list_keys[id_]]["trained"].append(
-                                        {
+                                    gender_flag = False
+                                    for values in id_meta[list_keys[id_]]["trained"]:
+                                        if "gender" in values.keys() and values['gender'] == "other":
+                                            item = {
+                                                "group": model_cat,
+                                                "category": [
+                                                " ".join(tg.split("-")) for tg in tag
+                                            ],
+                                            }
+                                            values['groups'].append(item)
+                                            gender_flag = True
+                                            break
+                                    if not gender_flag:
+                                        id_meta[list_keys[id_]]["trained"].append(
+                                        {   
+                                            "gender" : "other",
                                             "group": model_cat,
                                             "category": [
                                                 " ".join(tg.split("-")) for tg in tag
                                             ],
                                         }
-                                    )
+                                        )
+                                            
                                 else:
                                     id_meta[list_keys[id_]]["trained"] = [
-                                        {
+                                        {   
+                                            "gender" : "other",
                                             "group": model_cat,
                                             "category": [
                                                 " ".join(tg.split("-")) for tg in tag
@@ -175,7 +191,7 @@ def yolo_proc(yolo_model_path, InferDataset, Pre):
             image_tensor = batch[0][image_id]
             yolo_meta_dict = {}
             for j in range(len(result.boxes.xyxy)):
-                if result.boxes.conf[j] >= 0.5:
+                if result.boxes.conf[j] >= 0.75:
                     bbox_tensor = result.boxes.xyxy[j].to(torch.float16)
                     bbox_cls = result.boxes.cls[j].to(int)
                     bbox_cls = result.names[int(bbox_cls)]
@@ -268,6 +284,7 @@ def parse_meta_v2(
                         metas[picset] = get_meta_id(picset, "meta.json")
                     id_meta = metas[picset]
                 except:
+                    print(picset, 'error')
                     continue
 
                 list_jpeg = list(id_meta.keys())
@@ -295,7 +312,7 @@ def parse_meta_v2(
                         val, idx = ret_.max(axis=1)
                         # print(val, idx)
                         for num, id_ in enumerate(batch[1]):
-                            if val[num] > 0.7:
+                            if val[num] > 0.8:
                                 tag = [num2label[str(int(idx[num]))]]
                             else:
                                 tag = [model_cat + " trash"]
@@ -401,14 +418,19 @@ def parse_meta_v2(
     return metas
 
 
-def save_meta(metas, path_models):
+def save_meta(metas, path_models, mode = "meta.json"):
     print("save_meta")
     for key, value in metas.items():
-        meta_js = get_meta(key)
+        meta_js = get_meta(key, mode)
         meta_js["items"] = list(value.values())
-        meta_js["picset"]["neural_version"] = {
+        new_neural_versions = {
             key: value.split("/")[-3] for key, value in path_models.items()
         }
+        if "neural_version" not in meta_js["picset"].keys():
+            meta_js["picset"]["neural_version"] = new_neural_versions
+        else:
+            for key_ in new_neural_versions.keys():
+                meta_js["picset"]["neural_version"][key_] = new_neural_versions[key_]
         print(key)
         with open(join(key, "ret_meta.json"), "w", encoding="utf-8") as js_f:
             json.dump(meta_js, js_f, indent=4, ensure_ascii=False)

@@ -28,7 +28,7 @@ async def fetch_meta(session, url, headers, guid, group):
             folder_path = f"{DATA}/{group}/{guid}"
             os.makedirs(folder_path, exist_ok=True)
             with open(os.path.join(folder_path, "meta.json"), "w") as file:
-                json.dump(json_data, file, indent=2)
+                json.dump(json_data["data"], file, indent=2)
             print(f"Saved {guid}.json")
         else:
             print(response)
