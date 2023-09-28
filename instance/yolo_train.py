@@ -6,6 +6,6 @@ model = YOLO("yolov8x-seg.pt")  # load a pretrained model (recommended for train
 # Use the model
 model.train(
     data="/home/timssh/ML/TAGGING/CLS/instance/data/data.yaml",
-    epochs=200,
+    epochs=300,
     imgsz=(640, 480),
 )

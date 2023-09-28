@@ -78,7 +78,17 @@ def calc_acc_by_category(meta1, meta2, all_values):
     return acc
 
 
-def parse_meta(path_models, InferDataset, Aug, Pre, DATASETS, CATEGORYS, META, PICTURE, MODE = "ret_meta.json"):
+def parse_meta(
+    path_models,
+    InferDataset,
+    Aug,
+    Pre,
+    DATASETS,
+    CATEGORYS,
+    META,
+    PICTURE,
+    MODE="ret_meta.json",
+):
     import torch
     from torch.utils.data import DataLoader
     from glob import glob
@@ -131,31 +141,36 @@ def parse_meta(path_models, InferDataset, Aug, Pre, DATASETS, CATEGORYS, META, P
                                 if "trained" in id_meta[list_keys[id_]].keys():
                                     gender_flag = False
                                     for values in id_meta[list_keys[id_]]["trained"]:
-                                        if "gender" in values.keys() and values['gender'] == "other":
+                                        if (
+                                            "gender" in values.keys()
+                                            and values["gender"] == "other"
+                                        ):
                                             item = {
                                                 "group": model_cat,
                                                 "category": [
-                                                " ".join(tg.split("-")) for tg in tag
-                                            ],
+                                                    " ".join(tg.split("-"))
+                                                    for tg in tag
+                                                ],
                                             }
-                                            values['groups'].append(item)
+                                            values["groups"].append(item)
                                             gender_flag = True
                                             break
                                     if not gender_flag:
                                         id_meta[list_keys[id_]]["trained"].append(
-                                        {   
-                                            "gender" : "other",
-                                            "group": model_cat,
-                                            "category": [
-                                                " ".join(tg.split("-")) for tg in tag
-                                            ],
-                                        }
+                                            {
+                                                "gender": "other",
+                                                "group": model_cat,
+                                                "category": [
+                                                    " ".join(tg.split("-"))
+                                                    for tg in tag
+                                                ],
+                                            }
                                         )
-                                            
+
                                 else:
                                     id_meta[list_keys[id_]]["trained"] = [
-                                        {   
-                                            "gender" : "other",
+                                        {
+                                            "gender": "other",
                                             "group": model_cat,
                                             "category": [
                                                 " ".join(tg.split("-")) for tg in tag
@@ -207,7 +222,7 @@ def yolo_proc(yolo_model_path, InferDataset, Pre):
                         image_tensor * result.masks.data[j].to("cpu").unsqueeze(0)
                     )
                     tensor_image.save(
-                        f"/home/timssh/ML/TAGGING/DATA/segmentation/picture/{batch[1][image_id]}_{j}.jpeg"
+                        f"/home/timssh/ML/TAGGING/DATA/segmentation/picture/{batch[1][image_id]}_{gender_dict[bbox_cls]}_{j}.jpeg"
                     )
                     yolo_meta_dict[j] = {
                         "conf": float(result.boxes.conf[j]),
@@ -284,7 +299,7 @@ def parse_meta_v2(
                         metas[picset] = get_meta_id(picset, "meta.json")
                     id_meta = metas[picset]
                 except:
-                    print(picset, 'error')
+                    print(picset, "error")
                     continue
 
                 list_jpeg = list(id_meta.keys())
@@ -418,7 +433,7 @@ def parse_meta_v2(
     return metas
 
 
-def save_meta(metas, path_models, mode = "meta.json"):
+def save_meta(metas, path_models, mode="meta.json"):
     print("save_meta")
     for key, value in metas.items():
         meta_js = get_meta(key, mode)

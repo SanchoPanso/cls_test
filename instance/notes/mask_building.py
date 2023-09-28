@@ -4,7 +4,7 @@ import os
 from torchvision.transforms import transforms as T
 import kornia as K
 
-PATH = "/home/timssh/ML/TAGGING/CLS/instance/runs/segment/train7/weights/best.pt"
+PATH = "/home/timssh/ML/TAGGING/CLS/instance/runs/segment/train9/weights/best.pt"
 model = YOLO(PATH)
 
 masks = '/home/timssh/ML/TAGGING/DATA/masks'
@@ -35,4 +35,8 @@ for pic in pic_list:
                 flag = True
                 break
         if not flag:
-            T.ToPILImage()(img).save(os.path.join(masks, pic))
+            mask_img = K.augmentation.PadTo((480, 640), keepdim=True)(
+                    img[:]
+                    * mask[:].data.to("cpu")
+                )
+            T.ToPILImage()(mask_img).save(os.path.join(masks, pic))

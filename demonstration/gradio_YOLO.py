@@ -19,7 +19,7 @@ MODELS = "/home/timssh/ML/TAGGING/DATA/models"
 # MODELS = "/home/timssh/ML/TAGGING/source/source_valid/wandb"
 
 yolo_model = YOLO(
-    "/home/timssh/ML/TAGGING/CLS/instance/runs/segment/train7/weights/best.pt"
+    "/home/timssh/ML/TAGGING/CLS/instance/runs/segment/train9/weights/best.pt"
 )
 
 
