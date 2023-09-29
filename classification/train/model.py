@@ -188,7 +188,8 @@ class EfficientLightning(pl.LightningModule):
         self.lr = 1e-4
         self.sigmoid = nn.Sigmoid()
         self.cross_entropy = nn.BCEWithLogitsLoss(
-            pos_weight=self.get_pos_weight(weights), reduction="none"
+            # pos_weight=self.get_pos_weight(weights),
+            reduction="none",
         )
         self.build_metrics()
         self.save_hyperparameters()

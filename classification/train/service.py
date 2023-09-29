@@ -1,5 +1,5 @@
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, WeightedRandomSampler
 import torch
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
@@ -99,7 +99,8 @@ class TrainWrapper:
             train_set,
             batch_size=self.batch_size,
             pin_memory=True,
-            shuffle=True,
+            sampler=self.get_sampler(),
+            # shuffle=True,
             num_workers=self.num_workers,
         )
         self.val_loader = DataLoader(
@@ -125,6 +126,19 @@ class TrainWrapper:
         )
         lr_monitor = LearningRateMonitor(logging_interval="step")
         return [checkpoint_callback, lr_monitor]
+
+    def get_sampler(self):
+        cols = self.__train_pd.columns[1:]
+        df_len = len(self.__train_pd)
+        my_weights = torch.tensor([0.] * df_len)
+        all_ = 0
+        for col in cols:
+            ret = self.__train_pd[col][self.__train_pd[col]==1].sum()
+            indexes_of_cls = list(self.__train_pd[col][self.__train_pd[col]==1].index)
+            my_weights[indexes_of_cls] = 1 / len(indexes_of_cls)
+            all_ += ret
+        my_weights[my_weights == 0] = 1 / (df_len - all_)
+        return WeightedRandomSampler(my_weights, num_samples=df_len, replacement=True)
 
     def get_best_model(self, model):
         path_ = glob(

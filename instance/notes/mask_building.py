@@ -3,6 +3,7 @@ from ultralytics import YOLO
 import os
 from torchvision.transforms import transforms as T
 import kornia as K
+from tqdm import tqdm
 
 PATH = "/home/timssh/ML/TAGGING/CLS/instance/runs/segment/train9/weights/best.pt"
 model = YOLO(PATH)
@@ -11,7 +12,8 @@ masks = '/home/timssh/ML/TAGGING/DATA/masks'
 image_path = '/home/timssh/ML/TAGGING/DATA/picture'
 pic_list = os.listdir(image_path)
 
-for pic in pic_list:
+# TODO: Переписать на более быстрый варианm с использованием батчей
+for pic in tqdm(pic_list):
     image = Image.open(os.path.join(image_path, pic)).convert('RGB')
     img = T.ToTensor()(image)
     if img.size()[1] < img.size()[2]:                    
