@@ -11,6 +11,14 @@ from PIL import Image
 import pandas as pd
 from os.path import join
 
+import albumentations as A
+import cv2
+import numpy as np
+import glob 
+import os
+import random
+import math
+
 
 class ModelBuilder:
 
@@ -79,57 +87,189 @@ def image_to_tensor(path):
     tensor = Image.open(path)
     return T.ToTensor()(tensor.convert("RGB")).float()   
 
+
 class ImageDataset(Dataset):
-    """
-    Description:
-        Torch DataSet for image loading and preprocessing.
-        :data: pandas.DataFrame
-        :root: str
-        :transforms: nn.Sequential
-        :label2num: dict
+    """Torch Dataset for image loading and preprocessing with sample generation.
     """
 
     def __init__(
         self,
         data: pd.DataFrame,
-        transforms: nn.Sequential,
+        transforms: nn.Sequential = None,
         root: str = "",
         train: bool = True,
+        group: str = 'sex_position',
     ):
+        """_summary_
+
+        :param data: pandas DataFrame
+        :param transforms: _description_
+        :param root: _description_, defaults to ""
+        :param train: _description_, defaults to True
+        :param group: _description_, defaults to 'sex_position'
+        """
+        
         self.data = data
-        self.transforms = transforms
         self.root = root
+        self.group = group
         self.train = train
-
-    def parse_data(self, data):
-        path = join(self.root, data["path"])
-        img, label = image_to_tensor_train(path), data[1:].values.astype(int)
-        if self.train and torch.rand(1) > 0.7:
-            if img.size()[1] < img.size()[2]:                    
-                img = K.augmentation.LongestMaxSize(320)(img)
-            else:
-                img = K.augmentation.LongestMaxSize(240)(img)
-            img = K.augmentation.PadTo((240, 320), keepdim=True)(img)
-        else:
-            if img.size()[1] < img.size()[2]:                    
-                img = K.augmentation.LongestMaxSize(640)(img)
-            else:
-                img = K.augmentation.LongestMaxSize(480)(img)
-            img = K.augmentation.PadTo((480, 640), keepdim=True)(img)
-
-        return img.squeeze(0), label
+        self.transforms = transforms
+        
+        available_groups = ['sex_position']
+        assert self.group in available_groups
+        
+        self.num_classes = len(data.columns) - 1
+        self.num2label = {i: col for i, col in enumerate(data.columns[1:])}
+        
 
     @torch.no_grad()
     def __getitem__(self, idx):
-        data = self.data.iloc[idx]
-        img, label = self.parse_data(data)
-        if self.transforms:
-            img = self.transforms(img)
-        # print(label)
-        return img.to(torch.float16), torch.tensor(label, dtype=torch.float16)
+        
+        bg_img = self.get_bg_img()
+        fg_img = self.get_fg_img(idx, (bg_img.shape[1], bg_img.shape[0]))
+        img = self.merge_images(bg_img, fg_img)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = T.ToTensor()(img).float()
+        
+        if self.transforms is not None:
+            img = self.transforms(image=img)['image']
+            
+        if self.train and torch.rand(1) > 0.7:
+            img = self.resize_with_pad(img, (320, 240))
+        else:
+            img = self.resize_with_pad(img, (640, 480))
+        
+        img = img.squeeze(0).to(torch.float16)
+        label = torch.tensor(self.data.iloc[idx][1:], dtype=torch.float16)
+        return img, label
 
     def __len__(self):
         return len(self.data)
+    
+    def resize_with_pad(self, img: torch.Tensor, size: tuple) -> torch.Tensor:
+        w, h = size
+        if img.size()[1] < img.size()[2]:                    
+            img = K.augmentation.LongestMaxSize(w)(img)
+        else:
+            img = K.augmentation.LongestMaxSize(h)(img)
+        img = K.augmentation.PadTo((h, w), keepdim=True)(img)
+        return img
+
+    def get_bg_img(self):
+        idx = random.randint(0, len(self.data) - 1)
+        data = self.data.iloc[idx]
+        img_fn = data['path']
+        if os.path.splitext(img_fn)[1] == '.gif':
+            img = np.zeros((640, 640, 3), dtype='uint8')
+        else:
+            img = cv2.imread(os.path.join(self.root, 'background', img_fn))
+        return img
+    
+    def get_fg_img(self, idx: int, bg_size: tuple):
+        data = self.data.iloc[idx]
+        cur_class = data[1:].values.argmax()
+        img_fn = data['path']
+        img_name = os.path.splitext(img_fn)[0]
+        
+        fg_img_paths = glob.glob(os.path.join(self.root, 'male', f"{img_name}_*"))
+        fg_img_paths += glob.glob(os.path.join(self.root, 'female', f"{img_name}_*"))
+        fg_imgs = [cv2.imread(path) for path in fg_img_paths]
+        
+        width, height = bg_size
+        res_img = np.zeros((height, width, 3), dtype='uint8')
+        for fg_img in fg_imgs:
+            fg_img = A.LongestMaxSize(max_size=min(width, height))(image=fg_img)['image']
+            fg_img = A.PadIfNeeded(min_height=height, min_width=width, border_mode=cv2.BORDER_CONSTANT)(image=fg_img)['image']
+            res_img += fg_img
+        
+        res_img = self.warp_fg_img(res_img, cur_class)
+        return res_img
+    
+    def warp_fg_img(self, img: np.ndarray, cur_class: int):
+        mask = self.get_black_mask(img)
+        contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if len(contours) > 0:
+            common_cnt = np.concatenate(contours, axis=0)
+            x, y, w, h = cv2.boundingRect(common_cnt)
+            x2, y2 = x + w, y + h
+            height, width = img.shape[:2]
+            translate = min(x / width, (width - x2) / width, y / height, (height - y2) / height)
+        else:
+            translate = 0.1
+        
+        if self.num2label[cur_class] == 'spooning':
+            degrees = 0
+        else:
+            degrees = 70
+        
+        warp_mat = self.get_random_perspective_transform(img.shape, translate=translate, degrees=degrees, scale=0.3)
+        img = cv2.warpPerspective(img, warp_mat, (img.shape[1], img.shape[0]))
+        return img
+        
+    def merge_images(self, background_img: np.ndarray, foreground_img: np.ndarray):
+        mask = self.get_black_mask(foreground_img)
+        mask_inv = cv2.bitwise_not(mask)
+        
+        bg_without_fg = cv2.bitwise_and(background_img, background_img, mask=mask_inv)
+        final_img = cv2.add(bg_without_fg, foreground_img)
+        
+        return final_img
+
+    def get_black_mask(self, img: np.ndarray, threshold: int = 5):
+        gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        ret, mask = cv2.threshold(gray_img, threshold, 255, cv2.THRESH_BINARY)
+        return mask
+    
+    def get_resizing_transform(self, width: int, height: int):
+        transforms = [
+            A.LongestMaxSize(max_size=min(width, height)),
+            A.PadIfNeeded(min_height=height, min_width=width, border_mode=cv2.BORDER_CONSTANT),
+        ]
+        return A.Compose(transforms)
+    
+    def get_random_perspective_transform(self,
+                                         img_shape: tuple,
+                                         degrees=20,
+                                         translate=0.4,
+                                         scale=0.2,
+                                         shear=30,
+                                         perspective=0.0) -> np.ndarray:
+        height = img_shape[0]
+        width = img_shape[1]
+
+        # Center
+        C = np.eye(3)
+        C[0, 2] = -img_shape[1] / 2  # x translation (pixels)
+        C[1, 2] = -img_shape[0] / 2  # y translation (pixels)
+
+        # Perspective
+        P = np.eye(3)
+        P[2, 0] = random.uniform(-perspective, perspective)  # x perspective (about y)
+        P[2, 1] = random.uniform(-perspective, perspective)  # y perspective (about x)
+
+        # Rotation and Scale
+        R = np.eye(3)
+        a = random.uniform(-degrees, degrees)
+        # a += random.choice([-180, -90, 0, 90])  # add 90deg rotations to small rotations
+        # s = random.uniform(scale - scale_range, scale + scale_range)
+        s = random.uniform(1 - scale, 1 + scale)
+        # s = 2 ** random.uniform(-scale, scale)
+        R[:2] = cv2.getRotationMatrix2D(angle=a, center=(0, 0), scale=s)
+
+        # Shear
+        S = np.eye(3)
+        S[0, 1] = math.tan(random.uniform(-shear, shear) * math.pi / 180)  # x shear (deg)
+        S[1, 0] = math.tan(random.uniform(-shear, shear) * math.pi / 180)  # y shear (deg)
+
+        # Translation
+        T = np.eye(3)
+        T[0, 2] = random.uniform(0.5 - translate, 0.5 + translate) * width  # x translation (pixels)
+        T[1, 2] = random.uniform(0.5 - translate, 0.5 + translate) * height  # y translation (pixels)
+
+        # Combined rotation matrix
+        M = T @ S @ R @ P @ C  # order of operations (right to left) is IMPORTANT
+
+        return M
 
 
 class InferDataset(Dataset):
