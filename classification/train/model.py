@@ -100,13 +100,12 @@ class ImageDataset(Dataset):
         train: bool = True,
         group: str = 'sex_position',
     ):
-        """_summary_
-
+        """
         :param data: pandas DataFrame
-        :param transforms: _description_
-        :param root: _description_, defaults to ""
-        :param train: _description_, defaults to True
-        :param group: _description_, defaults to 'sex_position'
+        :param transforms: image transforms that will be invoked in __getitem__
+        :param root: path to dir that must contain subdirs 'background', 'male', 'female', defaults to ""
+        :param train: whether train or not, defaults to True
+        :param group: group of categories that affects the way of image generation, defaults to 'sex_position'
         """
         
         self.data = data
@@ -115,7 +114,7 @@ class ImageDataset(Dataset):
         self.train = train
         self.transforms = transforms
         
-        available_groups = ['sex_position']
+        available_groups = ['sex_position', 'tits_size']
         assert self.group in available_groups
         
         self.num_classes = len(data.columns) - 1
@@ -125,19 +124,23 @@ class ImageDataset(Dataset):
     @torch.no_grad()
     def __getitem__(self, idx):
         
+        # Get random background img from "{root}/background/"
         bg_img = self.get_bg_img()
+        
+        # Get foreground img by index using dirs "{root}/male/" and "{root}/female/"
         fg_img = self.get_fg_img(idx, (bg_img.shape[1], bg_img.shape[0]))
+        
         img = self.merge_images(bg_img, fg_img)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img = T.ToTensor()(img).float()
         
         if self.transforms is not None:
-            img = self.transforms(image=img)['image']
+            img = self.transforms(img)
             
         if self.train and torch.rand(1) > 0.7:
-            img = self.resize_with_pad(img, (320, 240))
+            img = self.resize_tensor_with_pad(img, (320, 240))
         else:
-            img = self.resize_with_pad(img, (640, 480))
+            img = self.resize_tensor_with_pad(img, (640, 480))
         
         img = img.squeeze(0).to(torch.float16)
         label = torch.tensor(self.data.iloc[idx][1:], dtype=torch.float16)
@@ -146,7 +149,7 @@ class ImageDataset(Dataset):
     def __len__(self):
         return len(self.data)
     
-    def resize_with_pad(self, img: torch.Tensor, size: tuple) -> torch.Tensor:
+    def resize_tensor_with_pad(self, img: torch.Tensor, size: tuple) -> torch.Tensor:
         w, h = size
         if img.size()[1] < img.size()[2]:                    
             img = K.augmentation.LongestMaxSize(w)(img)
@@ -155,21 +158,48 @@ class ImageDataset(Dataset):
         img = K.augmentation.PadTo((h, w), keepdim=True)(img)
         return img
 
-    def get_bg_img(self):
-        idx = random.randint(0, len(self.data) - 1)
-        data = self.data.iloc[idx]
-        img_fn = data['path']
-        if os.path.splitext(img_fn)[1] == '.gif':
-            img = np.zeros((640, 640, 3), dtype='uint8')
-        else:
-            img = cv2.imread(os.path.join(self.root, 'background', img_fn))
+    def resize_with_pad(self, img: np.ndarray, size: tuple) -> np.ndarray:
+        """Resize img with pad keeping original ratio"""
+        w, h = size
+        img = A.LongestMaxSize(max_size=min(w, h))(image=img)['image']
+        img = A.PadIfNeeded(min_height=h, min_width=w, border_mode=cv2.BORDER_CONSTANT)(image=img)['image']
         return img
     
-    def get_fg_img(self, idx: int, bg_size: tuple):
+    def get_bg_img(self) -> np.ndarray:
+        if self.group == 'tits_size':
+            img = self.get_bg_tits_size()
+        else: # default - 'sex_position'
+            img = self.get_bg_sex_position()
+        return img
+    
+    def get_fg_img(self, idx: int, bg_size: tuple) -> np.ndarray:
+        if self.group == 'tits_size':
+            img = self.get_fg_tits_size(idx, bg_size)
+        else: # default - 'sex_position'
+            img = self.get_fg_sex_position(idx, bg_size)
+        return img
+    
+    def get_data_by_idx(self, idx) -> tuple:
+        """Parse info from self.data by index
+
+        :param idx: current index
+        :return: tuple of image name and class number 
+        """
         data = self.data.iloc[idx]
         cur_class = data[1:].values.argmax()
         img_fn = data['path']
         img_name = os.path.splitext(img_fn)[0]
+        return img_name, cur_class
+    
+    def get_fg_sex_position(self, idx, bg_size):
+        """Create foreground for 'sex position' group. 
+        Find all male and female masks for specific index and paste into image with distortions
+
+        :param idx: _description_
+        :param bg_size: _description_
+        :return: _description_
+        """
+        img_name, cur_class = self.get_data_by_idx(idx)
         
         fg_img_paths = glob.glob(os.path.join(self.root, 'male', f"{img_name}_*"))
         fg_img_paths += glob.glob(os.path.join(self.root, 'female', f"{img_name}_*"))
@@ -178,31 +208,97 @@ class ImageDataset(Dataset):
         width, height = bg_size
         res_img = np.zeros((height, width, 3), dtype='uint8')
         for fg_img in fg_imgs:
-            fg_img = A.LongestMaxSize(max_size=min(width, height))(image=fg_img)['image']
-            fg_img = A.PadIfNeeded(min_height=height, min_width=width, border_mode=cv2.BORDER_CONSTANT)(image=fg_img)['image']
+            fg_img = self.resize_with_pad(fg_img, (width, height))
             res_img += fg_img
         
-        res_img = self.warp_fg_img(res_img, cur_class)
+        # Spooning pose always horizontal so it doesnt need to be rotated
+        degrees = 0 if self.num2label[cur_class] == 'spooning' else 70
+        res_img = self.warp_img(res_img, degrees=degrees)
+        return res_img
+
+    
+    def get_fg_tits_size(self, idx, bg_size):
+        """Create foreground for 'tits_size' group. 
+        Find only female masks for specific index and paste into image with distortions
+
+        :param idx: _description_
+        :param bg_size: _description_
+        :return: _description_
+        """
+        img_name, cur_class = self.get_data_by_idx(idx)
+        
+        fg_img_paths = glob.glob(os.path.join(self.root, 'female', f"{img_name}_*"))
+        fg_imgs = [cv2.imread(path) for path in fg_img_paths]
+        
+        width, height = bg_size
+        res_img = np.zeros((height, width, 3), dtype='uint8')
+        for fg_img in fg_imgs:
+            fg_img = self.resize_with_pad(fg_img, (width, height))
+            res_img += fg_img
+        
+        res_img = self.warp_img(res_img)
         return res_img
     
-    def warp_fg_img(self, img: np.ndarray, cur_class: int):
+    def read_random_bg_img(self) -> np.ndarray:
+        """Read random background image listed in self.data"""
+        idx = random.randint(0, len(self.data) - 1)
+        data = self.data.iloc[idx]
+        img_fn = data['path']
+        
+        # Note: I dont know how to handle .gif files corectly (cv2.imread cant read this), 
+        # that's why I just make black image instead 
+        if os.path.splitext(img_fn)[1] == '.gif': 
+            img = np.zeros((640, 640, 3), dtype='uint8')
+        else:
+            img = cv2.imread(os.path.join(self.root, 'background', img_fn))
+        return img
+    
+    def get_bg_sex_position(self):
+        img = self.read_random_bg_img()
+        return img
+    
+    def get_bg_tits_size(self, p=0.5):
+        """Read random background image and add a random male with probability 'p' """
+        img = self.read_random_bg_img()
+        
+        if random.random() < p:
+            male_paths = glob.glob(os.path.join(self.root, 'male', f"*"))
+            male_path = random.choice(male_paths)
+            
+            male_img = cv2.imread(male_path)
+            male_img = self.resize_with_pad(male_img, (img.shape[1], img.shape[0]))
+            male_img = self.warp_img(male_img)
+            img = self.merge_images(img, male_img)    
+        
+        return img
+    
+    
+    def warp_img(self, 
+                 img: np.ndarray, 
+                 degrees=20, 
+                 translate=0.1, 
+                 scale=0.3,
+                 shear=30,
+                 perspective=0.0):
+        
         mask = self.get_black_mask(img)
-        contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        if len(contours) > 0:
-            common_cnt = np.concatenate(contours, axis=0)
-            x, y, w, h = cv2.boundingRect(common_cnt)
-            x2, y2 = x + w, y + h
-            height, width = img.shape[:2]
-            translate = min(x / width, (width - x2) / width, y / height, (height - y2) / height)
-        else:
-            translate = 0.1
         
-        if self.num2label[cur_class] == 'spooning':
-            degrees = 0
-        else:
-            degrees = 70
+        # NOTE: I am not sure that this is works correctly, so let it be commented at the moment
+        # contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        # if len(contours) > 0:
+        #     common_cnt = np.concatenate(contours, axis=0)
+        #     x, y, w, h = cv2.boundingRect(common_cnt)
+        #     x2, y2 = x + w, y + h
+        #     height, width = img.shape[:2]
+        #     translate = min(x / width, (width - x2) / width, y / height, (height - y2) / height)
+        # else:
+        #     translate = 0.1
         
-        warp_mat = self.get_random_perspective_transform(img.shape, translate=translate, degrees=degrees, scale=0.3)
+        warp_mat = self.get_random_perspective_transform(img.shape, 
+                                                         translate=translate, 
+                                                         degrees=degrees, 
+                                                         scale=scale,
+                                                         shear=shear)
         img = cv2.warpPerspective(img, warp_mat, (img.shape[1], img.shape[0]))
         return img
         
