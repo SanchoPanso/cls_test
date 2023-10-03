@@ -6,6 +6,12 @@ import torch
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
 
+from ultralytics import YOLO
+import os
+from tqdm import tqdm
+import cv2
+import numpy as np
+
 from glob import glob
 
 group_dict = {
@@ -241,6 +247,100 @@ def yolo_proc(yolo_model_path, InferDataset, Pre):
                         f,
                     )
     print("done")
+    
+    
+def apply_bilinear_interp(crop: np.ndarray):
+
+    h, w = crop.shape[0], crop.shape[1]
+    if w <= 2 or h <= 2:
+        return crop
+
+    tmp_img = np.zeros((2, 2, 3), dtype=crop.dtype)
+    
+    for i in range(2):
+        for j in range(2):
+            tmp_img[i][j] = crop[i * (h - 1)][j * (w - 1)]
+    
+    interp_crop = cv2.resize(tmp_img, (w, h), interpolation=cv2.INTER_LINEAR)
+    return interp_crop
+
+
+def yolo_proc_for_img_gen(yolo_model_path, InferDataset, Pre, src_path, dst_path):
+    """This is version of 'yolo_proc' for creating dataset for image generation
+
+    :param yolo_model_path: path to yolo model
+    :param InferDataset: 
+    :param Pre: 
+    :param src_path: directory with source images
+    :param dst_path: directory in wcich subdirs 'background', 'female', 'male' will be created
+    """
+
+    yolo_model = YOLO(yolo_model_path)
+    os.makedirs(src_path, exist_ok=True)
+    os.makedirs(os.path.join(dst_path, 'female'), exist_ok=True)
+    os.makedirs(os.path.join(dst_path, 'male'), exist_ok=True)
+    os.makedirs(os.path.join(dst_path, 'background'), exist_ok=True)
+    os.makedirs(os.path.join(dst_path, 'boxes'), exist_ok=True)
+
+    list_of_paths = glob(os.path.join(src_path, '*'))
+    list_2_intersect = glob(os.path.join(dst_path, 'boxes', '*'))
+    list_2_intersect = [item.split("/")[-1].split(".")[0] for item in list_2_intersect]
+    
+    # # Exclude already processed images
+    # list_of_paths = [
+    #     item
+    #     for item in list_of_paths
+    #     if item.split("/")[-1].split(".")[0] not in list_2_intersect
+    # ]
+        
+    # infer = InferDataset(list_of_paths, Pre)
+    # loader = DataLoader(infer, 40, num_workers=32, pin_memory=True, shuffle=False)
+    gender_dict = {"girl": "female", "man": "male"}
+    
+    for img_path in tqdm(list_of_paths):
+        name, ext = os.path.splitext(os.path.split(img_path)[1])
+        img = cv2.imread(img_path)
+        if img is None:
+            continue
+        
+        yolo_results = yolo_model(img)
+    
+        for image_id, result in enumerate(yolo_results):
+            yolo_meta_dict = {}
+            bg_img = img.copy()
+    
+            for j in range(len(result.boxes.xyxy)):
+                if result.boxes.conf[j] >= 0.75:
+                    bbox_tensor = result.boxes.xyxy[j]#.to(torch.float16)
+                    bbox_cls = result.boxes.cls[j].to(int)
+                    bbox_cls = gender_dict[result.names[int(bbox_cls)]]
+                    
+                    x1, y1, x2, y2 = map(lambda x: x.int().item(), bbox_tensor.cpu())
+                    bg_img[y1: y2, x1: x2] = apply_bilinear_interp(bg_img[y1: y2, x1: x2])
+                    
+                    mask = result.masks.data[j].cpu().unsqueeze(0).numpy()
+                    mask = (mask > 0.5).astype('uint8')[0]
+                    mask = cv2.resize(mask, (img.shape[1], img.shape[0]))
+                    mask = mask[..., np.newaxis]
+                    
+                    masked_img = img * mask
+                    cv2.imwrite(os.path.join(dst_path, bbox_cls, f'{name}_{j}{ext}'), masked_img)
+                    
+                    yolo_meta_dict[j] = {
+                        "conf": float(result.boxes.conf[j]),
+                        "bbox": bbox_tensor.tolist(),
+                        "cls": gender_dict[bbox_cls]
+                        if bbox_cls in gender_dict.keys()
+                        else bbox_cls,
+                    }
+            cv2.imwrite(os.path.join(dst_path, 'background', f'{name}{ext}'), bg_img)
+                    
+            if len(yolo_meta_dict) > 0:
+                with open(os.path.join(dst_path, 'boxes', f"{name}.json"), "w") as f:
+                    json.dump(yolo_meta_dict, f)
+                    
+    print("done")
+
 
 
 def get_box(id_item):

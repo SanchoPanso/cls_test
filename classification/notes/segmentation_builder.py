@@ -1,11 +1,19 @@
 import sys
+import os
+import logging
+import ultralytics
 
-sys.path.append("/home/timssh/ML/TAGGING/CLS/classification")
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from scripts.utils import  yolo_proc
+from scripts.utils import  yolo_proc_for_img_gen
 from train.model import InferDataset
 from train.augmentation import PreProcess
 
+logging.getLogger('ultralytics').handlers = [logging.NullHandler()]
+
 Pre = PreProcess(gray=False, vflip=False, arch="eff")
-yolo_path = '/home/timssh/ML/TAGGING/CLS/instance/runs/segment/train7/weights/best.pt'
-yolo_proc(yolo_path, InferDataset, Pre)
+yolo_path = '/home/achernikov/CLS/best_people_28092023.pt'
+src_path = '/home/achernikov/CLS/DATA/datasets/picture'
+dst_path = '/home/achernikov/CLS/DATA/segmentation'
+yolo_proc_for_img_gen(yolo_path, InferDataset, Pre, src_path, dst_path)
+
