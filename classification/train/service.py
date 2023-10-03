@@ -45,7 +45,8 @@ class TrainWrapper:
         self.gray = cfg.gray
         self.vflip = cfg.vflip
         self.batch_size = cfg.batch_size
-        self.DATA = self.ROOT + "masks" if cfg.masks else self.ROOT + "picture"
+        self.masks = cfg.masks
+        self.DATA = self.ROOT + "masks" if self.masks else self.ROOT + "picture"
         self.num_workers = num_workers
         self.__imageDataset = imageDataset
         self.__preProc = preProc
@@ -114,7 +115,7 @@ class TrainWrapper:
         log_dir = join(self.MODEL, self.cat)
         os.makedirs(log_dir, exist_ok=True)
         self.save_dir = self.MODEL
-        self.experiment_name = f"v__{str(len(os.listdir(log_dir)))}_{self.mode}_{self.arch}_{self.batch_size}_{self.decay}"
+        self.experiment_name = f"v__{str(len(os.listdir(log_dir)))}_{self.mode}_{self.arch}_{self.DATA.split('/')[-1]}_{self.batch_size}_{self.decay}"
 
     # @staticmethod
     def get_callbacks(self, monitor="val_F1_Macro_epoch", mode="max"):

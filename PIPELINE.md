@@ -1,5 +1,6 @@
 TRAIN  
 1 качаем контент по выбранной группе: CLS/classification/scripts/loaders/loader_by_group.py в файле сказать какую группу качать
+1* Опционалльно создать маски для контента: CLS/instance/notes/mask_building.py
 2 из директории CLS/classification запускаем nohup $(pwd)/train.sh & предварительно в train.sh настоить конфигурацию обучения сети
 3 модель будет в DATA/models, для её запуска torch.jit.load('DATA/models/model.pt', _extra_files=extra_files), где extra_files = {'num2label.txt': ''} - это файл с метками классов, если он есть
 
@@ -12,3 +13,6 @@ INFERENSE
 
 DEMONSTARION  
 1 запускаем CLS/demonstration/gradio_YOLO.py с указанием группы, мету которой мы отправляем обратно
+
+
+Раскладывать по папкам - на стороне никиты, ему отправляю маски, он их раскладывает по папкам скриптом, смотрит косяки в разметке, и в детекции
