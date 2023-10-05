@@ -4,6 +4,8 @@ import torch
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 from .model import ModelBuilder
+from .datasets import ImageDataset, get_dataset_by_group
+from .augmentation import PreProcess, DataAugmentation
 import pandas as pd
 import os
 from os.path import join
@@ -30,13 +32,13 @@ class TrainWrapper:
 
     """
 
-    SOURCE = "/home/timssh/ML/TAGGING/DATA/datasets"
-    # DATA = "/home/timssh/ML/TAGGING/DATA/picture"
-    MODEL = "/home/timssh/ML/TAGGING/DATA/models"
-    ROOT = "/home/timssh/ML/TAGGING/DATA/"
+    # SOURCE = "/home/timssh/ML/TAGGING/DATA/datasets"
+    # # DATA = "/home/timssh/ML/TAGGING/DATA/picture"
+    # MODEL = "/home/timssh/ML/TAGGING/DATA/models"
+    # ROOT = "/home/timssh/ML/TAGGING/DATA/"
 
     def __init__(
-        self, cfg, imageDataset, preProc, num_workers=32, pre_train=True
+        self, cfg, num_workers=32, pre_train=True
     ) -> None:
         self.cat = cfg.cat
         self.mode = cfg.mode
@@ -45,10 +47,13 @@ class TrainWrapper:
         self.gray = cfg.gray
         self.vflip = cfg.vflip
         self.batch_size = cfg.batch_size
-        self.DATA = self.ROOT + "masks" if cfg.masks else self.ROOT + "picture"
+        self.dataset_meta_path = cfg.dataset_meta_path
+        self.dataset_root_path = cfg.dataset_root_path
+        self.models_dir = cfg.models_dir
+        #self.DATA = self.ROOT + "masks" if cfg.masks else self.ROOT + "picture"
         self.num_workers = num_workers
-        self.__imageDataset = imageDataset
-        self.__preProc = preProc
+        # self.__imageDataset = imageDataset
+        # self.__preProc = preProc
         self.__get_class_decoder()
         self.__get_dataloader()
         self.__save_log_dir()
@@ -57,7 +62,7 @@ class TrainWrapper:
         )
 
     def __get_class_decoder(self):
-        with open(join(self.SOURCE, f"{self.cat}.json")) as f:
+        with open(self.dataset_meta_path) as f:
             json_ = json.load(f)
         self.cats = json_["cat"]
         self.num2label = json_["num2label"]
@@ -81,18 +86,19 @@ class TrainWrapper:
             self.__val_pd = shuffle(self.__train_pd)
 
     def __get_dataloader(self):
-        # REQUIRED
-        train_set = self.__imageDataset(
-            self.__train_pd,
-            self.__preProc(gray=self.gray, vflip=self.vflip, arch=self.arch),
+        train_set = get_dataset_by_group(
+            group='sex_position',
+            data=self.__train_pd,
+            transforms=PreProcess(gray=self.gray, vflip=self.vflip, arch=self.arch),
             train=True,
-            root=self.DATA,
+            root=self.dataset_root_path,
         )
-        val_set = self.__imageDataset(
-            self.__val_pd,
-            self.__preProc(gray=False, vflip=False, arch=self.arch),
+        val_set = get_dataset_by_group(
+            group='sex_position',
+            data=self.__val_pd,
+            transforms=PreProcess(gray=False, vflip=False, arch=self.arch),
             train=False,
-            root=self.DATA,
+            root=self.dataset_root_path,
         )
 
         self.train_loader = DataLoader(
@@ -111,9 +117,9 @@ class TrainWrapper:
         )
 
     def __save_log_dir(self):
-        log_dir = join(self.MODEL, self.cat)
+        log_dir = join(self.models_dir, self.cat)
         os.makedirs(log_dir, exist_ok=True)
-        self.save_dir = self.MODEL
+        self.save_dir = self.models_dir
         self.experiment_name = f"v__{str(len(os.listdir(log_dir)))}_{self.mode}_{self.arch}_{self.batch_size}_{self.decay}"
 
     # @staticmethod

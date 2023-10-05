@@ -1,19 +1,68 @@
+import os
+from pathlib import Path
+import yaml
 import torch
+from easydict import EasyDict
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import WandbLogger
-from train.augmentation import DataAugmentation, PreProcess
-from train.model import EfficientLightning, ImageDataset
+from train.augmentation import DataAugmentation
+from train.model import EfficientLightning
 from train.service import TrainWrapper
 import argparse
 
-torch.cuda.empty_cache()
 
-if __name__ == "__main__":
+def main():
+    torch.cuda.empty_cache()
+    args = parse_args()
+    cfg = get_cfg(args)
+
+    WRAPPER = TrainWrapper(
+        cfg=cfg,
+        num_workers=32,
+    )
+
+    model = EfficientLightning(
+        model=WRAPPER.model,
+        num2label=WRAPPER.num2label,
+        batch_size=WRAPPER.batch_size,
+        decay=WRAPPER.decay,
+        augmentation=DataAugmentation,
+        weights=WRAPPER.weights,
+    )
+
+    wandb_logger = WandbLogger(
+        project=WRAPPER.cat,
+        save_dir=WRAPPER.save_dir,
+        name=WRAPPER.experiment_name,
+        log_model=True,
+        id=WRAPPER.experiment_name,
+    )
+
+    # Initialize a trainer
+    trainer = Trainer(
+        accelerator="gpu",
+        devices=[0],
+        max_epochs=cfg.epochs, # 60,
+        precision=16,
+        log_every_n_steps=1,
+        logger=wandb_logger,
+        callbacks=WRAPPER.get_callbacks(),
+    )
+    # Train the model ⚡
+    trainer.fit(model, WRAPPER.train_loader, WRAPPER.val_loader)
+
+    path_ = WRAPPER.get_best_model(model)
+
+
+def parse_args():
     parser = argparse.ArgumentParser(
         description="Type path to: model, json, data(optional)"
     )
     parser.add_argument(
-        "--cat", dest="cat", type=str, default="tits", help="Category", required=False
+        "--cfg", type=str, default=os.path.join(os.path.dirname(__file__), 'cfg', 'default.yaml'),
+    )
+    parser.add_argument(
+        "--cat", dest="cat", type=str, default="sex_position", help="Category", required=False,
     )
     parser.add_argument(
         "--batch",
@@ -27,7 +76,7 @@ if __name__ == "__main__":
         "--mode",
         dest="mode",
         type=str,
-        default="val",
+        default="train",
         help="Callback mode",
         required=False,
     )
@@ -71,43 +120,25 @@ if __name__ == "__main__":
         help="using masks instead regular images",
         required=False,
     )
+    
+    parser.add_argument(
+        "--epochs",
+        type=int,
+        default=1,
+    )
+    
     args = parser.parse_args()
+    return args
 
-    WRAPPER = TrainWrapper(
-        cfg=args,
-        imageDataset=ImageDataset,
-        preProc=PreProcess,
-        num_workers=32,
-    )
 
-    model = EfficientLightning(
-        model=WRAPPER.model,
-        num2label=WRAPPER.num2label,
-        batch_size=WRAPPER.batch_size,
-        decay=WRAPPER.decay,
-        augmentation=DataAugmentation,
-        weights=WRAPPER.weights,
-    )
+def get_cfg(args: argparse.Namespace) -> EasyDict:
+    cfg_path = args.cfg
+    with open(cfg_path) as f:
+        cfg = yaml.load(f, yaml.Loader)
+    
+    cfg.update(vars(args))
+    return EasyDict(cfg)
+    
 
-    wandb_logger = WandbLogger(
-        project=WRAPPER.cat,
-        save_dir=WRAPPER.save_dir,
-        name=WRAPPER.experiment_name,
-        log_model=True,
-        id=WRAPPER.experiment_name,
-    )
-
-    # Initialize a trainer
-    trainer = Trainer(
-        accelerator="gpu",
-        devices=[1],
-        max_epochs=60,
-        precision=16,
-        log_every_n_steps=1,
-        logger=wandb_logger,
-        callbacks=WRAPPER.get_callbacks(),
-    )
-    # Train the model ⚡
-    trainer.fit(model, WRAPPER.train_loader, WRAPPER.val_loader)
-
-    path_ = WRAPPER.get_best_model(model)
+if __name__ == "__main__":
+    main()

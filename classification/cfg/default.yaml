@@ -1,0 +1,8 @@
+dataset_meta_path: '/home/achernikov/DATA/datasets/sex_position/sex_positions.json'
+badlist_path: ''
+dataset_root_path: '/home/achernikov/DATA/segmentation'
+models_dir: '/home/achernikov/CLS/MODEL'
+
+
+
+
