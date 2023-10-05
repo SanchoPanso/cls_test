@@ -9,9 +9,11 @@ instance/yolov8n.pt
 *.pyc
 *.pt
 *.jpg
-*.out
+**/*.out
 *.sh
 
+MODEL
+DATA
 
 
 # Byte-compiled / optimized / DLL files
