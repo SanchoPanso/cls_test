@@ -32,11 +32,6 @@ class TrainWrapper:
 
     """
 
-    # SOURCE = "/home/timssh/ML/TAGGING/DATA/datasets"
-    # # DATA = "/home/timssh/ML/TAGGING/DATA/picture"
-    # MODEL = "/home/timssh/ML/TAGGING/DATA/models"
-    # ROOT = "/home/timssh/ML/TAGGING/DATA/"
-
     def __init__(
         self, cfg, num_workers=32, pre_train=True
     ) -> None:
@@ -47,9 +42,9 @@ class TrainWrapper:
         self.gray = cfg.gray
         self.vflip = cfg.vflip
         self.batch_size = cfg.batch_size
-        self.dataset_meta_path = cfg.dataset_meta_path
-        self.dataset_root_path = cfg.dataset_root_path
-        self.models_dir = cfg.models_dir
+        self.dataset_meta_path = os.path.join(cfg.data_path, cfg.dataset_path)
+        self.dataset_root_path = os.path.join(cfg.data_path, cfg.masks_dir)
+        self.models_dir = os.path.join(cfg.data_path, cfg.models_dir)
         #self.DATA = self.ROOT + "masks" if cfg.masks else self.ROOT + "picture"
         self.num_workers = num_workers
         # self.__imageDataset = imageDataset
@@ -87,14 +82,14 @@ class TrainWrapper:
 
     def __get_dataloader(self):
         train_set = get_dataset_by_group(
-            group='sex_position',
+            group='tits_size',
             data=self.__train_pd,
             transforms=PreProcess(gray=self.gray, vflip=self.vflip, arch=self.arch),
             train=True,
             root=self.dataset_root_path,
         )
         val_set = get_dataset_by_group(
-            group='sex_position',
+            group='tits_size',
             data=self.__val_pd,
             transforms=PreProcess(gray=False, vflip=False, arch=self.arch),
             train=False,

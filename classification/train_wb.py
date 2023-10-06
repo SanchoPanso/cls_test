@@ -1,10 +1,13 @@
 import os
+import sys
 from pathlib import Path
 import yaml
 import torch
 from easydict import EasyDict
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import WandbLogger
+
+sys.path.append(str(Path(__file__).parent))
 from train.augmentation import DataAugmentation
 from train.model import EfficientLightning
 from train.service import TrainWrapper

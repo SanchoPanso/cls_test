@@ -1,7 +1,17 @@
-dataset_meta_path: '/home/achernikov/DATA/datasets/sex_position/sex_positions.json'
-badlist_path: ''
-dataset_root_path: '/home/achernikov/DATA/segmentation'
-models_dir: '/home/achernikov/CLS/MODEL'
+# Common paths
+data_path: '/home/achernikov/CLS/DATA'
+datasets_dir: 'datasets'
+images_dir: 'pictures'
+masks_dir: 'masks'
+meta_dir: 'meta'
+models_dir: 'models'
+
+# Train paths
+#background_dataset_path: 'datasets/background.json'
+dataset_path: 'datasets/tits_size.json'
+badlist_path: 'badlists/tits_size_badlist.txt'
+
+# additional_background_dir: ''
 
 
 

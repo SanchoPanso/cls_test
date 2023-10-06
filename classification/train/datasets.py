@@ -164,16 +164,16 @@ class ImageDataset(Dataset):
     
     def read_random_bg_img(self) -> np.ndarray:
         """Read random background image listed in self.data"""
-        idx = random.randint(0, len(self.data) - 1)
-        data = self.data.iloc[idx]
-        img_fn = data['path']
+        bg_paths = glob.glob(os.path.join(self.root, 'background', '*'))
+        idx = random.randint(0, len(bg_paths) - 1)
+        img_path = bg_paths[idx]
         
         # Note: I dont know how to handle .gif files corectly (cv2.imread cant read this), 
         # that's why I just make black image instead 
-        if os.path.splitext(img_fn)[1] == '.gif': 
+        if os.path.splitext(img_path)[1] == '.gif': 
             img = np.zeros((640, 640, 3), dtype='uint8')
         else:
-            img = cv2.imread(os.path.join(self.root, 'background', img_fn))
+            img = cv2.imread(img_path)
         return img
     
     def augment_bg_img(self, img: np.ndarray) -> np.ndarray:
