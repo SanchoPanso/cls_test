@@ -65,7 +65,7 @@ def parse_args():
         "--cfg", type=str, default=os.path.join(os.path.dirname(__file__), 'cfg', 'default.yaml'),
     )
     parser.add_argument(
-        "--cat", dest="cat", type=str, default="sex_position", help="Category", required=False,
+        "--cat", dest="cat", type=str, default="tits_size", help="Category", required=False,
     )
     parser.add_argument(
         "--batch",

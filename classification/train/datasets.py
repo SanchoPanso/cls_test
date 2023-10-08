@@ -341,28 +341,55 @@ class TitsSizeDataset(ImageDataset):
         new_columns = ['trash_bg', 'trash_male', 'trash_female']
         expanded_cols = trash_data.columns.tolist() + new_columns
         
-        for i in range(len(trash_data)):
-            path = trash_data['path'].iloc[i]
+        female_paths = os.listdir(os.path.join(self.root, 'female'))
+        female_paths = list(map(lambda x: '_'.join(x.split('_')[:-1]), female_paths))
+        female_paths.sort()
+        
+        male_paths = os.listdir(os.path.join(self.root, 'male'))
+        male_paths = list(map(lambda x: '_'.join(x.split('_')[:-1]), male_paths))
+        male_paths.sort()
+        
+        female_idx = 0
+        male_idx = 0
+        
+        paths = trash_data['path'].tolist()
+        paths.sort(key=lambda x: os.path.splitext(x)[0])
+        
+        for path in paths:
+            # path = trash_data['path'].iloc[i]
             name, ext = os.path.splitext(path)
             
             bg_row = {col: 0 for col in expanded_cols}
             bg_row['path'] = path
             bg_row['trash_bg'] = 1
             expanded_trash_data.append(bg_row)
+                
+            while female_idx < len(female_paths) and female_paths[female_idx] <= name:
+                
+                if female_paths[female_idx] == name:
+                    female_row = {col: 0 for col in expanded_cols}
+                    female_row['path'] = path
+                    female_row['trash_female'] = 1
+                    expanded_trash_data.append(female_row)
+                    
+                    female_idx += 1
+                    break
+                
+                female_idx += 1
             
-            female_paths = glob.glob(os.path.join(self.root, 'female', f'{name}*'))
-            if len(female_paths) > 0:
-                female_row = {col: 0 for col in expanded_cols}
-                female_row['path'] = path
-                female_row['trash_male'] = 1
-                expanded_trash_data.append(female_row)
-            
-            male_paths = glob.glob(os.path.join(self.root, 'male', f'{name}*'))
-            if len(male_paths) > 0:
-                male_row = {col: 0 for col in expanded_cols}
-                male_row['path'] = path
-                male_row['trash_female'] = 1
-                expanded_trash_data.append(male_row)
+            #male_paths = glob.glob(os.path.join(self.root, 'male', f'{name}*'))
+            while male_idx < len(male_paths) and male_paths[male_idx] <= name:
+                
+                if male_paths[male_idx] == name:
+                    male_row = {col: 0 for col in expanded_cols}
+                    male_row['path'] = path
+                    male_row['trash_male'] = 1
+                    expanded_trash_data.append(male_row)
+                    
+                    male_idx += 1
+                    break
+                
+                male_idx += 1
             
         expanded_trash_data = pd.DataFrame(expanded_trash_data)
         non_trash_data = self.data[~trash_mask]

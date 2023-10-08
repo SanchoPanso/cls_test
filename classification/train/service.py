@@ -61,8 +61,14 @@ class TrainWrapper:
             json_ = json.load(f)
         self.cats = json_["cat"]
         self.num2label = json_["num2label"]
-        self.num_classes = len(json_["weights"])
-        self.weights = json_["weights"]
+        
+        if self.cat == 'tits_size':
+            self.num2label[len(self.num2label)] = 'trash_bg'
+            self.num2label[len(self.num2label)] = 'trash_male'
+            self.num2label[len(self.num2label)] = 'trash_female'
+        
+        self.num_classes = len(self.num2label)
+        self.weights = json_["weights"] # TODO: check this
         self.__train_pd = pd.read_json(json_["data"])
         print(self.num2label, self.weights.index(max(self.weights)))
         if self.mode == "train":
