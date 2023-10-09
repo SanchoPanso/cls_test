@@ -11,6 +11,7 @@ import os
 from os.path import join
 from glob import glob
 import json
+from io import StringIO
 from lightning_fabric.utilities.seed import seed_everything
 
 seed_everything(1)
@@ -42,8 +43,13 @@ class TrainWrapper:
         self.gray = cfg.gray
         self.vflip = cfg.vflip
         self.batch_size = cfg.batch_size
+        
+        self.dataset_root_path = cfg.data_path
         self.dataset_meta_path = os.path.join(cfg.data_path, cfg.dataset_path)
-        self.dataset_root_path = os.path.join(cfg.data_path, cfg.masks_dir)
+        self.background_meta_path = os.path.join(cfg.data_path, cfg.background_dataset_path)
+        self.masks_subdir = cfg.masks_dir
+        self.pictures_subdir = cfg.images_dir
+        
         self.models_dir = os.path.join(cfg.data_path, cfg.models_dir)
         #self.DATA = self.ROOT + "masks" if cfg.masks else self.ROOT + "picture"
         self.num_workers = num_workers
@@ -87,19 +93,29 @@ class TrainWrapper:
             self.__val_pd = shuffle(self.__train_pd)
 
     def __get_dataloader(self):
+        
+        with open(self.background_meta_path) as f:
+            bg_data = pd.read_json(StringIO(json.load(f)['data']))
+            
         train_set = get_dataset_by_group(
             group='tits_size',
             data=self.__train_pd,
+            background_data=bg_data,
             transforms=PreProcess(gray=self.gray, vflip=self.vflip, arch=self.arch),
             train=True,
             root=self.dataset_root_path,
+            masks_subdir=self.masks_subdir,
+            pictures_subdir=self.pictures_subdir,
         )
         val_set = get_dataset_by_group(
             group='tits_size',
             data=self.__val_pd,
+            background_data=bg_data,
             transforms=PreProcess(gray=False, vflip=False, arch=self.arch),
             train=False,
             root=self.dataset_root_path,
+            masks_subdir=self.masks_subdir,
+            pictures_subdir=self.pictures_subdir,
         )
 
         self.train_loader = DataLoader(

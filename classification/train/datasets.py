@@ -35,15 +35,18 @@ class ImageDataset(Dataset):
     def __init__(
         self,
         data: pd.DataFrame,
+        background_data: pd.DataFrame,
         transforms: nn.Sequential = None,
         root: str = "",
+        masks_subdir: str = 'masks',
+        pictures_subdir: str = 'pictures',
         train: bool = True,
         badlist_path: str = None,
     ):
         """
         :param data: pandas DataFrame
         :param transforms: image transforms that will be invoked in __getitem__
-        :param root: path to dir that must contain subdirs 'background', 'male', 'female', defaults to ""
+        :param root: path to dir, defaults to ""
         :param train: whether train or not, defaults to True
         :param group: group of categories that affects the way of image generation, defaults to 'sex_position'
         """
@@ -55,8 +58,11 @@ class ImageDataset(Dataset):
             self.data = self.delete_badlist(data, badlist)
         else:
             self.data = data
-            
+        
+        self.background_data = background_data
         self.root = root
+        self.masks_subdir = masks_subdir
+        self.pictures_subdir = pictures_subdir
         self.train = train
         self.transforms = transforms
         
@@ -137,8 +143,8 @@ class ImageDataset(Dataset):
         """
         img_name, cur_class = self.get_data_by_idx(idx)
         
-        fg_img_paths = glob.glob(os.path.join(self.root, 'male', f"{img_name}_*"))
-        fg_img_paths += glob.glob(os.path.join(self.root, 'female', f"{img_name}_*"))
+        fg_img_paths = glob.glob(os.path.join(self.root, self.masks_subdir, 'male', f"{img_name}_*"))
+        fg_img_paths += glob.glob(os.path.join(self.root, self.masks_subdir, 'female', f"{img_name}_*"))
         fg_imgs = [cv2.imread(path) for path in fg_img_paths]
         
         width, height = bg_size
@@ -164,16 +170,16 @@ class ImageDataset(Dataset):
     
     def read_random_bg_img(self) -> np.ndarray:
         """Read random background image listed in self.data"""
-        bg_paths = glob.glob(os.path.join(self.root, 'background', '*'))
-        idx = random.randint(0, len(bg_paths) - 1)
-        img_path = bg_paths[idx]
+        idx = random.randint(0, len(self.background_data) - 1)
+        data = self.background_data.iloc[idx]
+        img_fn = data['path']
         
         # Note: I dont know how to handle .gif files corectly (cv2.imread cant read this), 
         # that's why I just make black image instead 
-        if os.path.splitext(img_path)[1] == '.gif': 
+        if os.path.splitext(img_fn)[1] == '.gif': 
             img = np.zeros((640, 640, 3), dtype='uint8')
         else:
-            img = cv2.imread(img_path)
+            img = cv2.imread(os.path.join(self.root,self.pictures_subdir, img_fn))
         return img
     
     def augment_bg_img(self, img: np.ndarray) -> np.ndarray:
@@ -182,33 +188,8 @@ class ImageDataset(Dataset):
         img = A.RandomCrop(crop_h, crop_w, p=0.5)(image=img)['image']
         return img
     
-    def warp_img(self, 
-                 img: np.ndarray, 
-                 degrees=20, 
-                 translate=0.1, 
-                 scale=0.3,
-                 shear=30,
-                 perspective=0.0):
-        
-        mask = self.get_black_mask(img)
-        
-        # NOTE: I am not sure that this is works correctly, so let it be commented at the moment
-        # contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        # if len(contours) > 0:
-        #     common_cnt = np.concatenate(contours, axis=0)
-        #     x, y, w, h = cv2.boundingRect(common_cnt)
-        #     x2, y2 = x + w, y + h
-        #     height, width = img.shape[:2]
-        #     translate = min(x / width, (width - x2) / width, y / height, (height - y2) / height)
-        # else:
-        #     translate = 0.1
-        
-        warp_mat = self.get_random_perspective_transform(img.shape, 
-                                                         translate=translate, 
-                                                         degrees=degrees, 
-                                                         scale=scale,
-                                                         shear=shear)
-        img = cv2.warpPerspective(img, warp_mat, (img.shape[1], img.shape[0]))
+    def warp_img(self, img: np.ndarray):
+        img = A.ShiftScaleRotate(shift_limit=0.1, always_apply=True)(image=img)['image']
         return img
         
     def merge_images(self, background_img: np.ndarray, foreground_img: np.ndarray):
@@ -231,50 +212,6 @@ class ImageDataset(Dataset):
             A.PadIfNeeded(min_height=height, min_width=width, border_mode=cv2.BORDER_CONSTANT),
         ]
         return A.Compose(transforms)
-    
-    def get_random_perspective_transform(self,
-                                         img_shape: tuple,
-                                         degrees=20,
-                                         translate=0.4,
-                                         scale=0.2,
-                                         shear=30,
-                                         perspective=0.0) -> np.ndarray:
-        height = img_shape[0]
-        width = img_shape[1]
-
-        # Center
-        C = np.eye(3)
-        C[0, 2] = -img_shape[1] / 2  # x translation (pixels)
-        C[1, 2] = -img_shape[0] / 2  # y translation (pixels)
-
-        # Perspective
-        P = np.eye(3)
-        P[2, 0] = random.uniform(-perspective, perspective)  # x perspective (about y)
-        P[2, 1] = random.uniform(-perspective, perspective)  # y perspective (about x)
-
-        # Rotation and Scale
-        R = np.eye(3)
-        a = random.uniform(-degrees, degrees)
-        # a += random.choice([-180, -90, 0, 90])  # add 90deg rotations to small rotations
-        # s = random.uniform(scale - scale_range, scale + scale_range)
-        s = random.uniform(1 - scale, 1 + scale)
-        # s = 2 ** random.uniform(-scale, scale)
-        R[:2] = cv2.getRotationMatrix2D(angle=a, center=(0, 0), scale=s)
-
-        # Shear
-        S = np.eye(3)
-        S[0, 1] = math.tan(random.uniform(-shear, shear) * math.pi / 180)  # x shear (deg)
-        S[1, 0] = math.tan(random.uniform(-shear, shear) * math.pi / 180)  # y shear (deg)
-
-        # Translation
-        T = np.eye(3)
-        T[0, 2] = random.uniform(0.5 - translate, 0.5 + translate) * width  # x translation (pixels)
-        T[1, 2] = random.uniform(0.5 - translate, 0.5 + translate) * height  # y translation (pixels)
-
-        # Combined rotation matrix
-        M = T @ S @ R @ P @ C  # order of operations (right to left) is IMPORTANT
-
-        return M
 
 
 class SexPositionDataset(ImageDataset):
@@ -296,8 +233,8 @@ class SexPositionDataset(ImageDataset):
         """
         img_name, cur_class = self.get_data_by_idx(idx)
         
-        fg_img_paths = glob.glob(os.path.join(self.root, 'male', f"{img_name}_*"))
-        fg_img_paths += glob.glob(os.path.join(self.root, 'female', f"{img_name}_*"))
+        fg_img_paths = glob.glob(os.path.join(self.root, self.masks_subdir, 'male', f"{img_name}_*"))
+        fg_img_paths += glob.glob(os.path.join(self.root, self.masks_subdir, 'female', f"{img_name}_*"))
         fg_imgs = [cv2.imread(path) for path in fg_img_paths]
         
         width, height = bg_size
@@ -319,12 +256,15 @@ class TitsSizeDataset(ImageDataset):
     def __init__(
         self,
         data: pd.DataFrame,
+        background_data: pd.DataFrame,
         transforms: nn.Sequential = None,
         root: str = "",
+        masks_subdir: str = 'masks',
+        pictures_subdir: str = 'pictures',
         train: bool = True,
         badlist_path: str = None,
     ):
-        super().__init__(data, transforms, root, train, badlist_path)
+        super().__init__(data, background_data, transforms, root, masks_subdir, pictures_subdir, train, badlist_path)
         self.prepare_data()
     
     def prepare_data(self):
@@ -341,11 +281,11 @@ class TitsSizeDataset(ImageDataset):
         new_columns = ['trash_bg', 'trash_male', 'trash_female']
         expanded_cols = trash_data.columns.tolist() + new_columns
         
-        female_paths = os.listdir(os.path.join(self.root, 'female'))
+        female_paths = os.listdir(os.path.join(self.root, self.masks_subdir, 'female'))
         female_paths = list(map(lambda x: '_'.join(x.split('_')[:-1]), female_paths))
         female_paths.sort()
         
-        male_paths = os.listdir(os.path.join(self.root, 'male'))
+        male_paths = os.listdir(os.path.join(self.root, self.masks_subdir, 'male'))
         male_paths = list(map(lambda x: '_'.join(x.split('_')[:-1]), male_paths))
         male_paths.sort()
         
@@ -425,7 +365,7 @@ class TitsSizeDataset(ImageDataset):
             return res_img
         
         if self.num2label[cur_class] == 'trash_female':
-            fg_img_paths = glob.glob(os.path.join(self.root, 'female', f"{img_name}_*"))
+            fg_img_paths = glob.glob(os.path.join(self.root, self.masks_subdir, 'female', f"{img_name}_*"))
             fg_imgs = [cv2.imread(path) for path in fg_img_paths]
             for fg_img in fg_imgs:
                 fg_img = self.resize_with_pad(fg_img, (width, height))
@@ -434,7 +374,7 @@ class TitsSizeDataset(ImageDataset):
             return res_img
         
         if self.num2label[cur_class] == 'trash_male':
-            fg_img_paths = glob.glob(os.path.join(self.root, 'male', f"{img_name}_*"))
+            fg_img_paths = glob.glob(os.path.join(self.root, self.masks_subdir, 'male', f"{img_name}_*"))
             fg_imgs = [cv2.imread(path) for path in fg_img_paths]
             for fg_img in fg_imgs:
                 fg_img = self.resize_with_pad(fg_img, (width, height))
@@ -442,7 +382,7 @@ class TitsSizeDataset(ImageDataset):
             res_img = self.warp_img(res_img)
             return res_img
             
-        fg_img_paths = glob.glob(os.path.join(self.root, 'female', f"{img_name}_*"))
+        fg_img_paths = glob.glob(os.path.join(self.root, self.masks_subdir, 'female', f"{img_name}_*"))
         fg_imgs = [cv2.imread(path) for path in fg_img_paths]
         for fg_img in fg_imgs:
             fg_img = self.resize_with_pad(fg_img, (width, height))
@@ -499,21 +439,51 @@ def image_to_tensor(path):
 def get_dataset_by_group(
     group: str,
     data: pd.DataFrame,
+    background_data: pd.DataFrame,
     transforms: nn.Sequential = None,
     root: str = "",
+    masks_subdir: str = 'masks',
+    pictures_subdir: str = 'pictures',
     train: bool = True,
-    badlist_path: str = None) -> ImageDataset:
+    badlist_path: str = None,) -> ImageDataset:
     
     available_groups = ['sex_position', 'tits_size']
     assert group in available_groups
     
     if group == 'tits_size':
-        return TitsSizeDataset(data, transforms, root, train, badlist_path)
+        return TitsSizeDataset(
+            data,
+            background_data,
+            transforms,
+            root,
+            masks_subdir,
+            pictures_subdir,
+            train,
+            badlist_path
+        )
     if group == 'sex_position':
-        return SexPositionDataset(data, transforms, root, train, badlist_path)
+        return SexPositionDataset(
+            data,
+            background_data,
+            transforms,
+            root,
+            masks_subdir,
+            pictures_subdir,
+            train,
+            badlist_path
+        )
     
     # default - ImageDataset
-    return ImageDataset(data, transforms, root, train, badlist_path)
+    return ImageDataset(
+            data,
+            background_data,
+            transforms,
+            root,
+            masks_subdir,
+            pictures_subdir,
+            train,
+            badlist_path
+        )
 
 
 

@@ -11,7 +11,7 @@ sys.path.append(str(Path(__file__).parent))
 from loaders.async_loader import download_images
 from loaders.meta_async_loader import get_meta
 from utils.utils import build_label, save_label
-from utils.cfg import get_cfg
+from classification.utils.cfg_handler import get_cfg
 
 
 def main():

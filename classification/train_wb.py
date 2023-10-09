@@ -44,7 +44,7 @@ def main():
     # Initialize a trainer
     trainer = Trainer(
         accelerator="gpu",
-        devices=[0],
+        devices=[1],
         max_epochs=cfg.epochs, # 60,
         precision=16,
         log_every_n_steps=1,
