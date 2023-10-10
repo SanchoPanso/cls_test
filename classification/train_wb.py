@@ -51,6 +51,7 @@ def main():
         logger=wandb_logger,
         callbacks=WRAPPER.get_callbacks(),
     )
+    
     # Train the model ⚡
     trainer.fit(model, WRAPPER.train_loader, WRAPPER.val_loader)
 
@@ -63,9 +64,10 @@ def parse_args():
     )
     parser.add_argument(
         "--cfg", type=str, default=os.path.join(os.path.dirname(__file__), 'cfg', 'default.yaml'),
+        help="Path to configuration file with data paths",
     )
     parser.add_argument(
-        "--cat", dest="cat", type=str, default="tits_size", help="Category", required=False,
+        "--cat", dest="cat", type=str, default="tits_size", help="category", required=False,
     )
     parser.add_argument(
         "--batch",
@@ -88,7 +90,7 @@ def parse_args():
         dest="decay",
         type=float,
         default=0.2,
-        help="Callback mode",
+        help="Decay",
         required=False,
     )
     parser.add_argument(
@@ -120,7 +122,7 @@ def parse_args():
         dest="masks",
         type=bool,
         default=False,
-        help="using masks instead regular images",
+        help="Using masks instead regular images",
         required=False,
     )
     
@@ -128,8 +130,15 @@ def parse_args():
         "--epochs",
         type=int,
         default=1,
+        help='Number of epochs',
     )
     
+    parser.add_argument(
+        "--badlist_path",
+        type=str,
+        default=os.path.join(os.path.dirname(__file__), 'data/badlist.txt'),
+        help='Path to txt file which is a list of bad annotatated images',
+    )
     args = parser.parse_args()
     return args
 

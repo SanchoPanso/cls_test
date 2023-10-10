@@ -674,6 +674,7 @@ def build_label(data):
 
 
 def save_label(data, num2label, weights, CATEGORY, SOURCE):
+    os.makedirs(SOURCE, exist_ok=True)
     with open(SOURCE + f"/{CATEGORY}.json", "w") as f:
         json.dump(
             {

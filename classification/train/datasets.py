@@ -106,9 +106,9 @@ class ImageDataset(Dataset):
             if b in df.index:
                 clear_badlist.append(b)
 
-        df = df.drop(clear_badlist)
-        index = range(len(df))
-        df.index = index
+        df_drop = df.drop(clear_badlist)
+        df.index = range(len(df))
+        df_drop.index = range(len(df_drop))
         return df
         
     

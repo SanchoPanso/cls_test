@@ -1,4 +1,7 @@
 # New pipeline
+
+Описание нового пайплайна для классификации.
+
 ## Download
 
 1. Задать свой путь для папки data_path в файле `cfg/default.yaml`. Эта папка используется для хранения всех данных этого пайплайна.
@@ -10,7 +13,7 @@ python classification/group_loader.py --group tits_size
 
 3. Запустить скачивание датасета background:
 ```
-python classification/json_loader.py --json_path ./classification/json_data/json2load.json
+python classification/json_loader.py --json_path ./classification/data/json2load.json
 ```
 
 ## Segmentation
@@ -26,6 +29,7 @@ python classification/segmentation_builder.py --model_path YOUR_MODEL_PATH
 ```
 python classification/train_wb.py --cat tits_size --epochs 60
 ```
+
 
 
 

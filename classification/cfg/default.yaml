@@ -9,10 +9,5 @@ models_dir: 'models'
 # Train paths
 background_dataset_path: 'datasets/background.json'
 dataset_path: 'datasets/tits_size.json'
-badlist_path: 'badlists/tits_size_badlist.txt'
-
-# additional_background_dir: ''
-
-
 
 

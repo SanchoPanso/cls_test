@@ -9,7 +9,7 @@ sys.path.append(str(Path(__file__).parent))
 from utils.utils import  yolo_proc_for_img_gen
 from train.datasets import InferDataset
 from train.augmentation import PreProcess
-from classification.utils.cfg_handler import get_cfg
+from utils.cfg_handler import get_cfg
 
 logging.getLogger('ultralytics').handlers = [logging.NullHandler()]
 

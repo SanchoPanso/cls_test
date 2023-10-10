@@ -11,7 +11,7 @@ import argparse
 sys.path.append(str(Path(__file__).parent))
 from loaders.async_loader import download_images
 from utils.utils import build_label, save_label
-from classification.utils.cfg_handler import get_cfg
+from utils.cfg_handler import get_cfg
 
 def main():
     cfg = get_cfg()
@@ -47,7 +47,8 @@ def main():
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--json_path', type=str, default="./classification/json_data/json2load.json")
+    parser.add_argument('--json_path', type=str, 
+                        default=os.path.join(os.path.dirname(__file__), "data/json2load.json"))
     parser.add_argument('--stand', type=str, default='')
     args = parser.parse_args()
     return args

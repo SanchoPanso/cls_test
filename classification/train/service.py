@@ -49,15 +49,14 @@ class TrainWrapper:
         self.background_meta_path = os.path.join(cfg.data_path, cfg.background_dataset_path)
         self.masks_subdir = cfg.masks_dir
         self.pictures_subdir = cfg.images_dir
+        self.badlist_path = cfg.badlist_path
         
         self.models_dir = os.path.join(cfg.data_path, cfg.models_dir)
-        #self.DATA = self.ROOT + "masks" if cfg.masks else self.ROOT + "picture"
         self.num_workers = num_workers
-        # self.__imageDataset = imageDataset
-        # self.__preProc = preProc
         self.__get_class_decoder()
         self.__get_dataloader()
         self.__save_log_dir()
+        
         self.model = ModelBuilder.build(
             arch=cfg.arch, num_classes=self.num_classes, trained=pre_train
         )
@@ -75,22 +74,22 @@ class TrainWrapper:
         
         self.num_classes = len(self.num2label)
         self.weights = json_["weights"] # TODO: check this
-        self.__train_pd = pd.read_json(json_["data"])
+        self.train_pd = pd.read_json(json_["data"])
         print(self.num2label, self.weights.index(max(self.weights)))
         if self.mode == "train":
-            self.__train_pd, self.__val_pd = train_test_split(
-                self.__train_pd,
+            self.train_pd, self.__val_pd = train_test_split(
+                self.train_pd,
                 test_size=0.2,
                 random_state=42,
                 shuffle=True,
-                stratify=self.__train_pd[
+                stratify=self.train_pd[
                     self.num2label[str(self.weights.index(max(self.weights)))]
                 ],
             )
-            self.__train_pd = self.__train_pd.reset_index(drop=True)
+            self.train_pd = self.train_pd.reset_index(drop=True)
             self.__val_pd = self.__val_pd.reset_index(drop=True)
         if self.mode == "all":
-            self.__val_pd = shuffle(self.__train_pd)
+            self.__val_pd = shuffle(self.train_pd)
 
     def __get_dataloader(self):
         
@@ -99,13 +98,14 @@ class TrainWrapper:
             
         train_set = get_dataset_by_group(
             group='tits_size',
-            data=self.__train_pd,
+            data=self.train_pd,
             background_data=bg_data,
             transforms=PreProcess(gray=self.gray, vflip=self.vflip, arch=self.arch),
             train=True,
             root=self.dataset_root_path,
             masks_subdir=self.masks_subdir,
             pictures_subdir=self.pictures_subdir,
+            badlist_path=self.badlist_path,
         )
         val_set = get_dataset_by_group(
             group='tits_size',
@@ -116,6 +116,7 @@ class TrainWrapper:
             root=self.dataset_root_path,
             masks_subdir=self.masks_subdir,
             pictures_subdir=self.pictures_subdir,
+            badlist_path=self.badlist_path,
         )
 
         self.train_loader = DataLoader(
@@ -151,13 +152,13 @@ class TrainWrapper:
         return [checkpoint_callback, lr_monitor]
 
     def get_sampler(self):
-        cols = self.__train_pd.columns[1:]
-        df_len = len(self.__train_pd)
+        cols = self.train_pd.columns[1:]
+        df_len = len(self.train_pd)
         my_weights = torch.tensor([0.] * df_len)
         all_ = 0
         for col in cols:
-            ret = self.__train_pd[col][self.__train_pd[col]==1].sum()
-            indexes_of_cls = list(self.__train_pd[col][self.__train_pd[col]==1].index)
+            ret = self.train_pd[col][self.train_pd[col]==1].sum()
+            indexes_of_cls = list(self.train_pd[col][self.train_pd[col]==1].index)
             my_weights[indexes_of_cls] = 1 / len(indexes_of_cls)
             all_ += ret
         my_weights[my_weights == 0] = 1 / (df_len - all_)
