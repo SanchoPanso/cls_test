@@ -179,7 +179,7 @@ class ImageDataset(Dataset):
         if os.path.splitext(img_fn)[1] == '.gif': 
             img = np.zeros((640, 640, 3), dtype='uint8')
         else:
-            img = cv2.imread(os.path.join(self.root,self.pictures_subdir, img_fn))
+            img = cv2.imread(os.path.join(self.root, self.pictures_subdir, img_fn))
         return img
     
     def augment_bg_img(self, img: np.ndarray) -> np.ndarray:
@@ -278,9 +278,6 @@ class TitsSizeDataset(ImageDataset):
         trash_data = self.data[trash_mask]
         expanded_trash_data = []
         
-        new_columns = ['trash_bg', 'trash_male', 'trash_female']
-        expanded_cols = trash_data.columns.tolist() + new_columns
-        
         female_paths = os.listdir(os.path.join(self.root, self.masks_subdir, 'female'))
         female_paths = list(map(lambda x: '_'.join(x.split('_')[:-1]), female_paths))
         female_paths.sort()
@@ -299,17 +296,15 @@ class TitsSizeDataset(ImageDataset):
             # path = trash_data['path'].iloc[i]
             name, ext = os.path.splitext(path)
             
-            bg_row = {col: 0 for col in expanded_cols}
+            bg_row = {col: 0 for col in self.data.columns}
             bg_row['path'] = path
-            bg_row['trash_bg'] = 1
             expanded_trash_data.append(bg_row)
                 
             while female_idx < len(female_paths) and female_paths[female_idx] <= name:
                 
                 if female_paths[female_idx] == name:
-                    female_row = {col: 0 for col in expanded_cols}
+                    female_row = {col: 0 for col in self.data.columns}
                     female_row['path'] = path
-                    female_row['trash_female'] = 1
                     expanded_trash_data.append(female_row)
                     
                     female_idx += 1
@@ -321,9 +316,8 @@ class TitsSizeDataset(ImageDataset):
             while male_idx < len(male_paths) and male_paths[male_idx] <= name:
                 
                 if male_paths[male_idx] == name:
-                    male_row = {col: 0 for col in expanded_cols}
+                    male_row = {col: 0 for col in self.data.columns}
                     male_row['path'] = path
-                    male_row['trash_male'] = 1
                     expanded_trash_data.append(male_row)
                     
                     male_idx += 1
@@ -334,13 +328,7 @@ class TitsSizeDataset(ImageDataset):
         expanded_trash_data = pd.DataFrame(expanded_trash_data)
         non_trash_data = self.data[~trash_mask]
         
-        for col in new_columns:
-            non_trash_data[col] = [0] * len(non_trash_data)
-        
         self.data = pd.concat([non_trash_data, expanded_trash_data], axis=0, ignore_index=True)
-        self.num_classes += 3
-        for col in new_columns:
-            self.num2label[len(self.num2label)] = col
         
     def get_bg_img(self, idx: int) -> np.ndarray:
         

@@ -66,10 +66,6 @@ class TrainWrapper:
             json_ = json.load(f)
         self.cats = json_["cat"]
         self.num2label = json_["num2label"]
-        
-        trash_classes = ['trash_bg', 'trash_male', 'trash_female']
-        for cls in trash_classes:
-            self.num2label[len(self.num2label)] = cls
     
         self.num_classes = len(self.num2label)
         self.weights = json_["weights"] # TODO: check this
