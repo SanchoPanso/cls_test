@@ -447,9 +447,6 @@ def get_dataset_by_group(
     train: bool = True,
     badlist_path: str = None,) -> ImageDataset:
     
-    available_groups = ['sex_position', 'tits_size']
-    assert group in available_groups
-    
     if group == 'tits_size':
         return TitsSizeDataset(
             data,
@@ -473,8 +470,8 @@ def get_dataset_by_group(
             badlist_path
         )
     
-    # default - ImageDataset
-    return ImageDataset(
+    # default - TitsSizeDataset
+    return TitsSizeDataset(
             data,
             background_data,
             transforms,

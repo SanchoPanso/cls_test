@@ -67,7 +67,10 @@ def parse_args():
         help="Path to configuration file with data paths",
     )
     parser.add_argument(
-        "--cat", dest="cat", type=str, default="tits_size", help="category", required=False,
+        "--cat", dest="cat", type=str, 
+        # default="tits_size", 
+        default="body_type", 
+        help="category", required=False,
     )
     parser.add_argument(
         "--batch",

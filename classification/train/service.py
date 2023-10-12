@@ -67,29 +67,29 @@ class TrainWrapper:
         self.cats = json_["cat"]
         self.num2label = json_["num2label"]
         
-        if self.cat == 'tits_size':
-            self.num2label[len(self.num2label)] = 'trash_bg'
-            self.num2label[len(self.num2label)] = 'trash_male'
-            self.num2label[len(self.num2label)] = 'trash_female'
-        
+        trash_classes = ['trash_bg', 'trash_male', 'trash_female']
+        for cls in trash_classes:
+            self.num2label[len(self.num2label)] = cls
+    
         self.num_classes = len(self.num2label)
         self.weights = json_["weights"] # TODO: check this
-        self.train_pd = pd.read_json(json_["data"])
+        self.__train_pd = pd.read_json(json_["data"])
         print(self.num2label, self.weights.index(max(self.weights)))
+        
         if self.mode == "train":
-            self.train_pd, self.__val_pd = train_test_split(
-                self.train_pd,
+            self.__train_pd, self.__val_pd = train_test_split(
+                self.__train_pd,
                 test_size=0.2,
                 random_state=42,
                 shuffle=True,
-                stratify=self.train_pd[
+                stratify=self.__train_pd[
                     self.num2label[str(self.weights.index(max(self.weights)))]
                 ],
             )
-            self.train_pd = self.train_pd.reset_index(drop=True)
+            self.__train_pd = self.__train_pd.reset_index(drop=True)
             self.__val_pd = self.__val_pd.reset_index(drop=True)
         if self.mode == "all":
-            self.__val_pd = shuffle(self.train_pd)
+            self.__val_pd = shuffle(self.__train_pd)
 
     def __get_dataloader(self):
         
@@ -98,7 +98,7 @@ class TrainWrapper:
             
         train_set = get_dataset_by_group(
             group='tits_size',
-            data=self.train_pd,
+            data=self.__train_pd,
             background_data=bg_data,
             transforms=PreProcess(gray=self.gray, vflip=self.vflip, arch=self.arch),
             train=True,
@@ -152,13 +152,13 @@ class TrainWrapper:
         return [checkpoint_callback, lr_monitor]
 
     def get_sampler(self):
-        cols = self.train_pd.columns[1:]
-        df_len = len(self.train_pd)
+        cols = self.__train_pd.columns[1:]
+        df_len = len(self.__train_pd)
         my_weights = torch.tensor([0.] * df_len)
         all_ = 0
         for col in cols:
-            ret = self.train_pd[col][self.train_pd[col]==1].sum()
-            indexes_of_cls = list(self.train_pd[col][self.train_pd[col]==1].index)
+            ret = self.__train_pd[col][self.__train_pd[col]==1].sum()
+            indexes_of_cls = list(self.__train_pd[col][self.__train_pd[col]==1].index)
             my_weights[indexes_of_cls] = 1 / len(indexes_of_cls)
             all_ += ret
         my_weights[my_weights == 0] = 1 / (df_len - all_)
