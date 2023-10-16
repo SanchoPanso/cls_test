@@ -4,7 +4,7 @@ import torch
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 from .model import ModelBuilder
-from .datasets import ImageDataset, get_dataset_by_group
+from .datasets import TrainDataset, get_dataset_by_group
 from .augmentation import PreProcess, DataAugmentation
 import pandas as pd
 import os
@@ -37,6 +37,7 @@ class TrainWrapper:
         self, cfg, num_workers=32, pre_train=True
     ) -> None:
         self.cat = cfg.cat
+        self.bg_cat = cfg.bg_cat
         self.mode = cfg.mode
         self.arch = cfg.arch
         self.decay = cfg.decay
@@ -45,8 +46,8 @@ class TrainWrapper:
         self.batch_size = cfg.batch_size
         
         self.dataset_root_path = cfg.data_path
-        self.dataset_meta_path = os.path.join(cfg.data_path, cfg.dataset_path)
-        self.background_meta_path = os.path.join(cfg.data_path, cfg.background_dataset_path)
+        self.dataset_meta_path = os.path.join(cfg.data_path, cfg.datasets_dir, cfg.cat + '.json')
+        self.background_meta_path = os.path.join(cfg.data_path, cfg.datasets_dir, cfg.bg_cat + '.json')
         self.masks_subdir = cfg.masks_dir
         self.pictures_subdir = cfg.images_dir
         self.badlist_path = cfg.badlist_path
@@ -69,7 +70,7 @@ class TrainWrapper:
     
         self.num_classes = len(self.num2label)
         self.weights = json_["weights"] # TODO: check this
-        self.__train_pd = pd.read_json(json_["data"])
+        self.__train_pd = pd.read_json(StringIO(json_["data"]))
         print(self.num2label, self.weights.index(max(self.weights)))
         
         if self.mode == "train":
@@ -92,31 +93,29 @@ class TrainWrapper:
         with open(self.background_meta_path) as f:
             bg_data = pd.read_json(StringIO(json.load(f)['data']))
             
-        train_set = get_dataset_by_group(
-            group='tits_size',
-            data=self.__train_pd,
+        self.train_set = get_dataset_by_group(
+            group=self.cat,
+            foreground_data=self.__train_pd,
             background_data=bg_data,
+            masks_dir=os.path.join(self.dataset_root_path, self.masks_subdir),
+            pictures_dir=os.path.join(self.dataset_root_path, self.pictures_subdir),
             transforms=PreProcess(gray=self.gray, vflip=self.vflip, arch=self.arch),
             train=True,
-            root=self.dataset_root_path,
-            masks_subdir=self.masks_subdir,
-            pictures_subdir=self.pictures_subdir,
             badlist_path=self.badlist_path,
         )
-        val_set = get_dataset_by_group(
-            group='tits_size',
-            data=self.__val_pd,
+        self.val_set = get_dataset_by_group(
+            group=self.cat,
+            foreground_data=self.__val_pd,
             background_data=bg_data,
+            masks_dir=os.path.join(self.dataset_root_path, self.masks_subdir),
+            pictures_dir=os.path.join(self.dataset_root_path, self.pictures_subdir),
             transforms=PreProcess(gray=False, vflip=False, arch=self.arch),
             train=False,
-            root=self.dataset_root_path,
-            masks_subdir=self.masks_subdir,
-            pictures_subdir=self.pictures_subdir,
             badlist_path=self.badlist_path,
         )
 
         self.train_loader = DataLoader(
-            train_set,
+            self.train_set,
             batch_size=self.batch_size,
             pin_memory=True,
             sampler=self.get_sampler(),
@@ -124,7 +123,7 @@ class TrainWrapper:
             num_workers=self.num_workers,
         )
         self.val_loader = DataLoader(
-            val_set,
+            self.val_set,
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,
@@ -177,7 +176,6 @@ class TrainWrapper:
                 _extra_files={"num2label.txt": extra_files},
             )
         return path_
-
 
 def get_class_decoder(cat, source):
     # need source for every category!
