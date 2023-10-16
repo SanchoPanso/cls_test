@@ -95,7 +95,7 @@ class EfficientLightning(pl.LightningModule):
 
         self.model = model
         self.model.num2label = num2label
-        self.transform = augmentation()
+        self.transform = augmentation() if augmentation else None
 
         self.batch_size = batch_size
         self.decay = decay
@@ -106,7 +106,7 @@ class EfficientLightning(pl.LightningModule):
             reduction="none",
         )
         self.build_metrics()
-        self.save_hyperparameters()
+        self.save_hyperparameters(ignore=['model'])
 
     def forward(self, x):
         return self.model(x)
