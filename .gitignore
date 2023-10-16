@@ -12,8 +12,10 @@ instance/yolov8n.pt
 **/*.out
 *.sh
 
+.vscode
 MODEL
 DATA
+TEST
 
 
 # Byte-compiled / optimized / DLL files
