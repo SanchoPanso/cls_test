@@ -1,13 +1,12 @@
 # Common paths
-data_path: '/home/achernikov/CLS/DATA'
+data_path: 'DATA' #'/home/achernikov/CLS/DATA'
 datasets_dir: 'datasets'
 images_dir: 'pictures'
 masks_dir: 'masks'
 meta_dir: 'meta'
 models_dir: 'models'
 
-# Train paths
-background_dataset_path: 'datasets/background.json'
-dataset_path: 'datasets/tits_size.json'
-
+test_path: 'TEST' #'/home/achernikov/CLS/TEST'
+test_masks_dir: 'masks'
+infer_dir: 'infer2'
 
