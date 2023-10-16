@@ -1,4 +1,6 @@
 import json
+from io import StringIO
+import pandas as pd
 from os.path import join
 from collections import defaultdict
 from itertools import chain
@@ -286,12 +288,12 @@ def yolo_proc_for_img_gen(yolo_model_path, InferDataset, Pre, src_path, dst_path
     list_2_intersect = glob(os.path.join(dst_path, 'boxes', '*'))
     list_2_intersect = [item.split("/")[-1].split(".")[0] for item in list_2_intersect]
     
-    # # Exclude already processed images
-    # list_of_paths = [
-    #     item
-    #     for item in list_of_paths
-    #     if item.split("/")[-1].split(".")[0] not in list_2_intersect
-    # ]
+    # Exclude already processed images
+    list_of_paths = [
+        item
+        for item in list_of_paths
+        if item.split("/")[-1].split(".")[0] not in list_2_intersect
+    ]
         
     # infer = InferDataset(list_of_paths, Pre)
     # loader = DataLoader(infer, 40, num_workers=32, pin_memory=True, shuffle=False)
@@ -354,12 +356,12 @@ def get_box(id_item):
 def get_boxes_meta(list_keys):
     import os
 
-    bbox_meta = "/home/timssh/ML/TAGGING/DATA/segmentation/boxes/"
+    bbox_meta = "/home/achernikov/CLS/DATA/masks/boxes"
     list_seg_json = {key.split(".")[0]: key for key in os.listdir(bbox_meta)}
     proc_dict = list_keys.keys() & list_seg_json.keys()
     proc_dict_meta = {}
     for key in proc_dict:
-        proc_box = get_box(bbox_meta + list_seg_json[key])
+        proc_box = get_box(os.path.join(bbox_meta, list_seg_json[key]))
         for key_ in proc_box.keys():
             proc_box[key_]["origin"] = key
             proc_dict_meta[key_] = proc_box[key_]
@@ -375,10 +377,8 @@ def parse_meta_v2(
     CATEGORYS,
     META,
     PICTURE,
+    PICTURE_SEG
 ):
-    if META is None:
-        META = "/home/timssh/ML/TAGGING/DATA/meta"
-    PICTURE_SEG = "/home/timssh/ML/TAGGING/DATA/segmentation/picture"
     metas = {}
     for model_cat, model_path in path_models.items():
         with open(f"{DATASETS}/{model_cat}.json") as json_file:
@@ -406,13 +406,22 @@ def parse_meta_v2(
                 list_jpeg = [join(PICTURE, pic) for pic in list_jpeg]
                 list_keys = {key.split(".")[0]: key for key in id_meta.keys()}
                 dict_boxes = get_boxes_meta(list_keys)
+                
                 list_boxes_jpeg = [
-                    join(PICTURE_SEG, pic + ".jpeg") for pic in dict_boxes.keys()
+                    join(PICTURE_SEG, 'female', pic + ".jpeg") for pic in dict_boxes.keys() 
+                    if os.path.exists(join(PICTURE_SEG, 'female', pic + ".jpeg"))
+                ]
+                list_boxes_jpeg += [
+                    join(PICTURE_SEG, 'male', pic + ".jpeg") for pic in dict_boxes.keys() 
+                    if os.path.exists(join(PICTURE_SEG, 'male', pic + ".jpeg"))
                 ]
 
                 infer = InferDataset(sorted(list_boxes_jpeg), Pre)
 
-                samplt = infer[0]
+                try:
+                    samplt = infer[0]
+                except Exception as e:
+                    print(e)
 
                 loader = DataLoader(
                     infer, 4, num_workers=32, pin_memory=True, shuffle=False
@@ -694,3 +703,11 @@ def json_builder(train, noise, CATEGORY, SOURCE):
     save_label(
         train_df.to_json(), val_df.to_json(), num2label, weights, CATEGORY, SOURCE
     )
+    
+
+def read_dataset_data(dataset_path: str) -> pd.DataFrame:
+    with open(dataset_path) as f:
+        json_data = json.load(f)
+    
+    data = pd.read_json(StringIO(json_data['data']))
+    return data
