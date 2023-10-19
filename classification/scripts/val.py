@@ -1,8 +1,9 @@
 import os
 import sys
-import argparse
 from pathlib import Path
+import yaml
 import torch
+from easydict import EasyDict
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import WandbLogger
 from typing import Sequence
@@ -11,43 +12,37 @@ sys.path.append(str(Path(__file__).parent))
 from train.augmentation import DataAugmentation
 from train.model import EfficientLightning
 from train.service import TrainWrapper
-from utils.cfg_handler import get_cfg
+import argparse
 
 
 def main():
     torch.cuda.empty_cache()
     args = parse_args()
-    cfg = get_cfg(args.cfg)
-    cfg.update(vars(args))
-    print('cfg:', cfg)
+    cfg = get_cfg(args)
 
     WRAPPER = TrainWrapper(
         cfg=cfg,
         num_workers=32,
     )
+    
+    extra_files = {"num2label.txt": ""}  # values will be replaced with data
+    model = torch.jit.load(
+        "/home/achernikov/CLS/epoch=18-step=12027.pt",
+        "cuda",
+        _extra_files=extra_files,
+    )
+    print(model.num2label)
 
     model = EfficientLightning(
-        model=WRAPPER.model,
-        num2label=WRAPPER.num2label,
-        batch_size=WRAPPER.batch_size,
-        decay=WRAPPER.decay,
-        augmentation=DataAugmentation,
-        weights=WRAPPER.weights,
+        model=model,
+        num2label=model.num2label,
+        augmentation=torch.nn.Sequential,
     )
     
-    if cfg.pretrained:
-        cfg.pretrained = os.path.join(cfg.data_path, cfg.models_dir, cfg.pretrained)
-        checkpoint = torch.load(cfg.pretrained)
-        state_dict = checkpoint['state_dict']
-        model.load_state_dict(state_dict)
-
-    wandb_logger = WandbLogger(
-        project=WRAPPER.cat,
-        save_dir=WRAPPER.save_dir,
-        name=WRAPPER.experiment_name,
-        log_model=True,
-        id=WRAPPER.experiment_name,
-    )
+    # if cfg.pretrained:
+    #     checkpoint = torch.load(cfg.pretrained)
+    #     state_dict = checkpoint['state_dict']
+    #     model.load_state_dict(state_dict)
 
     # Initialize a trainer
     trainer = Trainer(
@@ -56,15 +51,11 @@ def main():
         max_epochs=cfg.epochs, # 60,
         precision=16,
         log_every_n_steps=1,
-        logger=wandb_logger,
         callbacks=WRAPPER.get_callbacks(),
     )
 
-    # Train the model ⚡
-    trainer.fit(model, WRAPPER.train_loader, WRAPPER.val_loader)
+    trainer.validate(model, WRAPPER.val_loader)
     
-    path_ = WRAPPER.get_best_model(model)
-
 
 def parse_args(src_args: Sequence[str] | None = None):
     parser = argparse.ArgumentParser(
@@ -76,6 +67,7 @@ def parse_args(src_args: Sequence[str] | None = None):
     )
     parser.add_argument(
         "--cat", dest="cat", type=str, 
+        # default="tits_size", 
         default="body_type", 
         help="category", required=False,
     )
@@ -87,7 +79,7 @@ def parse_args(src_args: Sequence[str] | None = None):
         "--batch",
         dest="batch_size",
         type=int,
-        default=32,
+        default=48,
         help="Batch size",
         required=False,
     )
@@ -103,7 +95,7 @@ def parse_args(src_args: Sequence[str] | None = None):
         "--decay",
         dest="decay",
         type=float,
-        default=0.001,
+        default=0.2,
         help="Decay",
         required=False,
     )
@@ -139,6 +131,7 @@ def parse_args(src_args: Sequence[str] | None = None):
         help="Using masks instead regular images",
         required=False,
     )
+    
     parser.add_argument(
         "--epochs",
         type=int,
@@ -149,13 +142,13 @@ def parse_args(src_args: Sequence[str] | None = None):
     parser.add_argument(
         "--badlist_path",
         type=str,
-        default=None, # os.path.join(os.path.dirname(__file__), 'data/badlist.txt'),
+        default=os.path.join(os.path.dirname(__file__), 'data/badlist.txt'),
         help='Path to txt file which is a list of bad annotatated images',
     )
     parser.add_argument(
         "--pretrained",
         type=str,
-        default=None, # 'body_type/v__6_train_eff_48_0.2/checkpoints/epoch=31-step=12320.ckpt',#None,
+        default='/home/achernikov/CLS/DATA/models/body_type/v__10_train_eff_48_0.2/checkpoints/epoch=65-step=25410.ckpt',#None,
     )
     
     parser.add_argument(
@@ -166,6 +159,15 @@ def parse_args(src_args: Sequence[str] | None = None):
     
     args = parser.parse_args(src_args)
     return args
+
+
+def get_cfg(args: argparse.Namespace) -> EasyDict:
+    cfg_path = args.cfg
+    with open(cfg_path) as f:
+        cfg = yaml.load(f, yaml.Loader)
+    
+    cfg.update(vars(args))
+    return EasyDict(cfg)
     
 
 if __name__ == "__main__":

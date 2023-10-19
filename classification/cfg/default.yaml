@@ -6,6 +6,8 @@ masks_dir: 'masks'
 meta_dir: 'meta'
 models_dir: 'models'
 
+segments_dir: 'segments'
+
 test_path: 'TEST' #'/home/achernikov/CLS/TEST'
 test_masks_dir: 'masks'
 infer_dir: 'infer2'
