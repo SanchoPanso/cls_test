@@ -14,6 +14,12 @@ import json
 from io import StringIO
 from lightning_fabric.utilities.seed import seed_everything
 
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).parent))
+from data_info import count_classes
+
 seed_everything(1)
 
 
@@ -34,7 +40,7 @@ class TrainWrapper:
     """
 
     def __init__(
-        self, cfg, num_workers=32, pre_train=True
+            self, cfg, num_workers=32, pre_train=True
     ) -> None:
         self.cat = cfg.cat
         self.bg_cat = cfg.bg_cat
@@ -44,20 +50,20 @@ class TrainWrapper:
         self.gray = cfg.gray
         self.vflip = cfg.vflip
         self.batch_size = cfg.batch_size
-        
+
         self.dataset_root_path = cfg.data_path
         self.dataset_meta_path = os.path.join(cfg.data_path, cfg.datasets_dir, cfg.cat + '.json')
         self.background_meta_path = os.path.join(cfg.data_path, cfg.datasets_dir, cfg.bg_cat + '.json')
         self.masks_subdir = cfg.masks_dir
         self.pictures_subdir = cfg.images_dir
         self.badlist_path = cfg.badlist_path
-        
+
         self.models_dir = os.path.join(cfg.data_path, cfg.models_dir)
         self.num_workers = num_workers
         self.__get_class_decoder()
         self.__get_dataloader()
         self.__save_log_dir()
-        
+
         self.model = ModelBuilder.build(
             arch=cfg.arch, num_classes=self.num_classes, trained=pre_train
         )
@@ -67,12 +73,12 @@ class TrainWrapper:
             json_ = json.load(f)
         self.cats = json_["cat"]
         self.num2label = json_["num2label"]
-    
+
         self.num_classes = len(self.num2label)
-        self.weights = json_["weights"] # TODO: check this
+        self.weights = json_["weights"]  # TODO: check this
         self.__train_pd = pd.read_json(StringIO(json_["data"]))
         print(self.num2label, self.weights.index(max(self.weights)))
-        
+
         if self.mode == "train":
             self.__train_pd, self.__val_pd = train_test_split(
                 self.__train_pd,
@@ -89,10 +95,9 @@ class TrainWrapper:
             self.__val_pd = shuffle(self.__train_pd)
 
     def __get_dataloader(self):
-        
         with open(self.background_meta_path) as f:
             bg_data = pd.read_json(StringIO(json.load(f)['data']))
-            
+
         self.train_set = get_dataset_by_group(
             group=self.cat,
             foreground_data=self.__train_pd,
@@ -152,8 +157,8 @@ class TrainWrapper:
         my_weights = torch.tensor([0.] * df_len)
         all_ = 0
         for col in cols:
-            ret = self.__train_pd[col][self.__train_pd[col]==1].sum()
-            indexes_of_cls = list(self.__train_pd[col][self.__train_pd[col]==1].index)
+            ret = self.__train_pd[col][self.__train_pd[col] == 1].sum()
+            indexes_of_cls = list(self.__train_pd[col][self.__train_pd[col] == 1].index)
             my_weights[indexes_of_cls] = 1 / len(indexes_of_cls)
             all_ += ret
         my_weights[my_weights == 0] = 1 / (df_len - all_)
@@ -170,12 +175,17 @@ class TrainWrapper:
             script = torch.jit.script(model.model)
             # save for use in production environment
             extra_files = json.dumps(self.num2label)
+            data_info = count_classes(self.train_set.foreground_data).to_json()
             torch.jit.save(
                 script,
                 path.replace("ckpt", "pt"),
-                _extra_files={"num2label.txt": extra_files},
+                _extra_files={
+                    "num2label.txt": extra_files,
+                    "data_info.txt": data_info,
+                },
             )
         return path_
+
 
 def get_class_decoder(cat, source):
     # need source for every category!
