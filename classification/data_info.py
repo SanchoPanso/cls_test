@@ -9,7 +9,7 @@ import argparse
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--group", type=str, default='sex_positions')
+    parser.add_argument("--group", type=str, default='tits_size')
 
     args = parser.parse_args()
     return args
@@ -42,12 +42,15 @@ def main():
     sns.set(style="whitegrid")
     ax = sns.barplot(x=class_counts.index, y=class_counts.values)
     ax.set_xticklabels(ax.get_xticklabels(), rotation=40, ha="right")
-    plt.tight_layout()
+    for p in ax.patches:
+        ax.annotate(f'{int(p.get_height())}', (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='baseline')
 
     # save histogram to png file
     save_dir = '../DATA/figures'
     os.makedirs(save_dir, exist_ok=True)
     fig = ax.get_figure()
+    fig.suptitle(group)
+    plt.tight_layout()
     fig.savefig(os.path.join(save_dir, f'{group}_hist.png'))
 
 
