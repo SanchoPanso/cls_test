@@ -14,6 +14,8 @@ pic_list = os.listdir(image_path)
 
 # TODO: Переписать на более быстрый варианm с использованием батчей
 for pic in tqdm(pic_list):
+    if pic in os.listdir(masks):
+        continue
     image = Image.open(os.path.join(image_path, pic)).convert('RGB')
     img = T.ToTensor()(image)
     if img.size()[1] < img.size()[2]:                    
