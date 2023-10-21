@@ -1,10 +1,13 @@
 import sys
+import os
 from os.path import join
+from pathlib import Path
 
-sys.path.append("/home/timssh/ML/TAGGING/CLS")
+sys.path.append(str(Path(__file__).parent.parent))
 # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 from classification.train.augmentation import PreProcess, DataAugmentation
 from classification.train.service import get_class_decoder
+from classification.utils.cfg_handler import get_cfg
 from ultralytics import YOLO
 from torchvision.transforms import transforms as T
 import torch
@@ -13,13 +16,15 @@ import numpy as np
 import kornia as K
 
 
-SOURCE = "/home/timssh/ML/TAGGING/DATA/datasets"
-MODELS = "/home/timssh/ML/TAGGING/DATA/models"
+cfg = get_cfg()
+
+SOURCE = os.path.join(cfg.data_path, cfg.datasets_dir)
+MODELS = os.path.join(cfg.data_path, cfg.models_dir)
 # SOURCE = "/home/timssh/ML/TAGGING/source/source_valid"
 # MODELS = "/home/timssh/ML/TAGGING/source/source_valid/wandb"
 
 yolo_model = YOLO(
-    "/home/timssh/ML/TAGGING/CLS/instance/runs/segment/train9/weights/best.pt"
+    "/home/achernikov/CLS/best_people_28092023.pt"
 )
 
 
@@ -77,8 +82,9 @@ def wrap(classes_list):
             tensor = ToTensor(inp)
             tensor = Pre(tensor.to(torch.float32))
             tensor = Aug(tensor)
-            ret_ = get_ret(model_poses, tensor)
-            out = decode_ret(decoder_poses, ret_, "")
+            # ret_ = get_ret(model_poses, tensor)
+            # out = decode_ret(decoder_poses, ret_, "")
+            out = {}
             gender = []
             plot, list_of_crops = get_yolo(inp)
             if len(list_of_crops) > 0:
@@ -102,9 +108,9 @@ if __name__ == "__main__":
     logger = "wandb"
 
     cats = [
-        # "body_type",
-        "tits_size",
-         "tits_size_new",
+        "body_type2",
+        # "tits_size",
+        #  "tits_size_new",
         # "hair_color",
         # "hair_type",
         # "body_decoration_tatto",
@@ -153,13 +159,18 @@ if __name__ == "__main__":
         #     MODELS,
         #     "body_decoration_tatto/v_0_train_eff_36_0.001/checkpoints/epoch=42-step=4988.pt",
         # ),
-         "tits_size": join(
+        #  "tits_size": join(
+        #     MODELS,
+        #     "tits_size/v__0_all_eff_36_0.001/checkpoints/epoch=58-step=38468.pt",
+        # ),
+        # "tits_size_new": join(
+        #     MODELS,
+        #     "tits_size/v__2_all_eff_36_0.001/checkpoints/epoch=59-step=38280.pt",
+        # ),
+        
+        "body_type2": join(
             MODELS,
-            "tits_size/v__0_all_eff_36_0.001/checkpoints/epoch=58-step=38468.pt",
-        ),
-        "tits_size_new": join(
-            MODELS,
-            "tits_size/v__2_all_eff_36_0.001/checkpoints/epoch=59-step=38280.pt",
+            "body_type2/v__1_all_eff_32_0.001/checkpoints/epoch=47-step=39936.pt",
         ),
     }
 
@@ -171,16 +182,16 @@ if __name__ == "__main__":
     #     )
     # )
 
-    poses = "sex_positions"
-    model_poses = torch.jit.load(
-        join(
-            MODELS,
-            f"{poses}/v__0_train_eff_36_0.001/checkpoints/epoch=52-step=32754.pt",
-        )
-    )
+    # poses = "sex_positions"
+    # model_poses = torch.jit.load(
+    #     join(
+    #         MODELS,
+    #         f"{poses}/v__0_train_eff_36_0.001/checkpoints/epoch=52-step=32754.pt",
+    #     )
+    # )
 
-    model_poses.to("cuda").eval()
-    decoder_poses, _ = get_class_decoder(poses, '/home/timssh/ML/TAGGING/source/source_valid/sex_positions')
+    # model_poses.to("cuda").eval()
+    # decoder_poses, _ = get_class_decoder(poses, SOURCE)
 
     num2label = {}
     models = {}

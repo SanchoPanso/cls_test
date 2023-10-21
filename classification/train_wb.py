@@ -12,6 +12,9 @@ from train.augmentation import DataAugmentation
 from train.model import EfficientLightning
 from train.service import TrainWrapper
 from utils.cfg_handler import get_cfg
+from utils.logger import get_logger
+
+LOGGER = get_logger(__name__)
 
 
 def main():
@@ -19,11 +22,11 @@ def main():
     args = parse_args()
     cfg = get_cfg(args.cfg)
     cfg.update(vars(args))
-    print('cfg:', cfg)
+    LOGGER.info(f'Configuration: {cfg}')
 
     WRAPPER = TrainWrapper(
         cfg=cfg,
-        num_workers=32,
+        num_workers=cfg.num_workers,
     )
 
     model = EfficientLightning(
@@ -158,11 +161,8 @@ def parse_args(src_args: Sequence[str] | None = None):
         default=None, # 'body_type/v__6_train_eff_48_0.2/checkpoints/epoch=31-step=12320.ckpt',#None,
     )
     
-    parser.add_argument(
-        "--gpu",
-        type=int,
-        default=0,
-    )
+    parser.add_argument("--gpu", type=int, default=0)
+    parser.add_argument("--num_workers", type=int, default=32)
     
     args = parser.parse_args(src_args)
     return args

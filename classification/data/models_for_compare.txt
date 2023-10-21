@@ -1,0 +1,6 @@
+body_type: https://wandb.ai/proektbl-1960/body_type2/runs/v__0_train_eff_32_0.001?workspace=user-proektbl-1960
+body_type + all: https://wandb.ai/proektbl-1960/body_type2/runs/v__1_all_eff_32_0.001?workspace=user-proektbl-1960
+body_type + trash: https://wandb.ai/proektbl-1960/body_type2_with_trash/runs/v__0_train_eff_32_0.001?workspace=user-proektbl-1960
+body_type + trash + softmax: https://wandb.ai/proektbl-1960/body_type2_with_trash/runs/v__2_train_eff_softmax_32_0.001
+
+

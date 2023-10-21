@@ -10,5 +10,5 @@ segments_dir: 'segments'
 
 test_path: 'TEST' #'/home/achernikov/CLS/TEST'
 test_masks_dir: 'masks'
-infer_dir: 'infer2'
+infer_dir: 'infer_body_type_2010'
 

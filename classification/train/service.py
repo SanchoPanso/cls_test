@@ -1,25 +1,28 @@
+import os
+import sys
+import json
+import glob
+from pathlib import Path
+from io import StringIO
+
+import torch
+import numpy as np
+import pandas as pd
+from lightning_fabric.utilities.seed import seed_everything
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 from torch.utils.data import DataLoader, WeightedRandomSampler
-import torch
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
+
 from .model import ModelBuilder
 from .datasets import TrainDataset, get_dataset_by_group
 from .augmentation import PreProcess, DataAugmentation
-import pandas as pd
-import os
-from os.path import join
-from glob import glob
-import json
-from io import StringIO
-from lightning_fabric.utilities.seed import seed_everything
 
-import sys
-from pathlib import Path
-
-sys.path.append(str(Path(__file__).parent))
+sys.path.append(str(Path(__file__).parent.parent))
 from data_info import count_classes
+from utils.logger import get_logger
 
+LOGGER = get_logger(__name__)
 seed_everything(1)
 
 
@@ -54,7 +57,7 @@ class TrainWrapper:
         self.dataset_root_path = cfg.data_path
         self.dataset_meta_path = os.path.join(cfg.data_path, cfg.datasets_dir, cfg.cat + '.json')
         self.background_meta_path = os.path.join(cfg.data_path, cfg.datasets_dir, cfg.bg_cat + '.json')
-        self.masks_subdir = cfg.masks_dir
+        self.masks_subdir = cfg.segments_dir #cfg.masks_dir
         self.pictures_subdir = cfg.images_dir
         self.badlist_path = cfg.badlist_path
 
@@ -77,8 +80,9 @@ class TrainWrapper:
         self.num_classes = len(self.num2label)
         self.weights = json_["weights"]  # TODO: check this
         self.__train_pd = pd.read_json(StringIO(json_["data"]))
-        print(self.num2label, self.weights.index(max(self.weights)))
-
+        LOGGER.info(f"Class names: {self.num2label}")
+        LOGGER.info(f"Class index of maximum weight: {self.weights.index(max(self.weights))}")
+        
         if self.mode == "train":
             self.__train_pd, self.__val_pd = train_test_split(
                 self.__train_pd,
@@ -98,6 +102,7 @@ class TrainWrapper:
         with open(self.background_meta_path) as f:
             bg_data = pd.read_json(StringIO(json.load(f)['data']))
 
+        LOGGER.info('Prepare Train Subset')
         self.train_set = get_dataset_by_group(
             group=self.cat,
             foreground_data=self.__train_pd,
@@ -108,6 +113,8 @@ class TrainWrapper:
             train=True,
             badlist_path=self.badlist_path,
         )
+        
+        LOGGER.info('Prepare Val Subset')
         self.val_set = get_dataset_by_group(
             group=self.cat,
             foreground_data=self.__val_pd,
@@ -135,7 +142,7 @@ class TrainWrapper:
         )
 
     def __save_log_dir(self):
-        log_dir = join(self.models_dir, self.cat)
+        log_dir = os.path.join(self.models_dir, self.cat)
         os.makedirs(log_dir, exist_ok=True)
         self.save_dir = self.models_dir
         self.experiment_name = f"v__{str(len(os.listdir(log_dir)))}_{self.mode}_{self.arch}_{self.batch_size}_{self.decay}"
@@ -152,21 +159,22 @@ class TrainWrapper:
         return [checkpoint_callback, lr_monitor]
 
     def get_sampler(self):
-        cols = self.__train_pd.columns[1:]
-        df_len = len(self.__train_pd)
+        train_pd = self.train_set.foreground_data
+        cols = train_pd.columns[1:]
+        df_len = len(train_pd)
         my_weights = torch.tensor([0.] * df_len)
         all_ = 0
         for col in cols:
-            ret = self.__train_pd[col][self.__train_pd[col] == 1].sum()
-            indexes_of_cls = list(self.__train_pd[col][self.__train_pd[col] == 1].index)
+            ret = train_pd[col][train_pd[col] == 1].sum()
+            indexes_of_cls = np.where((train_pd[col] == 1).values)[0].tolist()
             my_weights[indexes_of_cls] = 1 / len(indexes_of_cls)
             all_ += ret
         my_weights[my_weights == 0] = 1 / (df_len - all_)
         return WeightedRandomSampler(my_weights, num_samples=df_len, replacement=True)
 
     def get_best_model(self, model):
-        path_ = glob(
-            join(self.save_dir, self.cat, self.experiment_name, "checkpoints/*.ckpt")
+        path_ = glob.glob(
+            os.path.join(self.save_dir, self.cat, self.experiment_name, "checkpoints/*.ckpt")
         )
         for path in path_:
             checkpoint = torch.load(path)
@@ -189,7 +197,7 @@ class TrainWrapper:
 
 def get_class_decoder(cat, source):
     # need source for every category!
-    with open(join(source, f"{cat}.json")) as f:
+    with open(os.path.join(source, f"{cat}.json")) as f:
         json_ = json.load(f)
 
     num2label = json_["num2label"]

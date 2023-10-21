@@ -15,7 +15,7 @@ from typing import Sequence
 from torch.utils.data import DataLoader
 from torch import nn
 
-sys.path.append(str(Path(__file__).parent))
+sys.path.append(str(Path(__file__).parent.parent))
 from train.augmentation import DataAugmentation
 from train.model import EfficientLightning, ModelBuilder
 from train.service import TrainWrapper
@@ -27,8 +27,8 @@ def main():
     torch.cuda.empty_cache()
 
     args = parse_args()
-    cfg = get_cfg(args)
-    cfg = cfg.update(vars(args))
+    cfg = get_cfg()
+    cfg.update(vars(args))
 
     extra_files = {"num2label.txt": ""}  # values will be replaced with data
     model = torch.jit.load(
@@ -119,15 +119,6 @@ def parse_args(src_args: Sequence[str] | None = None):
     
     args = parser.parse_args(src_args)
     return args
-
-
-def get_cfg(args: argparse.Namespace) -> EasyDict:
-    cfg_path = args.cfg
-    with open(cfg_path) as f:
-        cfg = yaml.load(f, yaml.Loader)
-    
-    cfg.update(vars(args))
-    return EasyDict(cfg)
     
 
 if __name__ == "__main__":

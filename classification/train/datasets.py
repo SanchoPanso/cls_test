@@ -1,4 +1,8 @@
 import torch
+import sys
+import os
+import numpy as np
+import json
 import torch.nn as nn
 from torch.utils.data import Dataset
 from torchvision import models as M
@@ -15,10 +19,14 @@ import albumentations as A
 import cv2
 import numpy as np
 import glob 
-import os
 import random
 import math
+from pathlib import Path
 
+sys.path.append(str(Path(__file__).parent.parent))
+from utils.logger import get_logger
+
+LOGGER = get_logger(__name__)
 
 class InferenceDataset(Dataset):
     def __init__(
@@ -322,7 +330,7 @@ class TitsSizeDataset(TrainDataset):
         width, height = bg_size
         res_img = np.zeros((height, width, 3), dtype=np.uint8)
         
-        if cur_class == -1:
+        if cur_class == -1 or self.num2label[cur_class] == 'trash':
             genders = [None]
             if len(glob.glob(os.path.join(self.masks_dir, 'female', f"{img_name}_*"))) > 0:
                 genders.append('female')
@@ -349,6 +357,189 @@ class TitsSizeDataset(TrainDataset):
         
         res_img = self.warp_img(res_img)
         return res_img
+
+
+class HumanGenerativeDataset(TrainDataset):
+    
+    def __init__(
+        self, 
+        foreground_data: pd.DataFrame, 
+        background_data: pd.DataFrame, 
+        masks_dir: str, 
+        pictures_dir: str, 
+        transforms: nn.Sequential = None, 
+        train: bool = True, 
+        badlist_path: str = None):
+        
+        super().__init__(
+            foreground_data, 
+            background_data, 
+            masks_dir, 
+            pictures_dir, 
+            transforms, 
+            train, 
+            badlist_path)
+        
+        self.check_foreground_data()
+        self.check_background_data()
+    
+    def check_foreground_data(self):
+        self.fg_name2path = {}
+        paths = self.foreground_data['path']
+        
+        unavailable_ids = []
+        for i, path in enumerate(paths):
+            name = os.path.splitext(path)[0]
+            segments_path = os.path.join(self.masks_dir, name + '.json')
+            image_path = os.path.join(self.pictures_dir, path)
+            
+            if not os.path.exists(segments_path) or not os.path.exists(image_path):
+                unavailable_ids.append(i)
+                continue
+            
+            try:
+                with open(segments_path) as f:
+                    segments_data = json.load(f)
+            except json.JSONDecodeError:
+                unavailable_ids.append(i)
+                LOGGER.error(f"File \"{segments_path}\" is corrupted")
+                continue
+            
+            file_is_corrupted = False
+            for j in segments_data:
+                if file_is_corrupted:
+                    break
+                
+                for segment in segments_data[j]['segments']:
+                    if len(segment) % 2 != 0:
+                        file_is_corrupted = True
+                        break
+            
+            if file_is_corrupted:
+                LOGGER.error(f"File \"{segments_path}\" is corrupted")
+                unavailable_ids.append(i)
+                continue
+                
+            statuses = [segments_data[i]['status'] for i in segments_data]
+            if 'rejected' in statuses:
+                unavailable_ids.append(i)
+                continue
+            
+            self.fg_name2path[name] = path 
+        
+        self.foreground_data.drop(unavailable_ids, axis=0, inplace=True)
+        self.foreground_data.reset_index()
+        LOGGER.info(f'Foreground data contains {len(paths)} paths. {len(self.fg_name2path)} is available')
+    
+    
+    def check_background_data(self):
+        self.bg_name2path = {}
+        paths = self.background_data['path']
+        
+        unavailable_ids = []
+        for i, path in enumerate(paths):
+            name = os.path.splitext(path)[0]
+            segments_path = os.path.join(self.masks_dir, name + '.json')
+            image_path = os.path.join(self.pictures_dir, path)
+            
+            if os.path.exists(segments_path) and os.path.exists(image_path):
+               self.bg_name2path[name] = path 
+            else:
+                unavailable_ids.append(i)
+        
+        self.background_data.drop(unavailable_ids, axis=0, inplace=True)
+        self.background_data.reset_index()
+        LOGGER.info(f'Background data contains {len(paths)} paths. {len(self.bg_name2path)} is available')
+
+    def get_bg_img(self, idx: int) -> np.ndarray:
+        
+        img = self.read_random_bg_img()
+        img = self.augment_bg_img(img)
+        
+        return img
+    
+    def get_fg_img(self, idx: int, bg_size: tuple) -> np.ndarray:
+        """Create foreground for 'tits_size' group. 
+        Find only female masks for specific index and paste into image with distortions
+
+        :param idx: _description_
+        :param bg_size: _description_
+        :return: _description_
+        """
+        img_name, cur_class = self.get_data_by_idx(idx)
+        width, height = bg_size
+        
+        segment_data_path = os.path.join(self.masks_dir, img_name + '.json')
+        with open(segment_data_path) as f:
+            segment_data = json.load(f)
+        
+        img_fn = self.fg_name2path[img_name]
+        img = cv2.imread(os.path.join(self.pictures_dir, img_fn))
+        
+        if cur_class == -1 or self.num2label[cur_class] == 'trash':
+            genders = [None]
+            classes = [segment_data[i]['cls'] for i in segment_data]
+            if 'female' in classes:
+                genders.append('female')
+            if 'male' in classes:
+                genders.append('male')
+                
+            gender = random.choice(genders)
+            if gender is None:
+                res_img = np.zeros((height, width, 3), dtype=np.uint8)
+                return res_img
+            
+            res_img = self.build_fg_img(img, bg_size, segment_data, gender)                       
+            return res_img
+            
+        res_img = self.build_fg_img(img, bg_size, segment_data, 'female')           
+        return res_img
+    
+    def build_fg_img(self, img, bg_size, segment_data, gender):
+        height, width = img.shape[:2]
+        res_img = np.zeros((height, width, 3), dtype=np.uint8)
+        common_mask = np.zeros((height, width), dtype='uint8')
+        
+        for i in segment_data:
+            cls = segment_data[i]['cls']
+            if cls != gender:
+                continue
+            segments = segment_data[i]['segments']
+            fg_img, mask = self.get_segmented_img(img, segments)
+            res_img += fg_img
+            common_mask |= mask
+        
+        res_img = A.ShiftScaleRotate(shift_limit=0.0, 
+                                     scale_limit=0.0,
+                                     border_mode=cv2.BORDER_CONSTANT, 
+                                     always_apply=True)(image=res_img)['image']
+        x, y, w, h = self.get_mask_bbox(common_mask)            
+        res_img = res_img[y: y + h, x: x + w]
+        res_img = self.resize_with_pad(res_img, bg_size)            
+        return res_img
+
+    def get_mask_bbox(self, mask):
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if len(contours) == 0:
+            return 0, 0, mask.shape[1], mask.shape[0]
+        
+        common_contour = np.concatenate(contours, axis=0)
+        x, y, w, h = cv2.boundingRect(common_contour)
+        return x, y, w, h
+    
+    def get_segmented_img(self, img, segments):
+        mask = np.zeros(img.shape[:2], dtype='uint8')
+        
+        for segment in segments:
+            segment = np.array(segment)
+            segment = segment.reshape(-1, 1, 2)
+            segment[..., 0] *= img.shape[1]
+            segment[..., 1] *= img.shape[0]
+            segment = segment.astype('int32')
+            cv2.fillPoly(mask, [segment], 255)
+        
+        fg_img = cv2.bitwise_and(img, img, mask=mask)
+        return fg_img, mask
 
 
 class InferDataset(Dataset):
@@ -406,7 +597,7 @@ def get_dataset_by_group(
     badlist_path: str = None,) -> TrainDataset:
     
     if group == 'tits_size':
-        return TitsSizeDataset(
+        return HumanGenerativeDataset(
             foreground_data,
             background_data,
             masks_dir,
@@ -428,7 +619,7 @@ def get_dataset_by_group(
         )
     
     # default - TitsSizeDataset
-    return TitsSizeDataset(
+    return HumanGenerativeDataset(
             foreground_data,
             background_data,
             masks_dir,
