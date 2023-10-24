@@ -29,7 +29,7 @@ def main():
     args = parse_args()
     group = args.group
 
-    data_dir = '../DATA/datasets'
+    data_dir = './DATA/datasets'
     data_path = os.path.join(data_dir, f'{group}.json')
 
     with open(data_path, 'r') as f:
@@ -46,7 +46,7 @@ def main():
         ax.annotate(f'{int(p.get_height())}', (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='baseline')
 
     # save histogram to png file
-    save_dir = '../DATA/figures'
+    save_dir = './DATA/figures'
     os.makedirs(save_dir, exist_ok=True)
     fig = ax.get_figure()
     fig.suptitle(group)
