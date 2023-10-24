@@ -25,7 +25,7 @@ class ModelBuilder:
 
     ARCHS = {
         "eff": M.efficientnet_v2_s,
-        "eff_softmax": M.efficientnet_v2_s,
+        #"eff_softmax": M.efficientnet_v2_s,
         "res": M.wide_resnet50_2,
         "swin": M.swin_v2_b,
         "vit_l_16": M.vit_l_16,
@@ -33,7 +33,7 @@ class ModelBuilder:
     }
     WEIGHTS = {
         "eff": M.EfficientNet_V2_S_Weights.DEFAULT,
-        "eff_softmax": M.EfficientNet_V2_S_Weights.DEFAULT,
+        #"eff_softmax": M.EfficientNet_V2_S_Weights.DEFAULT,
         "res": M.Wide_ResNet50_2_Weights.DEFAULT,
         "swin": M.Swin_V2_B_Weights.DEFAULT,
         "vit_l_16": M.ViT_L_16_Weights.IMAGENET1K_SWAG_E2E_V1,
@@ -56,15 +56,15 @@ class ModelBuilder:
         )
         return model
     
-    @staticmethod
-    def eff_softmax(model, NUM_CLASSES):
-        in_feat = model.classifier[1].in_features
-        model.classifier = nn.Sequential(
-            nn.Dropout(p=0.4, inplace=True),
-            nn.Linear(in_features=in_feat, out_features=NUM_CLASSES),
-            nn.Softmax(dim=1),
-        )
-        return model
+    # @staticmethod
+    # def eff_softmax(model, NUM_CLASSES):
+    #     in_feat = model.classifier[1].in_features
+    #     model.classifier = nn.Sequential(
+    #         nn.Dropout(p=0.4, inplace=True),
+    #         nn.Linear(in_features=in_feat, out_features=NUM_CLASSES),
+    #         nn.Softmax(dim=1),
+    #     )
+    #     return model
 
     @staticmethod
     def res(model, NUM_CLASSES):
@@ -113,6 +113,7 @@ class EfficientLightning(pl.LightningModule):
         self.decay = decay
         self.lr = 1e-4
         self.sigmoid = nn.Sigmoid()
+        self.softmax = nn.Softmax(dim=1)
         self.cross_entropy = nn.BCEWithLogitsLoss(
             # pos_weight=self.get_pos_weight(weights),
             reduction="none",
@@ -140,7 +141,7 @@ class EfficientLightning(pl.LightningModule):
         loss = (2 * (1 - pt) ** 2 * loss).sum()
         #################################
         #log = self.get_log("train", self.sigmoid(logits), y)
-        log = self.get_log("train", logits, y)
+        log = self.get_log("train", self.softmax(logits), y)
         log["train_loss"] = loss
         self.log_dict(
             log,
@@ -164,7 +165,7 @@ class EfficientLightning(pl.LightningModule):
         loss = (2 * (1 - pt) ** 2 * loss).sum()
         #################################
         #log = self.get_log("val", self.sigmoid(logits), y)
-        log = self.get_log("val", logits, y)
+        log = self.get_log("val", self.softmax(logits), y)
         log["val_loss"] = loss
         self.log_dict(
             log,

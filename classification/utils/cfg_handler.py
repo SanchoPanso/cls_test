@@ -12,5 +12,6 @@ def get_cfg(cfg_path: str = DEFAULT_CFG_PATH) -> EasyDict:
         
     cfg['data_path'] = os.path.join(PROJECT_DIR, cfg['data_path'])
     cfg['test_path'] = os.path.join(PROJECT_DIR, cfg['test_path'])
+    cfg['markup_path'] = os.path.join(PROJECT_DIR, cfg['markup_path'])
     
     return EasyDict(cfg)

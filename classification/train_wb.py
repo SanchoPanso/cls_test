@@ -2,7 +2,10 @@ import os
 import sys
 import argparse
 from pathlib import Path
+import numpy as np
+import matplotlib.pyplot as plt
 import torch
+from torch.utils.data import DataLoader
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import WandbLogger
 from typing import Sequence
@@ -28,6 +31,8 @@ def main():
         cfg=cfg,
         num_workers=cfg.num_workers,
     )
+    
+    LOGGER.info(f'save_dir = {WRAPPER.experiment_name}')
 
     model = EfficientLightning(
         model=WRAPPER.model,
@@ -64,9 +69,44 @@ def main():
     )
 
     # Train the model ⚡
-    trainer.fit(model, WRAPPER.train_loader, WRAPPER.val_loader)
+    do_training(trainer, model, WRAPPER)
+
+
+def do_training(trainer: Trainer, model: EfficientLightning, wrapper: TrainWrapper):
+    try:
+        create_train_examples(wrapper)
+        trainer.fit(model, wrapper.train_loader, wrapper.val_loader)
+    finally:
+        LOGGER.info("Saving model...")
+        wrapper.get_best_model(model)
+
+
+def create_train_examples(wrapper: TrainWrapper, num_of_batches=3):
+    train_batches_dir = os.path.join(wrapper.save_dir, wrapper.cat, wrapper.experiment_name, 'train_batches')
+    os.makedirs(train_batches_dir, exist_ok=True)
     
-    path_ = WRAPPER.get_best_model(model)
+    for i, batch in enumerate(wrapper.train_loader):
+        if i >= num_of_batches:
+            break
+        
+        imgs, labels = batch
+        batch_size = imgs.shape[0]
+        height = int(np.ceil(np.sqrt(batch_size)))
+
+        plt.figure(figsize=(45, 15))
+        for j in range(batch_size):
+            img = imgs[j].permute(1, 2, 0).cpu().float().numpy()
+            label = labels[j].cpu().numpy().argmax()
+            name = wrapper.num2label[str(label)]
+            
+            plt.subplot(height, height, j + 1)
+            plt.xticks([])
+            plt.yticks([])
+            plt.title(name)
+            plt.imshow(img)
+            
+        plt.savefig(os.path.join(train_batches_dir, f'train_batch_{i}.jpg'))
+        
 
 
 def parse_args(src_args: Sequence[str] | None = None):
@@ -98,7 +138,7 @@ def parse_args(src_args: Sequence[str] | None = None):
         "--mode",
         dest="mode",
         type=str,
-        default="train",
+        default="all",#"train",
         help="Callback mode",
         required=False,
     )

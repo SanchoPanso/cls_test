@@ -28,31 +28,36 @@ from utils.logger import get_logger
 
 LOGGER = get_logger(__name__)
 
-class InferenceDataset(Dataset):
+
+class InferenceDirDataset(Dataset):
     def __init__(
         self,
-        data: pd.DataFrame,
         images_dirs: List[str] | str,
+        data: pd.DataFrame = None,
         transforms: nn.Sequential = None,):
     
-        self.data = data
         self.images_dirs = [images_dirs] if type(images_dirs) == str else images_dirs
         self.transforms = transforms
-        
-        data_paths = data['path'].tolist()
-        data_names = set(map(lambda x: os.path.splitext(x)[0], data_paths))
         
         self.image_paths = []
         
         for imd in images_dirs:
-            all_image_paths = os.listdir(imd)
+            fns = os.listdir(imd)
+            for fn in fns:
+                path = os.path.join(imd, fn)
+                self.image_paths.append(path)
+
+        if data is not None:
+            data_paths = data['path'].tolist()
+            data_names = set(map(lambda x: os.path.splitext(x)[0], data_paths))
+            new_image_paths = []
             
-            for fn in all_image_paths:
-                name = '_'.join(fn.split('_')[:-1])
+            for path in self.image_paths:
+                name = os.path.splitext(os.path.basename(path))[0]
                 if name in data_names:
-                    path = os.path.join(imd, fn)
-                    self.image_paths.append(path)
-        
+                    new_image_paths.append(path)
+
+            self.image_paths = new_image_paths
         
     @torch.no_grad()
     def __getitem__(self, idx):
@@ -80,7 +85,81 @@ class InferenceDataset(Dataset):
         return img    
     
 
-class TrainDataset(Dataset):
+class InferenceContourDataset(Dataset):
+    def __init__(
+        self,
+        images_dir: str,
+        segments_dir: str,
+        data: pd.DataFrame,
+        transforms: nn.Sequential = None,):
+    
+        self.images_dir = images_dir
+        self.segments_dir = segments_dir
+        self.transforms = transforms
+        
+        self.mask_fns = []
+        self.segments = []
+        
+        for fn in data['path']:
+            name, ext = os.path.splitext(fn)
+            segments_path = os.path.join(segments_dir, name + '.json')
+            if not os.path.exists(segments_path):
+                continue
+            
+            with open(segments_path) as f:
+                segments_data = json.load(f)
+            
+            for i in segments_data:
+                self.mask_fns.append(f"{name}_{i}{ext}")
+                self.segments.append(segments_data[i]['segments'])
+        
+        
+    @torch.no_grad()
+    def __getitem__(self, idx):
+        
+        mask_fn = self.mask_fns[idx]
+        mask_name, ext = os.path.splitext(mask_fn)
+        name = '_'.join(mask_name.split('_')[:-1])
+        img_path = os.path.join(self.images_dir, name + ext)
+        
+        img = cv2.imread(img_path)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = self.resize_with_pad(img, (640, 480))
+        img, mask = self.get_segmented_img(img, self.segments[idx])
+        img_tr = T.ToTensor()(img).float()
+        
+        if self.transforms is not None:
+            img_tr = self.transforms(img_tr)
+        
+        img_tr = img_tr.squeeze(0).to(torch.float16)
+        return img_tr, mask, img_path, mask_fn
+
+    def __len__(self):
+        return len(self.mask_fns)
+    
+    def resize_with_pad(self, img: np.ndarray, size: tuple) -> np.ndarray:
+        """Resize img with pad keeping original ratio"""
+        w, h = size
+        img = A.LongestMaxSize(max_size=min(w, h))(image=img)['image']
+        img = A.PadIfNeeded(min_height=h, min_width=w, border_mode=cv2.BORDER_CONSTANT)(image=img)['image']
+        return img    
+
+    def get_segmented_img(self, img, segments):
+        mask = np.zeros(img.shape[:2], dtype='uint8')
+        
+        for segment in segments:
+            segment = np.array(segment)
+            segment = segment.reshape(-1, 1, 2)
+            segment[..., 0] *= img.shape[1]
+            segment[..., 1] *= img.shape[0]
+            segment = segment.astype('int32')
+            cv2.fillPoly(mask, [segment], 255)
+        
+        fg_img = cv2.bitwise_and(img, img, mask=mask)
+        return fg_img, mask
+
+
+class GenerativeDataset(Dataset):
     """Dataset for image loading and preprocessing with sample generation.
     This class implements default behaviour of image generation, that can be 
     extended by inherited classes for specific categories.
@@ -113,11 +192,11 @@ class TrainDataset(Dataset):
             with open(badlist_path) as f:
                 text = f.read().strip()
                 badlist = [] if text == '' else text.split('\n')
-            self.foreground_data = self.delete_badlist(foreground_data, badlist)
+            self.foreground_data = self.delete_badlist(foreground_data.copy(), badlist)
         else:
-            self.foreground_data = foreground_data
+            self.foreground_data = foreground_data.copy()
         
-        self.background_data = background_data
+        self.background_data = background_data.copy()
         self.masks_dir = masks_dir
         self.pictures_dir = pictures_dir
         self.train = train
@@ -250,7 +329,7 @@ class TrainDataset(Dataset):
     def warp_img(self, img: np.ndarray) -> np.ndarray:
         img = A.ShiftScaleRotate(shift_limit=0.1, 
                                  scale_limit=0.2, 
-                                 border_mode=cv2.BORDER_WRAP, 
+                                 border_mode=cv2.BORDER_CONSTANT, 
                                  always_apply=True)(image=img)['image']
         img = A.HorizontalFlip(p=0.5)(image=img)['image']
         
@@ -271,7 +350,7 @@ class TrainDataset(Dataset):
         return mask
 
 
-class SexPositionDataset(TrainDataset):
+class SexPositionDataset(GenerativeDataset):
     """Dataset for 'sex_position' category that inherits ImageDataset
     """    
     
@@ -307,7 +386,7 @@ class SexPositionDataset(TrainDataset):
         return res_img
 
 
-class TitsSizeDataset(TrainDataset):
+class TitsSizeDataset(GenerativeDataset):
     """Dataset for 'tits_size' category that inherits ImageDataset
     """    
 
@@ -359,7 +438,7 @@ class TitsSizeDataset(TrainDataset):
         return res_img
 
 
-class HumanGenerativeDataset(TrainDataset):
+class HumanGenerativeDataset(GenerativeDataset):
     
     def __init__(
         self, 
@@ -402,21 +481,10 @@ class HumanGenerativeDataset(TrainDataset):
                     segments_data = json.load(f)
             except json.JSONDecodeError:
                 unavailable_ids.append(i)
-                LOGGER.error(f"File \"{segments_path}\" is corrupted")
+                LOGGER.error(f"File \"{segments_path}\" is corrupted (json decoding)")
                 continue
             
-            file_is_corrupted = False
-            for j in segments_data:
-                if file_is_corrupted:
-                    break
-                
-                for segment in segments_data[j]['segments']:
-                    if len(segment) % 2 != 0:
-                        file_is_corrupted = True
-                        break
-            
-            if file_is_corrupted:
-                LOGGER.error(f"File \"{segments_path}\" is corrupted")
+            if not self.check_segments_data(segments_data):
                 unavailable_ids.append(i)
                 continue
                 
@@ -428,7 +496,7 @@ class HumanGenerativeDataset(TrainDataset):
             self.fg_name2path[name] = path 
         
         self.foreground_data.drop(unavailable_ids, axis=0, inplace=True)
-        self.foreground_data.reset_index()
+        self.foreground_data = self.foreground_data.reset_index(drop=True)
         LOGGER.info(f'Foreground data contains {len(paths)} paths. {len(self.fg_name2path)} is available')
     
     
@@ -448,8 +516,20 @@ class HumanGenerativeDataset(TrainDataset):
                 unavailable_ids.append(i)
         
         self.background_data.drop(unavailable_ids, axis=0, inplace=True)
-        self.background_data.reset_index()
+        self.background_data = self.background_data.reset_index(drop=True)
         LOGGER.info(f'Background data contains {len(paths)} paths. {len(self.bg_name2path)} is available')
+
+    def check_segments_data(self, segments_data) -> bool:
+        file_is_corrupted = False
+        for j in segments_data:
+            if file_is_corrupted:
+                break
+            
+            for segment in segments_data[j]['segments']:
+                if len(segment) % 2 != 0:
+                    file_is_corrupted = True
+                    break
+        return not file_is_corrupted
 
     def get_bg_img(self, idx: int) -> np.ndarray:
         
@@ -473,6 +553,10 @@ class HumanGenerativeDataset(TrainDataset):
         with open(segment_data_path) as f:
             segment_data = json.load(f)
         
+        if img_name not in self.fg_name2path:
+            LOGGER.info(f'{img_name} not in fg_name2path!!!')
+            return np.zeros((height, width, 3), dtype=np.uint8)
+
         img_fn = self.fg_name2path[img_name]
         img = cv2.imread(os.path.join(self.pictures_dir, img_fn))
         
@@ -509,12 +593,13 @@ class HumanGenerativeDataset(TrainDataset):
             res_img += fg_img
             common_mask |= mask
         
-        res_img = A.ShiftScaleRotate(shift_limit=0.0, 
-                                     scale_limit=0.0,
-                                     border_mode=cv2.BORDER_CONSTANT, 
-                                     always_apply=True)(image=res_img)['image']
-        x, y, w, h = self.get_mask_bbox(common_mask)            
-        res_img = res_img[y: y + h, x: x + w]
+        # res_img = A.ShiftScaleRotate(shift_limit=0.0, 
+        #                              scale_limit=0.0,
+        #                              border_mode=cv2.BORDER_CONSTANT, 
+        #                              always_apply=True)(image=res_img)['image']
+        # x, y, w, h = self.get_mask_bbox(common_mask)            
+        # res_img = res_img[y: y + h, x: x + w]
+        res_img = self.warp_img(res_img)
         res_img = self.resize_with_pad(res_img, bg_size)            
         return res_img
 
@@ -594,7 +679,7 @@ def get_dataset_by_group(
     pictures_dir: str,
     transforms: nn.Sequential = None,
     train: bool = True,
-    badlist_path: str = None,) -> TrainDataset:
+    badlist_path: str = None,) -> GenerativeDataset:
     
     if group == 'tits_size':
         return HumanGenerativeDataset(

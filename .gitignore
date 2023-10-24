@@ -16,6 +16,7 @@ instance/yolov8n.pt
 MODEL
 DATA
 TEST
+MARKUP
 
 
 # Byte-compiled / optimized / DLL files

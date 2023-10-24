@@ -15,7 +15,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 
 from .model import ModelBuilder
-from .datasets import TrainDataset, get_dataset_by_group
+from .datasets import GenerativeDataset, get_dataset_by_group
 from .augmentation import PreProcess, DataAugmentation
 
 sys.path.append(str(Path(__file__).parent.parent))
@@ -79,24 +79,26 @@ class TrainWrapper:
 
         self.num_classes = len(self.num2label)
         self.weights = json_["weights"]  # TODO: check this
-        self.__train_pd = pd.read_json(StringIO(json_["data"]))
+        self.train_pd = pd.read_json(StringIO(json_["data"])).reset_index(drop=True)
         LOGGER.info(f"Class names: {self.num2label}")
         LOGGER.info(f"Class index of maximum weight: {self.weights.index(max(self.weights))}")
         
         if self.mode == "train":
-            self.__train_pd, self.__val_pd = train_test_split(
-                self.__train_pd,
+            self.train_pd, self.val_pd = train_test_split(
+                self.train_pd,
                 test_size=0.2,
                 random_state=42,
                 shuffle=True,
-                stratify=self.__train_pd[
+                stratify=self.train_pd[
                     self.num2label[str(self.weights.index(max(self.weights)))]
                 ],
             )
-            self.__train_pd = self.__train_pd.reset_index(drop=True)
-            self.__val_pd = self.__val_pd.reset_index(drop=True)
-        if self.mode == "all":
-            self.__val_pd = shuffle(self.__train_pd)
+            self.train_pd = self.train_pd.reset_index(drop=True)
+            self.val_pd = self.val_pd.reset_index(drop=True)
+        
+        elif self.mode == "all":
+            #self.train_pd = self.train_pd.reset_index(drop=True)
+            self.val_pd = shuffle(self.train_pd).reset_index(drop=True)
 
     def __get_dataloader(self):
         with open(self.background_meta_path) as f:
@@ -105,7 +107,7 @@ class TrainWrapper:
         LOGGER.info('Prepare Train Subset')
         self.train_set = get_dataset_by_group(
             group=self.cat,
-            foreground_data=self.__train_pd,
+            foreground_data=self.train_pd,
             background_data=bg_data,
             masks_dir=os.path.join(self.dataset_root_path, self.masks_subdir),
             pictures_dir=os.path.join(self.dataset_root_path, self.pictures_subdir),
@@ -117,7 +119,7 @@ class TrainWrapper:
         LOGGER.info('Prepare Val Subset')
         self.val_set = get_dataset_by_group(
             group=self.cat,
-            foreground_data=self.__val_pd,
+            foreground_data=self.val_pd,
             background_data=bg_data,
             masks_dir=os.path.join(self.dataset_root_path, self.masks_subdir),
             pictures_dir=os.path.join(self.dataset_root_path, self.pictures_subdir),

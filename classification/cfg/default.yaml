@@ -7,8 +7,13 @@ meta_dir: 'meta'
 models_dir: 'models'
 
 segments_dir: 'segments'
+correctness_path: 'meta/correctness.csv'
+
+markup_path: 'MARKUP'
+masks_dir: 'masks'
 
 test_path: 'TEST' #'/home/achernikov/CLS/TEST'
+inference_dir: 'inference'
 test_masks_dir: 'masks'
-infer_dir: 'infer_body_type_2010'
+infer_dir: 'infer_body_type_2210'
 

@@ -15,7 +15,7 @@ from utils.cfg_handler import get_cfg
 
 def main():
     cfg = get_cfg()
-    group = 'body_type2'
+    group = 'tits_size' #'body_type2'
     dataset_path = os.path.join(cfg.data_path, cfg.datasets_dir, group + '.json')
     
     with open(dataset_path) as f:

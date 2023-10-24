@@ -4,7 +4,7 @@ import logging
 
 
 def get_logger(name: str) -> logging.Logger:
-    logger = logging.getLogger(name)
+    logger = logging.getLogger('classification.' + name)
     logger.setLevel(logging.INFO)
 
     handler = logging.StreamHandler(sys.stdout)
