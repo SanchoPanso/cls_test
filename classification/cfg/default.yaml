@@ -1,19 +1,19 @@
-# Common paths
-data_path: 'DATA' #'/home/achernikov/CLS/DATA'
+data_path: 'DATA'
 datasets_dir: 'datasets'
 images_dir: 'pictures'
-masks_dir: 'masks'
 meta_dir: 'meta'
 models_dir: 'models'
-
 segments_dir: 'segments'
 correctness_path: 'meta/correctness.csv'
 
 markup_path: 'MARKUP'
 masks_dir: 'masks'
 
-test_path: 'TEST' #'/home/achernikov/CLS/TEST'
+test_path: 'TEST'
 inference_dir: 'inference'
-test_masks_dir: 'masks'
-infer_dir: 'infer_body_type_2210'
+
+model_paths:
+  tits_size: '/home/achernikov/CLS/DATA/models/tits_size/v__3_train_eff_48_0.2/checkpoints/epoch=67-step=29716.pt'
+  hair_type: '/home/achernikov/CLS/DATA/models/hair_type/v__3_all_eff_48_0.001/checkpoints/epoch=32-step=15543.pt' 
+
 
