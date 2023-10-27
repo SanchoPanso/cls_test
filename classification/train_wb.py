@@ -5,9 +5,11 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
+import wandb
+import logging
 from torch.utils.data import DataLoader
 from pytorch_lightning import Trainer
-from pytorch_lightning.loggers import WandbLogger
+from pytorch_lightning.loggers import WandbLogger, CSVLogger
 from typing import Sequence
 
 sys.path.append(str(Path(__file__).parent))
@@ -15,31 +17,34 @@ from train.augmentation import DataAugmentation
 from train.model import EfficientLightning
 from train.service import TrainWrapper
 from utils.cfg_handler import get_cfg
+from utils.utils import dict2str
 from utils.logger import get_logger
 
-LOGGER = get_logger(__name__)
+LOGGER = get_logger(os.path.splitext(os.path.basename(__file__))[0])
 
 
 def main():
     torch.cuda.empty_cache()
+
     args = parse_args()
     cfg = get_cfg(args.cfg)
     cfg.update(vars(args))
-    LOGGER.info(f'Configuration: {cfg}')
+    LOGGER.info(f'Configuration: {dict2str(cfg)}')
 
     WRAPPER = TrainWrapper(
         cfg=cfg,
         num_workers=cfg.num_workers,
     )
     
-    LOGGER.info(f'save_dir = {WRAPPER.experiment_name}')
-
+    LOGGER.info(f'Result will be saved in ' 
+                f'\033[1m{os.path.join(WRAPPER.save_dir, WRAPPER.cat, WRAPPER.experiment_name)}\033[0m')
+        
     model = EfficientLightning(
         model=WRAPPER.model,
         num2label=WRAPPER.num2label,
         batch_size=WRAPPER.batch_size,
         decay=WRAPPER.decay,
-        augmentation=DataAugmentation,
+        augmentation=DataAugmentation(),
         weights=WRAPPER.weights,
     )
     
@@ -56,6 +61,11 @@ def main():
         log_model=True,
         id=WRAPPER.experiment_name,
     )
+    
+    csv_logger = CSVLogger(
+        save_dir=os.path.join(WRAPPER.save_dir, WRAPPER.cat, WRAPPER.experiment_name),
+        name='lightning_logs',
+    )
 
     # Initialize a trainer
     trainer = Trainer(
@@ -64,21 +74,13 @@ def main():
         max_epochs=cfg.epochs, # 60,
         precision=16,
         log_every_n_steps=1,
-        logger=wandb_logger,
+        logger=[wandb_logger, csv_logger],
         callbacks=WRAPPER.get_callbacks(),
     )
 
     # Train the model ⚡
-    do_training(trainer, model, WRAPPER)
-
-
-def do_training(trainer: Trainer, model: EfficientLightning, wrapper: TrainWrapper):
-    try:
-        create_train_examples(wrapper)
-        trainer.fit(model, wrapper.train_loader, wrapper.val_loader)
-    finally:
-        LOGGER.info("Saving model...")
-        wrapper.get_best_model(model)
+    create_train_examples(WRAPPER)
+    trainer.fit(model, WRAPPER.train_loader, WRAPPER.val_loader)
 
 
 def create_train_examples(wrapper: TrainWrapper, num_of_batches=3):
@@ -105,8 +107,7 @@ def create_train_examples(wrapper: TrainWrapper, num_of_batches=3):
             plt.title(name)
             plt.imshow(img)
             
-        plt.savefig(os.path.join(train_batches_dir, f'train_batch_{i}.jpg'))
-        
+        plt.savefig(os.path.join(train_batches_dir, f'train_batch_{i}.jpg'))     
 
 
 def parse_args(src_args: Sequence[str] | None = None):
@@ -119,7 +120,7 @@ def parse_args(src_args: Sequence[str] | None = None):
     )
     parser.add_argument(
         "--cat", dest="cat", type=str, 
-        default="body_type", 
+        default="hair_type", 
         help="category", required=False,
     )
     parser.add_argument(
@@ -130,7 +131,7 @@ def parse_args(src_args: Sequence[str] | None = None):
         "--batch",
         dest="batch_size",
         type=int,
-        default=32,
+        default=48,
         help="Batch size",
         required=False,
     )
@@ -138,7 +139,7 @@ def parse_args(src_args: Sequence[str] | None = None):
         "--mode",
         dest="mode",
         type=str,
-        default="all",#"train",
+        default="train",
         help="Callback mode",
         required=False,
     )
@@ -201,7 +202,7 @@ def parse_args(src_args: Sequence[str] | None = None):
         default=None, # 'body_type/v__6_train_eff_48_0.2/checkpoints/epoch=31-step=12320.ckpt',#None,
     )
     
-    parser.add_argument("--gpu", type=int, default=0)
+    parser.add_argument("--gpu", type=int, default=1)
     parser.add_argument("--num_workers", type=int, default=32)
     
     args = parser.parse_args(src_args)

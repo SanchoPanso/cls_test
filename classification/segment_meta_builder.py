@@ -9,8 +9,12 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 from utils.utils import parse_meta_v2, save_meta, get_boxes_meta, get_meta_id
 from train.datasets import InferDataset
+from train.datasets import InferenceDirDataset, InferenceContourDataset
 from train.augmentation import PreProcess, DataAugmentation
 from utils.cfg_handler import get_cfg
+from utils.logger import get_logger
+
+LOGGER = get_logger('segment_meta_builder')
 
 
 def main():
@@ -24,28 +28,31 @@ def main():
     datasets_dir = os.path.join(root_dir, cfg.datasets_dir)
     meta_dir = os.path.join(root_dir, cfg.meta_dir)
     pictures_dir = os.path.join(root_dir, cfg.images_dir)
-    masks_dir = os.path.join(root_dir, cfg.masks_dir)
+    segments_dir = os.path.join(root_dir, cfg.segments_dir)
     
-    # То какие категории мы проверяем в МЕТА
-    category = "test"
-    group = "tits_size"
-    path_model = 'tits_size/v__3_train_eff_48_0.2/checkpoints/epoch=67-step=29716.pt'
+    image_groups = ["test"]
+    model_paths = cfg['model_paths']
+    metas = {}
     
-    # То какими сетками проверяем
+    for model_group in model_paths:
+        for image_group in image_groups:
+            LOGGER.info(f'model_group = {model_group}, image_group = {image_group}')
+            
+            model_path = model_paths[model_group]
+            metas = parse_meta_v3(
+                model_group, 
+                os.path.join(models_dir, model_path), 
+                augmentation, 
+                preprocessing, 
+                datasets_dir, 
+                image_group, 
+                meta_dir, 
+                pictures_dir, 
+                segments_dir,
+                metas,
+            )
     
-    os.makedirs(masks_dir, exist_ok=True)
-    metas = parse_meta_v3(
-        group, 
-        os.path.join(models_dir, path_model), 
-        augmentation, 
-        preprocessing, 
-        datasets_dir, 
-        category, 
-        meta_dir, 
-        pictures_dir, 
-        masks_dir
-    )
-    save_meta(metas, {group: path_model})
+    save_meta(metas, model_paths)
 
 
 def parse_meta_v3(
@@ -57,10 +64,10 @@ def parse_meta_v3(
     category,
     meta_dir,
     pictures_dir,
-    masks_dir
+    segments_dir,
+    metas,
 ):
     
-    metas = {}
     with open(f"{datasets_dir}/{model_cat}.json") as json_file:
         json_ = json.load(json_file)
         num2label = json_["num2label"]
@@ -87,21 +94,34 @@ def parse_meta_v3(
         list_keys = {key.split(".")[0]: key for key in id_meta.keys()}
         dict_boxes = get_boxes_meta(list_keys)
         
-        list_boxes_jpeg = []
+        # list_boxes_jpeg = []
         
-        for pic in dict_boxes:
-            if os.path.exists(os.path.join(masks_dir, 'female', pic + ".jpeg")):
-                list_boxes_jpeg.append(os.path.join(masks_dir, 'female', pic + ".jpeg"))
+        # for pic in dict_boxes:
+        #     if os.path.exists(os.path.join(masks_dir, 'female', pic + ".jpeg")):
+        #         list_boxes_jpeg.append(os.path.join(masks_dir, 'female', pic + ".jpeg"))
                 
-            if os.path.exists(os.path.join(masks_dir, 'male', pic + ".jpeg")):
-                list_boxes_jpeg.append(os.path.join(masks_dir, 'male', pic + ".jpeg"))
+        #     if os.path.exists(os.path.join(masks_dir, 'male', pic + ".jpeg")):
+        #         list_boxes_jpeg.append(os.path.join(masks_dir, 'male', pic + ".jpeg"))
 
-        infer = InferDataset(sorted(list_boxes_jpeg), preprocessing)
-        loader = DataLoader(infer, 4, num_workers=32, pin_memory=True, shuffle=False)
+        # dataset = InferDataset(sorted(list_boxes_jpeg), preprocessing)
+        
+        image_filenames = []
+        
+        image_name2fn = {os.path.splitext(fn)[0]: fn for fn in os.listdir(pictures_dir)}
+        for pic in list_keys:
+            if pic in image_name2fn:
+                image_filenames.append(image_name2fn[pic])
+            # if os.path.exists(os.path.join(pictures_dir, pic + ".jpeg")): # TODO: not always jpeg
+            #     image_filenames.append(pic + ".jpeg")
+        
+        dataset = InferenceContourDataset(pictures_dir, segments_dir, image_filenames, preprocessing)
+        loader = DataLoader(dataset, 4, num_workers=32, pin_memory=True, shuffle=False)
 
         for batch in loader:
+            imgs, segments_reprs, img_paths, mask_fns = batch
+            
             with torch.no_grad():
-                input_tensor = augmentation(batch[0].to("cuda"))
+                input_tensor = augmentation(imgs.to("cuda"))
                 ret_ = model(input_tensor)
                 ret_ = torch.sigmoid(ret_)
                 ret_ = torch.round(ret_, decimals=2)
@@ -110,7 +130,8 @@ def parse_meta_v3(
             val, idx = ret_.max(axis=1)
             # print(val, idx)
             
-            for num, id_ in enumerate(batch[1]):
+            mask_names = tuple(map(lambda x: os.path.splitext(x)[0], mask_fns))
+            for num, id_ in enumerate(mask_names):
                 if val[num] > 0.8:
                     tag = num2label[str(int(idx[num]))]
                 else:
@@ -168,6 +189,8 @@ def fill_image_meta(image_meta, tag, bbox, cls, model_cat):
                 "bbox": bbox,
             }
         ]
+        
+    return image_meta
 
 
     
