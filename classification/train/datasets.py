@@ -13,7 +13,7 @@ import pytorch_lightning as pl
 from PIL import Image
 import pandas as pd
 from os.path import join
-from typing import List, Dict
+from typing import List, Dict, Sequence
 
 import albumentations as A
 import cv2
@@ -33,7 +33,7 @@ class InferenceDirDataset(Dataset):
     def __init__(
         self,
         images_dirs: List[str] | str,
-        data: pd.DataFrame = None,
+        image_filenames: Sequence[str] = None,
         transforms: nn.Sequential = None,):
     
         self.images_dirs = [images_dirs] if type(images_dirs) == str else images_dirs
@@ -47,14 +47,13 @@ class InferenceDirDataset(Dataset):
                 path = os.path.join(imd, fn)
                 self.image_paths.append(path)
 
-        if data is not None:
-            data_paths = data['path'].tolist()
-            data_names = set(map(lambda x: os.path.splitext(x)[0], data_paths))
+        if image_filenames is not None:
+            image_names = set(map(lambda x: os.path.splitext(x)[0], image_filenames))
             new_image_paths = []
             
             for path in self.image_paths:
                 name = os.path.splitext(os.path.basename(path))[0]
-                if name in data_names:
+                if name in image_names:
                     new_image_paths.append(path)
 
             self.image_paths = new_image_paths
@@ -90,7 +89,7 @@ class InferenceContourDataset(Dataset):
         self,
         images_dir: str,
         segments_dir: str,
-        data: pd.DataFrame,
+        image_filenames: Sequence[str],
         transforms: nn.Sequential = None,):
     
         self.images_dir = images_dir
@@ -99,8 +98,9 @@ class InferenceContourDataset(Dataset):
         
         self.mask_fns = []
         self.segments = []
+        self.segment_paths = []
         
-        for fn in data['path']:
+        for fn in image_filenames:
             name, ext = os.path.splitext(fn)
             segments_path = os.path.join(segments_dir, name + '.json')
             if not os.path.exists(segments_path):
@@ -112,7 +112,6 @@ class InferenceContourDataset(Dataset):
             for i in segments_data:
                 self.mask_fns.append(f"{name}_{i}{ext}")
                 self.segments.append(segments_data[i]['segments'])
-        
         
     @torch.no_grad()
     def __getitem__(self, idx):
@@ -132,7 +131,8 @@ class InferenceContourDataset(Dataset):
             img_tr = self.transforms(img_tr)
         
         img_tr = img_tr.squeeze(0).to(torch.float16)
-        return img_tr, mask, img_path, mask_fn
+        segments_repr = json.dumps({"segments": self.segments[idx]})
+        return img_tr, segments_repr, img_path, mask_fn
 
     def __len__(self):
         return len(self.mask_fns)
@@ -532,10 +532,8 @@ class HumanGenerativeDataset(GenerativeDataset):
         return not file_is_corrupted
 
     def get_bg_img(self, idx: int) -> np.ndarray:
-        
         img = self.read_random_bg_img()
         img = self.augment_bg_img(img)
-        
         return img
     
     def get_fg_img(self, idx: int, bg_size: tuple) -> np.ndarray:
@@ -593,13 +591,13 @@ class HumanGenerativeDataset(GenerativeDataset):
             res_img += fg_img
             common_mask |= mask
         
-        # res_img = A.ShiftScaleRotate(shift_limit=0.0, 
-        #                              scale_limit=0.0,
-        #                              border_mode=cv2.BORDER_CONSTANT, 
-        #                              always_apply=True)(image=res_img)['image']
-        # x, y, w, h = self.get_mask_bbox(common_mask)            
-        # res_img = res_img[y: y + h, x: x + w]
-        res_img = self.warp_img(res_img)
+        res_img = A.ShiftScaleRotate(shift_limit=0.0, 
+                                     scale_limit=0.0,
+                                     border_mode=cv2.BORDER_CONSTANT, 
+                                     always_apply=True)(image=res_img)['image']
+        x, y, w, h = self.get_mask_bbox(common_mask)            
+        res_img = res_img[y: y + h, x: x + w]
+        # res_img = self.warp_img(res_img)
         res_img = self.resize_with_pad(res_img, bg_size)            
         return res_img
 

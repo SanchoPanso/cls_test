@@ -18,7 +18,7 @@ import kornia as K
 from PIL import Image
 import pandas as pd
 from os.path import join
-from typing import List
+from typing import Any, Dict, List
 
 
 class ModelBuilder:
@@ -107,7 +107,7 @@ class EfficientLightning(pl.LightningModule):
 
         self.model = model
         self.model.num2label = num2label
-        self.transform = augmentation() if augmentation else None
+        self.transform = augmentation if augmentation else None
 
         self.batch_size = batch_size
         self.decay = decay
@@ -119,14 +119,15 @@ class EfficientLightning(pl.LightningModule):
             reduction="none",
         )
         self.build_metrics()
-        self.save_hyperparameters(ignore=['model'])
+        self.save_hyperparameters(ignore=['model', 'augmentation'])
 
     def forward(self, x):
         return self.model(x)
-
+    
     def on_after_batch_transfer(self, batch, dataloader_idx):
         x, y = batch
         # if self.trainer.training:
+        # TODO: CHECK!!!!!!!
         x = self.transform(x)  # => we perform GPU/Batched data augmentation
         return x, y
 
@@ -136,13 +137,15 @@ class EfficientLightning(pl.LightningModule):
         # => we perform GPU/Batched data augmentation
         logits = self.forward(x)
         loss = self.cross_entropy(logits, y)
+        
+        # TODO: CHECK!!!!!!!!!!!!!
         #################################
         pt = torch.exp(-loss)
         loss = (2 * (1 - pt) ** 2 * loss).sum()
         #################################
-        #log = self.get_log("train", self.sigmoid(logits), y)
-        log = self.get_log("train", self.softmax(logits), y)
-        log["train_loss"] = loss
+        log = self.get_log("train", self.sigmoid(logits), y)
+        #log = self.get_log("train", self.softmax(logits), y)
+        log["train_loss"] = loss.cpu().item()
         self.log_dict(
             log,
             on_step=True,
@@ -164,9 +167,9 @@ class EfficientLightning(pl.LightningModule):
         pt = torch.exp(-loss)
         loss = (2 * (1 - pt) ** 2 * loss).sum()
         #################################
-        #log = self.get_log("val", self.sigmoid(logits), y)
-        log = self.get_log("val", self.softmax(logits), y)
-        log["val_loss"] = loss
+        log = self.get_log("val", self.sigmoid(logits), y)
+        #log = self.get_log("val", self.softmax(logits), y)
+        log["val_loss"] = loss.cpu().item()
         self.log_dict(
             log,
             on_step=True,
@@ -184,14 +187,14 @@ class EfficientLightning(pl.LightningModule):
     def get_log(self, mod, logits, y):
         acc_m, f1_m, f1_M, f1_N = self.get_metrics(logits, y)
         if len(self.num2label) == 1:
-            return {mod + "_acc_micro": acc_m}
+            return {mod + "_acc_micro": acc_m.cpu().item()}
         log = {
-            mod + "_acc_micro": acc_m,
-            mod + "_F1_micro": f1_m,
-            mod + "_F1_Macro": f1_M,
+            mod + "_acc_micro": acc_m.cpu().item(),
+            mod + "_F1_micro": f1_m.cpu().item(),
+            mod + "_F1_Macro": f1_M.cpu().item(),
         }
         for key, value in self.num2label.items():
-            log[mod + f"_f1_{value}"] = f1_N[int(key)]
+            log[mod + f"_f1_{value}"] = f1_N[int(key)].cpu().item()
 
         return log
 

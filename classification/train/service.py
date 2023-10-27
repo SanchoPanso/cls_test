@@ -1,15 +1,20 @@
+from datetime import timedelta
 import os
 import sys
 import json
 import glob
 from pathlib import Path
 from io import StringIO
+from typing import Optional
+from lightning_fabric.utilities.types import _PATH
+import pytorch_lightning as pl
 
 import torch
 import numpy as np
 import pandas as pd
 from lightning_fabric.utilities.seed import seed_everything
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
+from pytorch_lightning import Trainer
 from torch.utils.data import DataLoader, WeightedRandomSampler
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
@@ -157,8 +162,15 @@ class TrainWrapper:
         checkpoint_callback = ModelCheckpoint(
             save_top_k=1, monitor=monitor, mode=mode, save_weights_only=True
         )
+        torchscript_callback = CustomModelCheckpoint(
+            dirpath=os.path.join(self.save_dir, self.cat, self.experiment_name, 'torchscripts'),
+            save_top_k=1, 
+            monitor=monitor, 
+            mode=mode, 
+            save_weights_only=True,
+        )
         lr_monitor = LearningRateMonitor(logging_interval="step")
-        return [checkpoint_callback, lr_monitor]
+        return [checkpoint_callback, torchscript_callback, lr_monitor]
 
     def get_sampler(self):
         train_pd = self.train_set.foreground_data
@@ -208,3 +220,59 @@ def get_class_decoder(cat, source):
     weights = json_["weights"]
     print(weights)
     return num2label, weights
+
+
+class CustomModelCheckpoint(ModelCheckpoint):
+    FILE_EXTENSION = '.pt'
+    
+    def __init__(
+        self,
+        dirpath: _PATH | None = None, 
+        filename: str | None = None, 
+        monitor: str | None = None, 
+        verbose: bool = False, 
+        save_last: bool | None = None, 
+        save_top_k: int = 1, 
+        save_weights_only: bool = False, 
+        mode: str = "min", 
+        auto_insert_metric_name: bool = True, 
+        every_n_train_steps: int | None = None, 
+        train_time_interval: timedelta | None = None, 
+        every_n_epochs: int | None = None, 
+        save_on_train_epoch_end: bool | None = None):
+        
+        super().__init__(
+            dirpath, 
+            filename, 
+            monitor, 
+            verbose, 
+            save_last, 
+            save_top_k, 
+            save_weights_only, 
+            mode, 
+            auto_insert_metric_name, 
+            every_n_train_steps, 
+            train_time_interval, 
+            every_n_epochs, 
+            save_on_train_epoch_end
+        )
+        
+    
+    def _save_checkpoint(self, trainer: Trainer, filepath: str) -> None:
+        pl_model = trainer.model
+        script = torch.jit.script(pl_model.model)
+        extra_files = json.dumps(pl_model.num2label)
+        #data_info = count_classes(self.train_set.foreground_data).to_json()
+        os.makedirs(self.dirpath, exist_ok=True)
+        
+        torch.jit.save(
+            script,
+            filepath,
+            _extra_files={
+                "num2label.txt": extra_files,
+                #"data_info.txt": data_info,
+            },
+        )
+        
+        #return super()._save_checkpoint(trainer, filepath)
+
