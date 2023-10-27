@@ -711,3 +711,15 @@ def read_dataset_data(dataset_path: str) -> pd.DataFrame:
     
     data = pd.read_json(StringIO(json_data['data']))
     return data
+
+
+def dict2str(d: dict) -> str:
+    value_reprs = []
+    for key in d:
+        value_repr = f'{key}={d[key]}'
+        value_reprs.append(value_repr)
+    
+    res = ', '.join(value_reprs)
+    return res
+
+
