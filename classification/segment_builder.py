@@ -63,7 +63,7 @@ def create_segments(yolo_model_path, src_path, dst_path,
         if img is None:
             continue
         
-        yolo_results = yolo_model(img, stream=True)
+        yolo_results = yolo_model(img[:, :, ::-1], stream=True)
     
         for result in yolo_results:
             yolo_meta_dict = {}
