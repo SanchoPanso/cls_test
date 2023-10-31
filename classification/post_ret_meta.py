@@ -47,7 +47,7 @@ def main():
         return my_js
 
     for group in groups:
-        paths = glob.glob(os.path.join(meta_dir, group, '*', 'meta.json'))
+        paths = glob.glob(os.path.join(meta_dir, group, '*', 'ret_meta.json'))
         for js_path in paths:
             print(js_path)
             data = get_meta(js_path)
@@ -76,8 +76,8 @@ def main():
 
 def parse_args(src_args: Sequence[str] | None = None):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--stand', type=str, default='dev.', choices=['dev.', ''])
-    parser.add_argument('--groups', type=str, nargs='*', default=['tits_size'])
+    parser.add_argument('--stand', type=str, default='', choices=['dev.', ''])
+    parser.add_argument('--groups', type=str, nargs='*', default=['sasha test'])
     
     args = parser.parse_args(src_args)
     return args

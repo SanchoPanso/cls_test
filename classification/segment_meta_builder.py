@@ -30,7 +30,7 @@ def main():
     pictures_dir = os.path.join(root_dir, cfg.images_dir)
     segments_dir = os.path.join(root_dir, cfg.segments_dir)
     
-    image_groups = ["test"]
+    image_groups = ["sasha test"]
     model_paths = cfg['model_paths']
     metas = {}
     
@@ -92,7 +92,7 @@ def parse_meta_v3(
         list_jpeg = list(id_meta.keys())
         list_jpeg = [os.path.join(pictures_dir, pic) for pic in list_jpeg]
         list_keys = {key.split(".")[0]: key for key in id_meta.keys()}
-        dict_boxes = get_boxes_meta(list_keys)
+        dict_boxes = get_boxes_meta(list_keys, segments_dir)
         
         # list_boxes_jpeg = []
         
@@ -137,19 +137,31 @@ def parse_meta_v3(
                 else:
                     tag = model_cat + " trash"
                 
-                bbox = dict_boxes[id_]["bbox"]
+                bbox = dict_boxes[id_]["bbox"] #
                 cls = dict_boxes[id_]["cls"]
                 origin_name = dict_boxes[id_]["origin"]
                 
                 image_fn = list_keys[origin_name]
                 image_meta = id_meta[image_fn]
                 
-                fill_image_meta(image_meta, tag, bbox, cls, model_cat)
+                id_meta[image_fn] = fill_image_meta(image_meta, tag, bbox, cls, model_cat)
+        
+        metas[picset] = id_meta
 
     return metas
 
 
 def fill_image_meta(image_meta, tag, bbox, cls, model_cat):
+    
+    # Server receive relative coordinates, so we need to normalize input bbox
+    width = float(image_meta['origin']['width'])
+    height = float(image_meta['origin']['height'])
+    bbox = [
+        bbox[0] / width,
+        bbox[1] / height,
+        bbox[2] / width,
+        bbox[3] / height,
+    ]
     
     if len(image_meta["trained"]) > 0 and "bbox" in image_meta["trained"][0]:
         find = False
@@ -191,7 +203,6 @@ def fill_image_meta(image_meta, tag, bbox, cls, model_cat):
         ]
         
     return image_meta
-
 
     
 if __name__ == '__main__':
