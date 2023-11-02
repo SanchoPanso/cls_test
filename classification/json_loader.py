@@ -10,16 +10,16 @@ import argparse
 
 sys.path.append(str(Path(__file__).parent))
 from loaders.async_loader import download_images
-from utils.utils import build_label, save_label
-from utils.cfg_handler import get_cfg
+from classification.utils.general import build_label, save_label
+from classification.utils.cfg import get_cfg, get_opts
+from utils.logger import get_logger
+
+LOGGER = get_logger(os.path.splitext(os.path.basename(__file__))[0])
+
 
 def main():
-    cfg = get_cfg()
     args = parse_args()
-    
-    datasets_dir = os.path.join(cfg['data_path'], cfg['datasets_dir'])
-    meta_dir = os.path.join(cfg['data_path'], cfg['meta_dir'])
-    images_dir = os.path.join(cfg['data_path'], cfg['images_dir'])
+    opts = get_cfg(args)
     
     # Load the json file with the picset ids
     with open(args.json_path) as f:
@@ -33,15 +33,15 @@ def main():
         r1 = load_meta(token, picset_id, args.stand)
     
         # Build the dataset
-        dataset, group = buid_dataset(r1.json()["data"], meta_dir)
+        dataset, group = buid_dataset(r1.json()["data"], opts.meta_dir)
     
         # Save the dataset
-        asyncio.run(download_images(dataset["path"].to_list(), images_dir))
+        asyncio.run(download_images(dataset["path"].to_list(), opts.pictures_dir))
         dataset["path"] = dataset["path"].apply(lambda x: x.split("/")[-1])
         num2label, weights = build_label(dataset)
-        save_label(dataset.to_json(), num2label, weights, group, datasets_dir)
+        save_label(dataset.to_json(), num2label, weights, group, opts.datasets_dir)
     
-    print("Done")
+    LOGGER.info("Done")
 
 
 

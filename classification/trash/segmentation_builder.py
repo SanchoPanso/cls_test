@@ -11,9 +11,9 @@ import argparse
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent))
-from utils.utils import  yolo_proc_for_img_gen
-from utils.cfg_handler import get_cfg
-from utils.utils import apply_bilinear_interp, read_dataset_data
+from classification.utils.general import  yolo_proc_for_img_gen
+from classification.utils.cfg import get_cfg
+from classification.utils.general import apply_bilinear_interp, read_dataset_data
 
 logging.getLogger('ultralytics').handlers = [logging.NullHandler()]
 

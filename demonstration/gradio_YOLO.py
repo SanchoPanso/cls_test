@@ -6,8 +6,8 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 from classification.train.augmentation import PreProcess, DataAugmentation
-from classification.train.service import get_class_decoder
-from classification.utils.cfg_handler import get_cfg
+from classification.train.wrapper import get_class_decoder
+from classification.utils.cfg import get_cfg
 from ultralytics import YOLO
 from torchvision.transforms import transforms as T
 import torch

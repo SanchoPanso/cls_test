@@ -11,8 +11,8 @@ import argparse
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent))
-from utils.cfg_handler import get_cfg
-from utils.utils import read_dataset_data
+from classification.utils.cfg import get_cfg
+from classification.utils.general import read_dataset_data
 
 logging.getLogger('ultralytics').handlers = [logging.NullHandler()]
 

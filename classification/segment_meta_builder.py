@@ -7,11 +7,11 @@ import glob
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent))
-from utils.utils import parse_meta_v2, save_meta, get_boxes_meta, get_meta_id
-from train.datasets import InferDataset
-from train.datasets import InferenceDirDataset, InferenceContourDataset
-from train.augmentation import PreProcess, DataAugmentation
-from utils.cfg_handler import get_cfg
+from classification.utils.general import parse_meta_v2, save_meta, get_boxes_meta, get_meta_id
+from engine.datasets import InferDataset
+from engine.datasets import InferenceDirDataset, InferenceContourDataset
+from engine.augmentation import PreProcess, DataAugmentation
+from utils.cfg import get_cfg
 from utils.logger import get_logger
 
 LOGGER = get_logger('segment_meta_builder')

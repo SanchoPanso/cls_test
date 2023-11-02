@@ -17,6 +17,8 @@ MODEL
 DATA
 TEST
 MARKUP
+artifacts
+wandb
 
 
 # Byte-compiled / optimized / DLL files

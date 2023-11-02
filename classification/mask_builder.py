@@ -6,32 +6,27 @@ from tqdm import tqdm
 import logging
 import numpy as np
 import json
-from ultralytics import YOLO
 import argparse
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent))
-from utils.cfg_handler import get_cfg
-from utils.utils import read_dataset_data
+from classification.utils.cfg import get_cfg, get_opts
+from classification.utils.general import read_dataset_data
+from utils.logger import get_logger, colorstr
 
-logging.getLogger('ultralytics').handlers = [logging.NullHandler()]
+LOGGER = get_logger(os.path.splitext(os.path.basename(__file__))[0])
 
 
 def main():
-    cfg = get_cfg()
     args = parse_args()
-    
-    images_dir = os.path.join(cfg['data_path'], cfg['images_dir'])
-    segments_dir = os.path.join(cfg['data_path'], cfg['segments_dir'])
-    masks_dir = os.path.join(cfg['markup_path'], cfg['masks_dir'])
-    datasets_dir = os.path.join(cfg['data_path'], cfg['datasets_dir'])
+    opts = get_opts(args)
     
     group = args.group
     process_all = args.process_all
     experiment_name = args.experiment_name
     
     if group:
-        dataset_path = os.path.join(datasets_dir, group + '.json')
+        dataset_path = os.path.join(opts.datasets_dir, group + '.json')
         dataset_data = read_dataset_data(dataset_path)
         group_img_fns = dataset_data['path'].tolist()
         group_names = set(map(lambda x: os.path.splitext(x)[0], group_img_fns))
@@ -39,16 +34,18 @@ def main():
         group = 'all'
         group_names = None
     
-    group_dir = os.path.join(masks_dir, group)
+    group_dir = os.path.join(opts.masks_dir, group)
     os.makedirs(group_dir, exist_ok=True)
     if experiment_name is None:
         experiment_name = f"v__{len(os.listdir(group_dir))}"
     
     result_dir = os.path.join(group_dir, experiment_name) 
     os.makedirs(result_dir, exist_ok=True)
+    LOGGER.info(f"Result will be saved in {colorstr('white', 'bold', result_dir)}")
     
-    create_masks_set(images_dir, segments_dir, result_dir, group_names, process_all)      
-
+    create_masks_set(opts.pictures_dir, opts.segments_dir, result_dir, group_names, process_all)      
+    LOGGER.info(f"Done")
+    
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -99,8 +96,6 @@ def create_masks_set(images_dir, segments_dir, dst_dir, group_names=None, proces
             
             img = cv2.bitwise_and(img, img, mask=mask)
             cv2.imwrite(save_mask_path, img)
-        
-
 
 
 if __name__ == '__main__':

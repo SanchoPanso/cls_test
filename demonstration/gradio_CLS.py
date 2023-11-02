@@ -3,8 +3,8 @@ from os.path import join
 
 sys.path.append("./CLS/")
 # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-from classification.train.augmentation import PreProcess, DataAugmentation
-from classification.train.service import get_class_decoder
+from engine.augmentation import PreProcess, DataAugmentation
+from engine.wrapper import get_class_decoder
 
 from torchvision.transforms import transforms as T
 import torch

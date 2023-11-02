@@ -7,10 +7,10 @@ from io import StringIO
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent))
-from train.augmentation import DataAugmentation
-from train.model import EfficientLightning
-from train.service import TrainWrapper
-from utils.cfg_handler import get_cfg
+from engine.augmentation import DataAugmentation
+from engine.model import EfficientLightning
+from engine.wrapper import TrainWrapper
+from classification.utils.cfg import get_cfg
 
 
 def main():

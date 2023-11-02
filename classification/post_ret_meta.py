@@ -8,9 +8,8 @@ from pathlib import Path
 from typing import Sequence
 
 sys.path.append(str(Path(__file__).parent))
-from utils.cfg_handler import get_cfg
+from utils.cfg import get_cfg, get_opts
 from utils.logger import get_logger
-from utils.utils import dict2str
 
 LOGGER = get_logger(os.path.splitext(os.path.basename(__file__))[0])
 
@@ -18,20 +17,8 @@ LOGGER = get_logger(os.path.splitext(os.path.basename(__file__))[0])
 def main():
     
     args = parse_args()
-    cfg = get_cfg()
-    cfg.update(vars(args))
+    opts = get_opts(args)
     
-    LOGGER.info(f'Configuration: {dict2str(cfg)}')
-    
-    # # stand = 'dev.'
-    # stand = ""
-
-    # GROUPS = ['body_type', 'sex_positions', 'tits_size']
-    #GROUPS = ["test"]
-    #ROOT = "/home/timssh/ML/TAGGING/DATA/meta"
-    
-    meta_dir = os.path.join(cfg['data_path'], cfg['meta_dir'])
-
     stand = args.stand
     groups = args.groups
     
@@ -47,24 +34,15 @@ def main():
         return my_js
 
     for group in groups:
-        paths = glob.glob(os.path.join(meta_dir, group, '*', 'ret_meta.json'))
+        paths = glob.glob(os.path.join(opts.meta_dir, group, '*', 'ret_meta.json'))
         for js_path in paths:
-            print(js_path)
+            LOGGER.info(f"Group: {group}, json: {js_path}")
             data = get_meta(js_path)
-    
-            # for item in data['items']:
-            #     item['trained'].append({
-            #             "group": "group_of_girls",
-            #             "category": ['one girl'
-
-            #             ]
-            #         })
-    
+            
             url = f"https://yapics.{stand}collect.monster/v1/picset/trained"
             head = {"Authorization": f"token {token}"}
             r1 = requests.post(url, data=json.dumps(data), headers=head, timeout=500000)
-            print(r1, r1.text)
-            print("set checking")
+            LOGGER.info(f"Response: {r1.status_code} ({r1.reason}), {r1.text}")
     
             r1 = requests.post(
                 f"https://yapics.{stand}collect.monster/v1/picset/checking",

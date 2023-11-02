@@ -5,7 +5,7 @@ import pandas as pd
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent))
-from train.datasets import TrainDataset, TitsSizeDataset
+from train.datasets import GenerativeDataset, TitsSizeDataset
 
 
 def test_delete_badlist():
@@ -16,16 +16,16 @@ def test_delete_badlist():
     ]
     df = pd.DataFrame(mydict)
     
-    df1 = TrainDataset.delete_badlist(df, [])
+    df1 = GenerativeDataset.delete_badlist(df, [])
     assert len(df1) == 3
     
-    df1 = TrainDataset.delete_badlist(df, ['-1.png'])
+    df1 = GenerativeDataset.delete_badlist(df, ['-1.png'])
     assert len(df1) == 3
     
-    df1 = TrainDataset.delete_badlist(df, ['1.png'])
+    df1 = GenerativeDataset.delete_badlist(df, ['1.png'])
     assert len(df1) == 2
     
-    df1 = TrainDataset.delete_badlist(df, ['1.png', '2.png', '3.png'])
+    df1 = GenerativeDataset.delete_badlist(df, ['1.png', '2.png', '3.png'])
     assert len(df1) == 0
 
 

@@ -8,8 +8,8 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from train.augmentation import DataAugmentation
 from train.model import EfficientLightning
-from train.service import TrainWrapper
-from utils.cfg_handler import get_cfg
+from classification.train.wrapper import TrainWrapper
+from classification.utils.cfg import get_cfg
 
 
 def main():

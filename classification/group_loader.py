@@ -10,29 +10,25 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 from loaders.async_loader import download_images
 from loaders.meta_async_loader import get_meta
-from utils.utils import build_label, save_label
-from utils.cfg_handler import get_cfg
+from utils.general import build_label, save_label
+from utils.cfg import get_cfg, get_opts
 
 
 def main():
-    cfg = get_cfg()
     args = parse_args()
-    
-    datasets_dir = os.path.join(cfg['data_path'], cfg['datasets_dir'])
-    meta_dir = os.path.join(cfg['data_path'], cfg['meta_dir'])
-    images_dir = os.path.join(cfg['data_path'], cfg['images_dir'])
+    opts = get_opts(args)
     
     token = get_token(args.stand)
     data = get_data(args.stand, args.group, token)
     dataset, picset_guids = builder(data)
     
-    asyncio.run(get_meta(token, picset_guids, args.group, meta_dir))
-    asyncio.run(download_images(dataset["path"].to_list(), images_dir))
+    asyncio.run(get_meta(token, picset_guids, args.group, opts.meta_dir))
+    asyncio.run(download_images(dataset["path"].to_list(), opts.pictures_dir))
     
     dataset["path"] = dataset["path"].apply(lambda x: x.split("/")[-1])
     num2label, weights = build_label(dataset)
     
-    save_label(dataset.to_json(), num2label, weights, args.group, datasets_dir)
+    save_label(dataset.to_json(), num2label, weights, args.group, opts.datasets_dir)
     print(f"File {args.group} was created")
 
 

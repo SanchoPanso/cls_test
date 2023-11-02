@@ -11,7 +11,7 @@ from typing import Sequence
 sys.path.append(str(Path(__file__).parent))
 from train.augmentation import DataAugmentation
 from train.model import EfficientLightning
-from train.service import TrainWrapper
+from classification.train.wrapper import TrainWrapper
 import argparse
 
 
