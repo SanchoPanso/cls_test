@@ -1,0 +1,44 @@
+### --------------------------------------------------
+### This is a common file structure of this repository
+### --------------------------------------------------
+
+### The main data storage for training
+DATA:
+  PATH: 'DATA1'  # Absolute or relative path (if relative - repo dir is considered as root)
+  
+  # The following params are relative paths of subdirs (relative to 'path' value)
+  datasets_dir: 'datasets'  # Subdir with json files that describe a dataset content for each group
+  pictures_dir: 'pictures'  # Subdir with a common pool of image files
+  meta_dir: 'meta'          # Subdir with metadata about picsets (each dir is like {group}/{picset}/*.json)
+  models_dir: 'models'      # Subdir for training experiments that contains trained models (each experiment contains logs, checkpoints, models, etc)
+  segments_dir: 'segments'  # Subdir for json files with image segmentation information (format: bbox - xyxy, segments - xyn)
+  pictures_info_db_path: 'meta/pictures_info.db' # Path to sqlite database with pictures info
+
+
+### A storage for testing results
+TEST:
+  PATH: 'TEST'  # Absolute or relative path (if relative - repo dir is considered as root)
+  
+  # The following params are relative paths of subdirs (relative to 'path' value)
+  inference_dir: 'inference'  # Subdir for inference results
+
+
+### A storage for temporary data that is used for marking up (e.g. for badlist creating) 
+MARKUP: 
+  PATH: 'MARKUP'  # Absolute or relative path (if relative - repo dir is considered as root)
+  
+  # The following params are relative paths of subdirs (relative to 'path' value)
+  masks_dir: 'masks'  # Subdir for image masks
+
+### A storage for  
+PRODUCTION: 
+  PATH: 'PRODUCTION'  # Absolute or relative path (if relative - repo dir is considered as root)
+  
+
+### Path to inference models for specific groups. Used for metadata building in `segment_meta_builder.py`
+MODELS:
+  tits_size: '/home/achernikov/CLS/DATA/models/tits_size/v__3_train_eff_48_0.2/checkpoints/epoch=67-step=29716.pt'
+  hair_type: '/home/achernikov/CLS/DATA/models/hair_type/v__3_all_eff_48_0.001/checkpoints/epoch=32-step=15543.pt' 
+
+
+

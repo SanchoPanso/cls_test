@@ -10,11 +10,10 @@ instance/yolov8n.pt
 *.pt
 *.jpg
 **/*.out
-*.sh
 
 .vscode
 MODEL
-DATA
+DATA*
 TEST
 MARKUP
 artifacts
