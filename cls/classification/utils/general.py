@@ -72,7 +72,7 @@ def get_meta_id(picset, mode=""):
     return {
         item["origin"]["filename"]: item
         for item in my_js["items"]
-        if len(item["origin"]["filename"]) > 5
+        if "filename" in item["origin"] and len(item["origin"]["filename"]) > 5
     }
 
 
@@ -545,12 +545,43 @@ def parse_meta_v2(
     return metas
 
 
+# def save_meta(metas, path_models, mode="meta.json"):
+#     for key, value in metas.items():
+#         meta_js = get_meta(key, mode)
+#         meta_js["items"] = list(value.values())
+#         new_neural_versions = {
+#             key: value.split("/")[-3] for key, value in path_models.items()
+#         }
+#         if "neural_version" not in meta_js["picset"].keys():
+#             meta_js["picset"]["neural_version"] = new_neural_versions
+#         else:
+#             for key_ in new_neural_versions.keys():
+#                 meta_js["picset"]["neural_version"][key_] = new_neural_versions[key_]
+#         print(key)
+#         with open(join(key, "ret_meta.json"), "w", encoding="utf-8") as js_f:
+#             json.dump(meta_js, js_f, indent=4, ensure_ascii=False)
+
 def save_meta(metas, path_models, mode="meta.json"):
     for key, value in metas.items():
         meta_js = get_meta(key, mode)
         meta_js["items"] = list(value.values())
+
+        for item in meta_js["items"]:
+            item['guid'] = item['origin']['filepath'].split('/')[3]
+            for i in ['id', 'title', 'text', 'origin', 'thumb', 'tags']:
+                if i in item:
+                    item.pop(i)
+            
+            # if 'trained' not in item:
+            #     item['trained'] = []
+
+        for pic_key in list(meta_js["picset"].keys()):
+            if pic_key in ['guid', 'neural_version']:
+                continue
+            meta_js["picset"].pop(pic_key)
+
         new_neural_versions = {
-            key: value.split("/")[-3] for key, value in path_models.items()
+            vkey: 1.0 for vkey, value in path_models.items() # TODO: version
         }
         if "neural_version" not in meta_js["picset"].keys():
             meta_js["picset"]["neural_version"] = new_neural_versions

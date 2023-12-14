@@ -38,7 +38,7 @@ def parse_args(src_args: Sequence[str] | None = None):
     parser.add_argument("--num_workers", type=int, default=32)
     parser.add_argument("--cat", type=str, default="tits_size", help="Category for training")
     parser.add_argument("--bg_cat", type=str, default="background", help='Background category')
-    parser.add_argument("--batch", type=int, default=48, help="Batch size")
+    parser.add_argument("--batch", type=int, default=32, help="Batch size")
     parser.add_argument(
         "--mode", type=str, default="train", choices=['train', 'all'],
         help="Splitting mode (train - 80 percent train, 20 percent val,"\

@@ -53,7 +53,7 @@ class Trainer(BaseTrainer):
             aliases = ["latest", "best"]
             self.wandb_logger.experiment.log_artifact(artifact, aliases=aliases)
         
-    def _create_train_examples(self, wrapper: TrainWrapper, num_of_batches=3):
+    def _create_train_examples(self, wrapper: TrainWrapper, num_of_batches=1):
         train_batches_dir = os.path.join(wrapper.save_dir, wrapper.cat, wrapper.experiment_name, 'train_batches')
         os.makedirs(train_batches_dir, exist_ok=True)
         

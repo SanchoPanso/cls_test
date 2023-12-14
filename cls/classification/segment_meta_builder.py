@@ -14,6 +14,7 @@ from cls.classification.engine.augmentation import PreProcess, DataAugmentation
 from cls.classification.engine.options import OptionParser
 
 LOGGER = logging.getLogger(__name__)
+GENDERS = {'male': 'man', 'female': 'girl'}
 
 
 def main():
@@ -55,7 +56,7 @@ def main():
 
 def parse_args():
     parser = OptionParser()
-    parser.add_argument('--groups', type=str, nargs='*', default=['sasha test'])
+    parser.add_argument('--groups', type=str, nargs='*', default=['dev_group'])
     args = parser.parse_args()
     return args 
 
@@ -133,13 +134,13 @@ def parse_meta_v3(
             
             mask_names = tuple(map(lambda x: os.path.splitext(x)[0], mask_fns))
             for num, id_ in enumerate(mask_names):
-                if val[num] > 0.8:
+                if val[num] > 0.5:
                     tag = num2label[str(int(idx[num]))]
                 else:
                     tag = model_cat + " trash"
                 
                 bbox = dict_boxes[id_]["bbox"] #
-                cls = dict_boxes[id_]["cls"]
+                cls = GENDERS[dict_boxes[id_]["cls"]]
                 origin_name = dict_boxes[id_]["origin"]
                 
                 image_fn = list_keys[origin_name]
@@ -164,6 +165,9 @@ def fill_image_meta(image_meta, tag, bbox, cls, model_cat):
         bbox[3] / height,
     ]
     
+    if "trained" not in image_meta:
+        image_meta["trained"] = []
+
     if len(image_meta["trained"]) > 0 and "bbox" in image_meta["trained"][0]:
         find = False
         for values in image_meta["trained"]:

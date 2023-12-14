@@ -84,7 +84,7 @@ class TrainWrapper:
             save_dir=self.save_dir,
             name=self.experiment_name,
             log_model=True,
-            id=self.experiment_name,
+            id=self.experiment_name
         )
         
         self.csv_logger = CSVLogger(

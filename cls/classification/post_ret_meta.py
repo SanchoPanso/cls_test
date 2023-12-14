@@ -10,6 +10,7 @@ from typing import Sequence
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from cls.classification.engine.options import OptionParser
+from cls.classification.loaders.yapics_api import YapicsAPI
 
 LOGGER = logging.getLogger(__name__)
 
@@ -21,11 +22,8 @@ def main():
     stand = args.stand
     groups = args.groups
     
-    url = f"https://yapics.{stand}collect.monster/v1/login"
-    headers = {"Content-Type": "application/json"}
-    data_log = {"login": "admin", "password": "nC82JpRPLx61901c"}
-    r = requests.post(url, data=json.dumps(data_log), headers=headers)
-    token = eval(r.text)["token"]
+    yapics_api = YapicsAPI(args.stand)
+    token = yapics_api.get_token()
 
     def get_meta(picset):
         with open(picset, "r", encoding="utf-8") as js_f:
@@ -34,27 +32,22 @@ def main():
 
     for group in groups:
         paths = glob.glob(os.path.join(args.meta_dir, group, '*', 'ret_meta.json'))
+        
         for js_path in paths:
             LOGGER.info(f"Group: {group}, json: {js_path}")
-            data = get_meta(js_path)
             
-            url = f"https://yapics.{stand}collect.monster/v1/picset/trained"
-            head = {"Authorization": f"token {token}"}
-            r1 = requests.post(url, data=json.dumps(data), headers=head, timeout=500000)
+            data = get_meta(js_path)
+            r1 = yapics_api.post_trained(token, data)
             LOGGER.info(f"Response: {r1.status_code} ({r1.reason}), {r1.text}")
-    
-            r1 = requests.post(
-                f"https://yapics.{stand}collect.monster/v1/picset/checking",
-                data=json.dumps({"guids": [js_path.split("/")[-2]]}),
-                headers=head,
-                timeout=500000,
-            )
+
+            r1 = yapics_api.set_checking(token, js_path)
+            LOGGER.info(r1)
 
 
 def parse_args(src_args: Sequence[str] | None = None):
     parser = OptionParser()
-    parser.add_argument('--stand', type=str, default='', choices=['dev.', ''])
-    parser.add_argument('--groups', type=str, nargs='*', default=['sasha test'])
+    parser.add_argument('--stand', type=str, default='dev.', choices=['dev.', ''])
+    parser.add_argument('--groups', type=str, nargs='*', default=['dev_group'])
     
     args = parser.parse_args(src_args)
     return args

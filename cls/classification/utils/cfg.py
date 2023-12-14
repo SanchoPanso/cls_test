@@ -1,11 +1,11 @@
 import os
 import yaml
+import logging
 import argparse
 from pathlib import Path
 from easydict import EasyDict
-from utils.logger import get_logger
 
-LOGGER = get_logger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 PROJECT_DIR = str(Path(__file__).parent.parent.parent.parent)
 DEFAULT_CFG_PATH = str(Path(PROJECT_DIR) / 'cls' / 'classification' / 'cfg' / 'default.yaml')

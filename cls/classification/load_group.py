@@ -14,6 +14,7 @@ from cls.classification.engine.options import OptionParser
 from cls.classification.loaders.async_loader import download_images
 from cls.classification.loaders.meta_async_loader import get_meta
 from cls.classification.utils.general import build_label, save_label
+from cls.classification.loaders.yapics_api import YapicsAPI
 
 LOGGER = logging.getLogger(__name__)
 
@@ -21,12 +22,13 @@ LOGGER = logging.getLogger(__name__)
 def main():
     args = parse_args()
     
-    token = get_token(args.stand)
-    data = get_data(args.stand, args.group, token)
+    yapics_api = YapicsAPI(args.stand)
+    token = yapics_api.get_token()
+    data = yapics_api.get_data(args.group, token)
     dataset, picset_guids = builder(data)
     
     # Save meta
-    asyncio.run(get_meta(token, picset_guids, args.group, args.meta_dir))
+    asyncio.run(yapics_api.get_meta(token, picset_guids, args.group, args.meta_dir))
 
     # Save dataset
     full_paths = dataset["path"].to_list()
@@ -36,38 +38,39 @@ def main():
     LOGGER.info(f"File {args.group} was created")
 
     # Save images
+    full_paths = yapics_api.get_downloading_urls(full_paths, args.pictures_dir)
     asyncio.run(download_images(full_paths, args.pictures_dir))
     LOGGER.info("Done")
     
 
 def parse_args() -> EasyDict:
     parser = OptionParser()
-    parser.add_argument('--group', type=str, default='tits_size')
-    parser.add_argument('--stand', type=str, default='')
+    parser.add_argument('--group', type=str, default='test')#'tits_size')
+    parser.add_argument('--stand', type=str, default='dev.')
     args = parser.parse_args()
     return args
 
 
-def get_token(stand: str):
-    headers = {"Content-Type": "application/json"}
-    data_log = {"login": "admin", "password": "nC82JpRPLx61901c"}
+# def get_token(stand: str):
+#     headers = {"Content-Type": "application/json"}
+#     data_log = {"login": "admin", "password": "nC82JpRPLx61901c"}
 
-    url = f"https://yapics.{stand}collect.monster/v1/login"
+#     url = f"https://yapics2.{stand}collect.monster/v1/login"
 
-    r = requests.post(url, data=json.dumps(data_log), headers=headers)
-    token = eval(r.text)["token"]
-    return token
+#     r = requests.post(url, data=json.dumps(data_log), headers=headers)
+#     token = eval(r.text)["token"]
+#     return token
 
 
-def get_data(stand: str, group: str, token: str):
-    url = f"https://yapics.{stand}collect.monster/v1/meta/pictures"
-    head = {"Authorization": f"bearer {token}", "Content-Type": "application/json"}
+# def get_data(stand: str, group: str, token: str):
+#     url = f"https://yapics2.{stand}collect.monster/v1/meta/pictures"
+#     head = {"Authorization": f"bearer {token}", "Content-Type": "application/json"}
 
-    groups = {"listBy": 0, "categories": [], "groups": [group], "mode" : ["PREPARING","CHECKING","VALIDATED"]}
+#     groups = {"listBy": 0, "categories": [], "groups": [group], "mode" : ["PREPARING","CHECKING","VALIDATED"]}
 
-    r1 = requests.post(url, data=json.dumps(groups), headers=head, timeout=500000)
-    data = r1.json()["data"]
-    return data
+#     r1 = requests.post(url, data=json.dumps(groups), headers=head, timeout=500000)
+#     data = r1.json()["data"]
+#     return data
 
 
 # function that build 1-hot-encodeing pandas dataset from data

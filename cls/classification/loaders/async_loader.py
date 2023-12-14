@@ -40,6 +40,7 @@ class Counter:
 
 async def download_files(session, urls, images_dir, counter: Counter):
     for url in urls:
+        url = url.replace('yapics', 'yapics2.dev')
         async with session.get(url) as response:
             if response.status != 200:
                 counter.failed_num += 1
@@ -83,16 +84,16 @@ async def save_content(response: aiohttp.ClientResponse, file_path: str, chunk_s
 async def download_images(urls: list, images_dir: str, batch_size: int = 50):
     os.makedirs(images_dir, exist_ok=True)
     
-    full_urls = []
+    full_urls = urls
     
-    for url in urls:
-        filename = url.split("/")[-1]
-        file_path = os.path.join(images_dir, filename)
-        if os.path.exists(file_path):
-            continue
+    # for url in urls:
+    #     filename = url.split("/")[-1]
+    #     file_path = os.path.join(images_dir, filename)
+    #     if os.path.exists(file_path):
+    #         continue
         
-        full_url = os.path.join(URL, url)
-        full_urls.append(full_url)
+    #     full_url = os.path.join(URL, url)
+    #     full_urls.append(full_url)
     
     url_batches = []    
     for i in range(0, len(full_urls), batch_size):

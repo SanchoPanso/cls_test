@@ -85,7 +85,7 @@ def infer_with_data(model, dataset, batch, save_dir, num2label, conf_thresh):
         img, paths = elem
             
         with torch.no_grad():
-            logits = model(img.to(torch.float32).to('cuda:0'))
+            logits = model(img.to(torch.float16).to('cuda:0'))
             logits = sigmoid(logits)
             logits = logits.cpu().numpy()
 
@@ -116,7 +116,7 @@ def infer_with_contours(model, dataset, batch, save_dir, num2label, conf_thresh)
         img, segments_reprs, img_path, mask_fn = elem
             
         with torch.no_grad():
-            logits = model(img.to(torch.float32).to('cuda:0'))
+            logits = model(img.to(torch.float16).to('cuda:0'))
             logits = sigmoid(logits)
             logits = logits.cpu().numpy()
         
@@ -144,12 +144,8 @@ def parse_args(src_args: Sequence[str] | None = None):
     parser.add_argument(
         "--model",
         type=str,
-        default='/home/achernikov/CLS/DATA/models/hair_type/v__3_all_eff_48_0.001/checkpoints/epoch=32-step=15543.pt'
-        # '/home/achernikov/CLS/DATA/models/hair_type/v__3_all_eff_48_0.001/checkpoints/epoch=32-step=15543.pt',
-        # default='/home/achernikov/CLS/DATA/models/tits_size_with_trash/v__1_train_eff_softmax_32_0.001/checkpoints/epoch=22-step=14950.pt',
-        # default='/home/achernikov/CLS/DATA/models/body_type2_with_trash/v__4_train_eff_softmax_32_0.001/checkpoints/epoch=66-step=45292.pt',
-        # default='/home/achernikov/CLS/DATA/models/body_type2/v__1_all_eff_32_0.001/checkpoints/epoch=47-step=39936.pt',
-    )
+        default='/home/achernikov/CLS/DATA/models/hair_type/v__3_all_eff_48_0.001/checkpoints/epoch=32-step=15543_fp16.pt',
+        )
     parser.add_argument(
         "--group", type=str, 
         #default="body_type", 
