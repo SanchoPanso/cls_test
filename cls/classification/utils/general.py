@@ -17,6 +17,7 @@ import cv2
 import numpy as np
 
 from glob import glob
+from cls.classification.utils.postgres_db import PostgreSQLHandler
 
 LOGGER = logging.getLogger(__name__)
 
@@ -358,6 +359,18 @@ def get_box(id_item):
     return json_
 
 
+def get_box_db(db_handler: PostgreSQLHandler, path: str):
+    picture = db_handler.select_picture_by_path(path)
+    segments = json.loads(picture.segments)
+    
+    for obj_num in list(segments.keys()):
+        filename = os.path.basename(path)
+        name = os.path.splitext(filename)[0]
+        name_with_num = f"{name}_{obj_num}"
+        segments[name_with_num] = segments.pop(obj_num)
+    
+    return segments
+
 def get_boxes_meta(list_keys, bbox_meta):
 
     list_seg_json = {key.split(".")[0]: key for key in os.listdir(bbox_meta)}
@@ -365,6 +378,20 @@ def get_boxes_meta(list_keys, bbox_meta):
     proc_dict_meta = {}
     for key in proc_dict:
         proc_box = get_box(os.path.join(bbox_meta, list_seg_json[key]))
+        for key_ in proc_box.keys():
+            proc_box[key_]["origin"] = key
+            proc_dict_meta[key_] = proc_box[key_]
+    return proc_dict_meta
+
+
+def get_boxes_meta_db(list_keys: dict, db_handler: PostgreSQLHandler):
+    segments_paths = db_handler.select_all_paths()
+    list_seg_json = {key.split(".")[0]: key for key in segments_paths}
+    proc_dict = list_keys.keys() & list_seg_json.keys()
+    
+    proc_dict_meta = {}
+    for key in proc_dict:
+        proc_box = get_box_db(db_handler, list_seg_json[key])
         for key_ in proc_box.keys():
             proc_box[key_]["origin"] = key
             proc_dict_meta[key_] = proc_box[key_]
