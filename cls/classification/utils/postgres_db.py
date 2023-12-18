@@ -1,13 +1,13 @@
 import psycopg2
 import json
 from typing import List
-from sqlalchemy import String, Text
+from sqlalchemy import String, JSON
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Engine
 
 
 class Base(DeclarativeBase):
@@ -21,7 +21,7 @@ class Picture(Base):
     path: Mapped[str] = mapped_column(String(255))
     model_version: Mapped[str] = mapped_column(String(255))
     status: Mapped[str] = mapped_column(String(255))
-    segments: Mapped[str] = mapped_column(Text())
+    segments: Mapped[str] = mapped_column(JSON())
     
 
     def __repr__(self) -> str:
@@ -44,15 +44,16 @@ class PostgreSQLHandler:
         user="psql_user",
         password="root",
         port="5432",
+        echo=False,
     ) -> None:
         
         dialect = 'postgresql'
         driver = 'psycopg2'
         url = f'{dialect}+{driver}://{user}:{password}@{host}:{port}/{database}'
         if url not in self.__shared_engines:
-            self.__shared_engines[url] = create_engine(url)
+            self.__shared_engines[url] = create_engine(url, echo=echo)
         
-        self.engine = self.__shared_engines[url]
+        self.engine: Engine = self.__shared_engines[url]
 
     def select_picture_by_path(self, path: str) -> Picture:
         with Session(self.engine) as session:

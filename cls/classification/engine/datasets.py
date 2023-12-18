@@ -23,6 +23,7 @@ import random
 import math
 import logging
 from pathlib import Path
+from cls.classification.utils.postgres_db import PostgreSQLHandler
 
 LOGGER = logging.getLogger(__name__)
 
@@ -156,6 +157,78 @@ class InferenceContourDataset(Dataset):
         fg_img = cv2.bitwise_and(img, img, mask=mask)
         return fg_img, mask
 
+
+class InferenceDBDataset(Dataset):
+    def __init__(
+        self,
+        images_dir: str,
+        db_handler: PostgreSQLHandler,
+        image_filenames: Sequence[str],
+        transforms: nn.Sequential = None,):
+    
+        self.images_dir = images_dir
+        self.db_handler = db_handler
+        self.transforms = transforms
+        
+        self.mask_fns = []
+        self.segments = []
+        self.segment_paths = []
+        
+        for fn in image_filenames:
+            name, ext = os.path.splitext(fn)
+            db_pic = self.db_handler.select_picture_by_path(fn)
+            if db_pic is None:
+                continue
+            
+            segments_data = json.loads(db_pic.segments)
+            for i in segments_data:
+                self.mask_fns.append(f"{name}_{i}{ext}")
+                self.segments.append(segments_data[i]['segments'])
+        
+    @torch.no_grad()
+    def __getitem__(self, idx):
+        
+        mask_fn = self.mask_fns[idx]
+        mask_name, ext = os.path.splitext(mask_fn)
+        name = '_'.join(mask_name.split('_')[:-1])
+        img_path = os.path.join(self.images_dir, name + ext)
+        
+        img = cv2.imread(img_path)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = self.resize_with_pad(img, (640, 480))
+        img, mask = self.get_segmented_img(img, self.segments[idx])
+        img_tr = T.ToTensor()(img).float()
+        
+        if self.transforms is not None:
+            img_tr = self.transforms(img_tr)
+        
+        img_tr = img_tr.squeeze(0).to(torch.float16)
+        segments_repr = json.dumps({"segments": self.segments[idx]})
+        return img_tr, segments_repr, img_path, mask_fn
+
+    def __len__(self):
+        return len(self.mask_fns)
+    
+    def resize_with_pad(self, img: np.ndarray, size: tuple) -> np.ndarray:
+        """Resize img with pad keeping original ratio"""
+        w, h = size
+        img = A.LongestMaxSize(max_size=min(w, h))(image=img)['image']
+        img = A.PadIfNeeded(min_height=h, min_width=w, border_mode=cv2.BORDER_CONSTANT)(image=img)['image']
+        return img    
+
+    def get_segmented_img(self, img, segments):
+        mask = np.zeros(img.shape[:2], dtype='uint8')
+        
+        for segment in segments:
+            segment = np.array(segment)
+            segment = segment.reshape(-1, 1, 2)
+            segment[..., 0] *= img.shape[1]
+            segment[..., 1] *= img.shape[0]
+            segment = segment.astype('int32')
+            cv2.fillPoly(mask, [segment], 255)
+        
+        fg_img = cv2.bitwise_and(img, img, mask=mask)
+        return fg_img, mask
 
 class GenerativeDataset(Dataset):
     """Dataset for image loading and preprocessing with sample generation.
