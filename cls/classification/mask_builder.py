@@ -10,11 +10,9 @@ import argparse
 import logging
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).parent.parent.parent))
-from cls.classification.utils.cfg import get_cfg, get_opts
 from cls.classification.engine.options import OptionParser
+from cls.classification.engine.database import PostgreSQLHandler
 from cls.classification.utils.general import read_dataset_data
-from cls.classification.utils.logger import get_logger, colorstr
 
 LOGGER = logging.getLogger(__name__)
 
@@ -42,9 +40,9 @@ def main():
     
     result_dir = os.path.join(group_dir, experiment_name) 
     os.makedirs(result_dir, exist_ok=True)
-    LOGGER.info(f"Result will be saved in {colorstr('white', 'bold', result_dir)}")
+    LOGGER.info(f"Result will be saved in {result_dir}")
     
-    create_masks_set(args.pictures_dir, args.segments_dir, result_dir, group_names, process_all)      
+    create_masks_set(args.pictures_dir, result_dir, group_names, process_all)      
     LOGGER.info(f"Done")
     
 
@@ -60,31 +58,32 @@ def parse_args():
     return args
 
 
-def create_masks_set(images_dir, segments_dir, dst_dir, group_names=None, process_all=False):
-    img_name2fn = {os.path.splitext(fn)[0]: fn for fn in os.listdir(images_dir)}
-    masks_files = os.listdir(segments_dir) 
+def create_masks_set(images_dir, dst_dir, group_names=None, process_all=False):
+
+    db_handler = PostgreSQLHandler()
+    img_paths = os.listdir(images_dir)
+    seg_paths = db_handler.select_all_paths()
     
-    result_names = []
-    for mask_file in masks_files:
-        name, ext = os.path.splitext(mask_file)
-        if name not in img_name2fn:
+    result_paths = []
+    for seg_path in seg_paths:
+        if seg_path not in img_paths:
             continue
-        if group_names is not None and name not in group_names:
+        if group_names is not None and seg_path not in group_names:
             continue
             
-        result_names.append(name)
+        result_paths.append(seg_path)
         
     
-    for name in tqdm(result_names):
-        with open(os.path.join(segments_dir, name + '.json')) as js_f:
-            data = json.load(js_f)
-
+    for path in tqdm(result_paths):
+        name, ext = os.path.splitext(path)
+        data = db_handler.select_picture_by_path(path).segments
+        
         for i in data:
             save_mask_path = os.path.join(dst_dir, f"{name}_{i}.jpg")
             if not process_all and os.path.exists(save_mask_path): # TODO
                 continue
             
-            img = cv2.imread(os.path.join(images_dir, img_name2fn[name]))
+            img = cv2.imread(os.path.join(images_dir, path))
             mask = np.zeros((img.shape[0], img.shape[1]), dtype='uint8')
             segments = data[str(i)]['segments']
             

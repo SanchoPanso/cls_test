@@ -23,7 +23,7 @@ import random
 import math
 import logging
 from pathlib import Path
-from cls.classification.utils.postgres_db import PostgreSQLHandler
+from cls.classification.engine.database import PostgreSQLHandler
 
 LOGGER = logging.getLogger(__name__)
 
@@ -230,6 +230,7 @@ class InferenceDBDataset(Dataset):
         fg_img = cv2.bitwise_and(img, img, mask=mask)
         return fg_img, mask
 
+
 class GenerativeDataset(Dataset):
     """Dataset for image loading and preprocessing with sample generation.
     This class implements default behaviour of image generation, that can be 
@@ -239,7 +240,7 @@ class GenerativeDataset(Dataset):
     train: bool
     foreground_data: pd.DataFrame
     background_data: pd.DataFrame
-    masks_dir: str
+    db_handler: PostgreSQLHandler
     pictures_dir: str
     transforms: nn.Sequential
     num_classes: int
@@ -249,11 +250,10 @@ class GenerativeDataset(Dataset):
         self,
         foreground_data: pd.DataFrame,
         background_data: pd.DataFrame,
-        masks_dir: str,
+        db_handler: PostgreSQLHandler,
         pictures_dir: str,
         transforms: nn.Sequential = None,
         train: bool = True,
-        badlist: List[str] = None,
         generativity: float = 0.5,
     ):
         """
@@ -264,10 +264,10 @@ class GenerativeDataset(Dataset):
         :param group: group of categories that affects the way of image generation, defaults to 'sex_position'
         """
 
-        badlist = badlist or []
+        self.db_handler = db_handler
+        badlist = self.get_rejected_paths()
         self.foreground_data = self.delete_badlist(foreground_data.copy(), badlist)
         self.background_data = background_data.copy()
-        self.masks_dir = masks_dir
         self.pictures_dir = pictures_dir
         self.train = train
         self.transforms = transforms
@@ -282,34 +282,23 @@ class GenerativeDataset(Dataset):
     def check_foreground_data(self):
         self.fg_name2path = {}
         paths = self.foreground_data['path']
-        
+        self.fg_segments = {}
         unavailable_ids = []
         for i, path in enumerate(paths):
             name = os.path.splitext(path)[0]
-            segments_path = os.path.join(self.masks_dir, name + '.json')
+            pic = self.db_handler.select_picture_by_path(path)
             image_path = os.path.join(self.pictures_dir, path)
             
-            if not os.path.exists(segments_path) or not os.path.exists(image_path):
+            if pic is None or not os.path.exists(image_path):
+                unavailable_ids.append(i)
+                continue
+
+            segments = pic.segments
+            if not self.check_segments_data(segments):
                 unavailable_ids.append(i)
                 continue
             
-            try:
-                with open(segments_path) as f:
-                    segments_data = json.load(f)
-            except json.JSONDecodeError:
-                unavailable_ids.append(i)
-                LOGGER.error(f"File \"{segments_path}\" is corrupted (json decoding)")
-                continue
-            
-            if not self.check_segments_data(segments_data):
-                unavailable_ids.append(i)
-                continue
-                
-            # statuses = [segments_data[i]['status'] for i in segments_data]
-            # if 'rejected' in statuses:
-            #     unavailable_ids.append(i)
-            #     continue
-            
+            self.fg_segments[path] = segments
             self.fg_name2path[name] = path 
         
         self.foreground_data.drop(unavailable_ids, axis=0, inplace=True)
@@ -324,10 +313,9 @@ class GenerativeDataset(Dataset):
         unavailable_ids = []
         for i, path in enumerate(paths):
             name = os.path.splitext(path)[0]
-            segments_path = os.path.join(self.masks_dir, name + '.json')
             image_path = os.path.join(self.pictures_dir, path)
             
-            if os.path.exists(segments_path) and os.path.exists(image_path):
+            if os.path.exists(image_path):
                self.bg_name2path[name] = path 
             else:
                 unavailable_ids.append(i)
@@ -336,6 +324,11 @@ class GenerativeDataset(Dataset):
         self.background_data = self.background_data.reset_index(drop=True)
         LOGGER.info(f'Background data contains {len(paths)} paths. {len(self.bg_name2path)} is available')
 
+    def get_rejected_paths(self):
+        pictures = self.db_handler.select_pictures_by_status('rejected')
+        paths = [pic.path for pic in pictures]
+        return paths
+    
     def check_segments_data(self, segments_data) -> bool:
         file_is_corrupted = False
         for j in segments_data:
@@ -439,7 +432,7 @@ class GenerativeDataset(Dataset):
         
         img_fn = data['path']
         img_name = os.path.splitext(img_fn)[0]
-        return img_name, cur_class
+        return img_fn, cur_class
     
     def read_random_bg_img(self) -> np.ndarray:
         """Read random background image listed in self.data"""
@@ -538,13 +531,10 @@ class SceneGenerativeDataset(GenerativeDataset):
         :param bg_size: _description_
         :return: _description_
         """
-        img_name, cur_class = self.get_data_by_idx(idx)
+        img_fn, cur_class = self.get_data_by_idx(idx)        
+        # segment_data = self.db_handler.select_picture_by_path(img_fn)
+        segment_data = self.fg_segments[img_fn]
         
-        segment_data_path = os.path.join(self.masks_dir, img_name + '.json')
-        with open(segment_data_path) as f:
-            segment_data = json.load(f)
-
-        img_fn = self.fg_name2path[img_name]
         img = cv2.imread(os.path.join(self.pictures_dir, img_fn))
         res_img, mask = self.build_fg_img(img, bg_size, segment_data, cur_class)           
         return res_img, mask
@@ -596,14 +586,11 @@ class HumanGenerativeDataset(GenerativeDataset):
         :param bg_size: _description_
         :return: _description_
         """
-        img_name, cur_class = self.get_data_by_idx(idx)
-        width, height = bg_size
+        img_fn, cur_class = self.get_data_by_idx(idx)
+        #segment_data = self.db_handler.select_picture_by_path(img_fn).segments
+        segment_data = self.fg_segments[img_fn]
         
-        segment_data_path = os.path.join(self.masks_dir, img_name + '.json')
-        with open(segment_data_path) as f:
-            segment_data = json.load(f)
-            
-        img_fn = self.fg_name2path[img_name]
+        width, height = bg_size
         img = cv2.imread(os.path.join(self.pictures_dir, img_fn))
         
         if cur_class == -1 or self.num2label[cur_class] == 'trash':
@@ -705,7 +692,7 @@ def get_dataset_by_group(
     group: str,
     foreground_data: pd.DataFrame,
     background_data: pd.DataFrame,
-    masks_dir: str,
+    db_handler: PostgreSQLHandler,
     pictures_dir: str,
     transforms: nn.Sequential = None,
     train: bool = True,
@@ -715,20 +702,18 @@ def get_dataset_by_group(
         return SceneGenerativeDataset(
             foreground_data,
             background_data,
-            masks_dir,
+            db_handler,
             pictures_dir,
             transforms,
             train,
-            badlist
         )
     
     return HumanGenerativeDataset(
             foreground_data,
             background_data,
-            masks_dir,
+            db_handler,
             pictures_dir,
             transforms,
             train,
-            badlist
         )
 

@@ -4,7 +4,7 @@
 
 ### The main data storage for training
 DATA:
-  PATH: 'data_tmp_10122023' #'DATA'  # Absolute or relative path (if relative - repo dir is considered as root)
+  PATH: 'DATA'  # Absolute or relative path (if relative - repo dir is considered as root)
   
   # The following params are relative paths of subdirs (relative to 'path' value)
   datasets_dir: 'datasets'  # Subdir with json files that describe a dataset content for each group

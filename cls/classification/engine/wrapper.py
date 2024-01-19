@@ -6,7 +6,7 @@ import glob
 import logging
 from pathlib import Path
 from io import StringIO
-from typing import Optional
+from typing import Optional, Tuple
 from lightning_fabric.utilities.types import _PATH
 import pytorch_lightning as pl
 
@@ -24,10 +24,9 @@ from sklearn.utils import shuffle
 from cls.classification.engine.model import ModelBuilder, EfficientLightning
 from cls.classification.engine.datasets import GenerativeDataset, get_dataset_by_group
 from cls.classification.engine.augmentation import PreProcess, DataAugmentation
-from cls.classification.utils.database import get_rejected_paths
+from cls.classification.engine.database import PostgreSQLHandler
 
 # from data_info import count_classes
-from cls.classification.utils.logger import colorstr
 
 LOGGER = logging.getLogger(__name__)
 seed_everything(1)
@@ -84,7 +83,7 @@ class TrainWrapper:
             save_dir=self.save_dir,
             name=self.experiment_name,
             log_model=True,
-            id=self.experiment_name
+            id=self.experiment_name,
         )
         
         self.csv_logger = CSVLogger(
@@ -146,27 +145,17 @@ class TrainWrapper:
         with open(self.background_meta_path) as f:
             bg_data = pd.read_json(StringIO(json.load(f)['data']))
         
-        self.badlist_path = self.badlist_path or ''
-        if os.path.exists(self.badlist_path):
-            with open(self.badlist_path) as f:
-                text = f.read().strip()
-                badlist = [] if text == '' else text.split('\n')
-        else:
-            badlist = []
-        
-        db_badlist = get_rejected_paths(self.pictures_info_db_path)
-        badlist = list(set(badlist + db_badlist))
+        db_handler = PostgreSQLHandler()
         
         LOGGER.info('Prepare Train Subset')
         self.train_set = get_dataset_by_group(
             group=self.cat,
             foreground_data=self.train_pd,
             background_data=bg_data,
-            masks_dir=os.path.join(self.dataset_root_path, self.masks_subdir),
+            db_handler=db_handler,
             pictures_dir=os.path.join(self.dataset_root_path, self.pictures_subdir),
             transforms=PreProcess(gray=self.gray, vflip=self.vflip, arch=self.arch),
             train=True,
-            badlist=badlist,
         )
         
         LOGGER.info('Prepare Val Subset')
@@ -174,11 +163,10 @@ class TrainWrapper:
             group=self.cat,
             foreground_data=self.val_pd,
             background_data=bg_data,
-            masks_dir=os.path.join(self.dataset_root_path, self.masks_subdir),
+            db_handler=db_handler,
             pictures_dir=os.path.join(self.dataset_root_path, self.pictures_subdir),
             transforms=PreProcess(gray=False, vflip=False, arch=self.arch),
             train=False,
-            badlist=badlist,
         )
 
         self.train_loader = DataLoader(
@@ -202,7 +190,7 @@ class TrainWrapper:
         self.save_dir = self.models_dir
         self.experiment_name = f"v__{str(len(os.listdir(log_dir)))}_{self.mode}_{self.arch}_{self.batch_size}_{self.decay}"
         self.experiment_path = os.path.join(self.save_dir, self.cat, self.experiment_name)
-        LOGGER.info(f"Result will be saved in {colorstr('white', 'bold', self.experiment_path)}")
+        LOGGER.info(f"Result will be saved in {self.experiment_path}")
         
 
     # @staticmethod
@@ -334,4 +322,5 @@ class CustomModelCheckpoint(ModelCheckpoint):
         )
         
         #return super()._save_checkpoint(trainer, filepath)
+
 

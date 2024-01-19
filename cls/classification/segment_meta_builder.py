@@ -8,10 +8,11 @@ import glob
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
-from cls.classification.utils.general import save_meta, get_boxes_meta, get_meta_id
-from cls.classification.engine.datasets import InferenceContourDataset
+from cls.classification.utils.general import save_meta, get_boxes_meta_db, get_meta_id
+from cls.classification.engine.datasets import InferenceDBDataset
 from cls.classification.engine.augmentation import PreProcess, DataAugmentation
 from cls.classification.engine.options import OptionParser
+from cls.classification.utils.postgres_db import PostgreSQLHandler
 
 LOGGER = logging.getLogger(__name__)
 GENDERS = {'male': 'man', 'female': 'girl'}
@@ -26,11 +27,13 @@ def main():
     datasets_dir = args.datasets_dir
     meta_dir = args.meta_dir
     pictures_dir = args.pictures_dir
-    segments_dir = args.segments_dir
+    #segments_dir = args.segments_dir
     
     image_groups = args.groups #["sasha test"]
     model_paths = args['MODELS']
     metas = {}
+    
+    db_handler = PostgreSQLHandler()
     
     for model_group in model_paths:
         for image_group in image_groups:
@@ -46,7 +49,7 @@ def main():
                 image_group, 
                 meta_dir, 
                 pictures_dir, 
-                segments_dir,
+                db_handler,
                 metas,
             )
     
@@ -57,21 +60,28 @@ def main():
 def parse_args():
     parser = OptionParser()
     parser.add_argument('--groups', type=str, nargs='*', default=['dev_group'])
+    # parser.add_argument('--host', type=str, default='localhost')
+    # parser.add_argument('--database', type=str, default='localhost')
+    # parser.add_argument('--user', type=str, default='localhost')
+    # parser.add_argument('--password', type=str, default='localhost')
+    # parser.add_argument('--port', type=str, default='localhost')
+    
     args = parser.parse_args()
     return args 
 
 
 def parse_meta_v3(
-    model_cat,
-    model_path,
-    augmentation,
-    preprocessing,
-    datasets_dir,
-    category,
-    meta_dir,
-    pictures_dir,
-    segments_dir,
-    metas,
+    model_cat: str,
+    model_path: str,
+    augmentation: DataAugmentation,
+    preprocessing: PreProcess,
+    datasets_dir: str,
+    category: str,
+    meta_dir: str,
+    pictures_dir: str,
+    db_handler: PostgreSQLHandler,
+    # segments_dir: str,
+    metas: dict,
 ):
 
     extra_files = {"num2label.txt": ""}  # values will be replaced with data
@@ -95,7 +105,7 @@ def parse_meta_v3(
         list_jpeg = list(id_meta.keys())
         list_jpeg = [os.path.join(pictures_dir, pic) for pic in list_jpeg]
         list_keys = {key.split(".")[0]: key for key in id_meta.keys()}
-        dict_boxes = get_boxes_meta(list_keys, segments_dir)
+        dict_boxes = get_boxes_meta_db(list_keys, db_handler)
         
         # list_boxes_jpeg = []
         
@@ -117,7 +127,7 @@ def parse_meta_v3(
             # if os.path.exists(os.path.join(pictures_dir, pic + ".jpeg")): # TODO: not always jpeg
             #     image_filenames.append(pic + ".jpeg")
         
-        dataset = InferenceContourDataset(pictures_dir, segments_dir, image_filenames, preprocessing)
+        dataset = InferenceDBDataset(pictures_dir, db_handler, image_filenames, preprocessing)
         loader = DataLoader(dataset, 4, num_workers=32, pin_memory=True, shuffle=False)
 
         for batch in loader:

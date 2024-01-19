@@ -7,8 +7,6 @@ from pathlib import Path
 import argparse
 from typing import Any
 from easydict import EasyDict
-
-# sys.path.append(str(Path(__file__).parent.parent))
 from cls.classification.utils.cfg import get_cfg, dict2str
 
 LOGGER = logging.getLogger(__name__)
