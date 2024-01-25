@@ -26,7 +26,7 @@ def main():
 def parse_args():
     parser = OptionParser()
     
-    parser.add_argument('--model_path', type=str, default='/home/achernikov/CLS/people_models/best_people_28092023.pt')
+    parser.add_argument('--model_path', type=str, default='/home/achernikov/CLS/people_models/best_people.pt')
     parser.add_argument('--process_all', action='store_true', default=False)
     parser.add_argument('--mark_approved', action='store_true', default=False)
     
@@ -35,7 +35,7 @@ def parse_args():
         
     
 def create_segments(yolo_model_path, src_path, 
-                    process_all=False, mark_approved=False, conf_thresh=0.75):
+                    process_all=False, mark_approved=False, conf_thresh=0.5):
    
     yolo_model_name = os.path.splitext(os.path.basename(yolo_model_path))[0]
     yolo_model = YOLO(yolo_model_path).to('cuda')
