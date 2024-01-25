@@ -53,6 +53,7 @@ def main():
                 metas,
             )
     
+    metas = sort_meta(metas)
     LOGGER.info('Saving meta')
     save_meta(metas, model_paths)
 
@@ -218,6 +219,15 @@ def fill_image_meta(image_meta, tag, bbox, cls, model_cat):
         ]
         
     return image_meta
+
+def sort_meta(d):
+    for key in d:
+        for inner_key in d[key]:
+            if 'trained' in d[key][inner_key]:
+                d[key][inner_key]['trained'].sort(key=lambda x: sum(x['bbox'][:2]))
+                for i, item in enumerate(d[key][inner_key]['trained'], start=1):
+                    item['idx'] = i
+    return d
 
     
 if __name__ == '__main__':
