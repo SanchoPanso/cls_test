@@ -10,6 +10,7 @@ services:
     volumes:
       - ./postgresql/init-db:/docker-entrypoint-initdb.d
       - ./postgresql/data:/var/lib/postgresql/data
+      - ./postgresql/dumps:/dumps
     ports:
       - "5432:5432"
     restart: always
