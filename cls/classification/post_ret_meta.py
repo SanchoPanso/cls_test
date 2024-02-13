@@ -47,7 +47,7 @@ def main():
 def parse_args(src_args: Sequence[str] | None = None):
     parser = OptionParser()
     parser.add_argument('--stand', type=str, default='dev.', choices=['dev.', ''])
-    parser.add_argument('--groups', type=str, nargs='*', default=['dev_group'])
+    parser.add_argument('--groups', type=str, nargs='*', default=['group'])
     
     args = parser.parse_args(src_args)
     return args

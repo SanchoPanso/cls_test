@@ -4,7 +4,7 @@
 
 ### The main data storage for training
 DATA:
-  PATH: 'DATA'  # Absolute or relative path (if relative - repo dir is considered as root)
+  PATH: 'data_testing' #'DATA'  # Absolute or relative path (if relative - repo dir is considered as root)
   
   # The following params are relative paths of subdirs (relative to 'path' value)
   datasets_dir: 'datasets'  # Subdir with json files that describe a dataset content for each group
@@ -37,8 +37,12 @@ PRODUCTION:
 
 ### Path to inference models for specific groups. Used for metadata building in `segment_meta_builder.py`
 MODELS:
+  # tits_size: '/home/achernikov/CLS/DATA/models/tits_size/v__3_train_eff_48_0.2/checkpoints/epoch=67-step=29716.pt'
+  # hair_type: '/home/achernikov/CLS/DATA/models/hair_type/v__3_all_eff_48_0.001/checkpoints/epoch=32-step=15543.pt' 
   tits_size: '/home/achernikov/CLS/DATA/models/tits_size/v__3_train_eff_48_0.2/checkpoints/epoch=67-step=29716.pt'
-  hair_type: '/home/achernikov/CLS/DATA/models/hair_type/v__3_all_eff_48_0.001/checkpoints/epoch=32-step=15543.pt' 
+  hair_color: '/home/achernikov/CLS/DATA/models/hair_color/v__0_train_eff_32_0.001/checkpoints/epoch=19-step=11160.pt'
+  hair_type: '/home/achernikov/CLS/DATA/models/hair_type/v__3_all_eff_48_0.001/checkpoints/epoch=32-step=15543.pt'
+  body_type: '/home/achernikov/CLS/DATA/models/body_type2/v__1_all_eff_32_0.001/checkpoints/epoch=47-step=39936.pt'
 
 
 

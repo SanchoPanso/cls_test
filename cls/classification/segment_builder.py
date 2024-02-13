@@ -20,7 +20,7 @@ logging.getLogger('ultralytics').handlers = [logging.NullHandler()]
 
 def main():
     args = parse_args()
-    create_segments(args.model_path, args.pictures_dir, args.process_all, args.mark_approved)
+    create_segments(args.model_path, args.process_all, args.mark_approved, args=args)
 
 
 def parse_args():
@@ -34,9 +34,10 @@ def parse_args():
     return args
         
     
-def create_segments(yolo_model_path, src_path, 
-                    process_all=False, mark_approved=False, conf_thresh=0.5):
-   
+def create_segments(yolo_model_path, 
+                    process_all=False, mark_approved=False, conf_thresh=0.5, args = None):
+    
+    src_path = args.pictures_dir
     yolo_model_name = os.path.splitext(os.path.basename(yolo_model_path))[0]
     yolo_model = YOLO(yolo_model_path).to('cuda')
     list_of_image_paths = glob(os.path.join(src_path, '*'))
@@ -64,7 +65,7 @@ def create_segments(yolo_model_path, src_path,
 def create_image_segments(
     img_path: str,
     yolo_model: YOLO, 
-    db_handler: PostgreSQLHandler or None,
+    db_handler: PostgreSQLHandler | None,
     yolo_model_name: str,
     conf_thresh: float, 
     mark_approved: bool):

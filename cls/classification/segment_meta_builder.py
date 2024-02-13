@@ -1,8 +1,10 @@
 import sys
 import os
+import argparse
 import json
 import torch
 import logging
+from typing import List 
 from torch.utils.data import DataLoader
 import glob
 from pathlib import Path
@@ -20,6 +22,23 @@ GENDERS = {'male': 'man', 'female': 'girl'}
 
 def main():
     args = parse_args()
+    segment_meta_builder(args.groups, args)
+
+
+def parse_args():
+    parser = OptionParser()
+    parser.add_argument('--groups', type=str, nargs='*', default=['group2'])
+    # parser.add_argument('--host', type=str, default='localhost')
+    # parser.add_argument('--database', type=str, default='localhost')
+    # parser.add_argument('--user', type=str, default='localhost')
+    # parser.add_argument('--password', type=str, default='localhost')
+    # parser.add_argument('--port', type=str, default='localhost')
+    
+    args = parser.parse_args()
+    return args 
+
+
+def segment_meta_builder(groups: List[str], args: argparse.Namespace):
     augmentation = DataAugmentation().eval()
     preprocessing = PreProcess(gray=False, vflip=False, arch="eff")
     
@@ -27,9 +46,8 @@ def main():
     datasets_dir = args.datasets_dir
     meta_dir = args.meta_dir
     pictures_dir = args.pictures_dir
-    #segments_dir = args.segments_dir
     
-    image_groups = args.groups #["sasha test"]
+    image_groups = groups #["sasha test"]
     model_paths = args['MODELS']
     metas = {}
     
@@ -57,19 +75,6 @@ def main():
     save_meta(metas, model_paths)
 
 
-def parse_args():
-    parser = OptionParser()
-    parser.add_argument('--groups', type=str, nargs='*', default=['dev_group'])
-    # parser.add_argument('--host', type=str, default='localhost')
-    # parser.add_argument('--database', type=str, default='localhost')
-    # parser.add_argument('--user', type=str, default='localhost')
-    # parser.add_argument('--password', type=str, default='localhost')
-    # parser.add_argument('--port', type=str, default='localhost')
-    
-    args = parser.parse_args()
-    return args 
-
-
 def parse_meta_v3(
     model_cat: str,
     model_path: str,
@@ -85,9 +90,9 @@ def parse_meta_v3(
 ):
 
     extra_files = {"num2label.txt": ""}  # values will be replaced with data
-    model = torch.jit.load(model_path, "cuda", _extra_files=extra_files)
+    model = torch.jit.load(model_path, "cpu", _extra_files=extra_files) # TODO: change device
     model = model.eval()
-    model.to(torch.float16)
+    model#.to(torch.float16)
     num2label = json.loads(extra_files['num2label.txt'])
 
     picset_list = glob.glob(os.path.join(meta_dir, category, '*'))
@@ -134,7 +139,7 @@ def parse_meta_v3(
             imgs, segments_reprs, img_paths, mask_fns = batch
             
             with torch.no_grad():
-                input_tensor = augmentation(imgs.to("cuda"))
+                input_tensor = augmentation(imgs.to("cpu"))     # TODO: change device
                 ret_ = model(input_tensor)
                 ret_ = torch.sigmoid(ret_)
                 ret_ = torch.round(ret_, decimals=2)

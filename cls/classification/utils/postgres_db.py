@@ -83,6 +83,7 @@ class PostgreSQLHandler:
             else:
                 picture.model_version = new_picture.model_version
                 picture.status = new_picture.status
+                picture.segments = new_picture.segments
 
             session.commit()
 

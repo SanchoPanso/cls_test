@@ -180,7 +180,7 @@ class InferenceDBDataset(Dataset):
             if db_pic is None:
                 continue
             
-            segments_data = json.loads(db_pic.segments)
+            segments_data = db_pic.segments
             for i in segments_data:
                 self.mask_fns.append(f"{name}_{i}{ext}")
                 self.segments.append(segments_data[i]['segments'])
@@ -202,7 +202,7 @@ class InferenceDBDataset(Dataset):
         if self.transforms is not None:
             img_tr = self.transforms(img_tr)
         
-        img_tr = img_tr.squeeze(0).to(torch.float16)
+        img_tr = img_tr.squeeze(0)#.to(torch.float16)
         segments_repr = json.dumps({"segments": self.segments[idx]})
         return img_tr, segments_repr, img_path, mask_fn
 

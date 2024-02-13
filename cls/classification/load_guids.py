@@ -4,6 +4,7 @@ import requests
 import json
 import pandas as pd
 from pathlib import Path
+from typing import List
 import logging
 import asyncio
 import argparse
@@ -19,58 +20,30 @@ LOGGER = logging.getLogger(__name__)
 
 def main():
     args = parse_args()
+    load_guids(args.guids, args.stand, args.group, args)
     
-    # Load the json file with the picset ids
-    with open(args.json_path) as f:
-        picset_ids = json.load(f)
-    
-    # Get the token
-    yapics_api = YapicsAPI(args.stand)
-    token = yapics_api.get_token()
-    
-    # Load the meta
-    for picset_id in picset_ids["picsets"]:
-        r1 = yapics_api.load_meta(token, picset_id)
-    
-        # Build the dataset
-        dataset, group = buid_dataset(r1.json()["data"], args.meta_dir)
-    
-        # Save the dataset
-        full_paths = dataset["path"].to_list()
-        dataset["path"] = dataset["path"].apply(lambda x: x.split("/")[-1])
-        num2label, weights = build_label(dataset)
-        save_label(dataset.to_json(), num2label, weights, group, args.datasets_dir)
-
-        full_paths = yapics_api.get_downloading_urls(full_paths, args.pictures_dir)
-        asyncio.run(download_images(full_paths, args.pictures_dir))
-        
-    LOGGER.info("Done")
-
 
 def parse_args():
     parser = OptionParser()
-    parser.add_argument('--json_path', type=str, 
-                        default='/home/achernikov/CLS/cls/classification/data/json2load_2301.json')#os.path.join(os.path.dirname(__file__), "data/json2load_background.json"))
+    parser.add_argument('--guids', nargs='*', default=[]) 
     parser.add_argument('--stand', type=str, default='dev.')
+    parser.add_argument('--group', type=str, default='group')
     args = parser.parse_args()
     return args
 
 
-def load_json(args: argparse.Namespace):
-    # Load the json file with the picset ids
-    with open(args.json_path) as f:
-        picset_ids = json.load(f)
+def load_guids(guids: List[str], stand: str, group: str, args: argparse.Namespace):
     
     # Get the token
-    yapics_api = YapicsAPI(args.stand)
+    yapics_api = YapicsAPI(stand)
     token = yapics_api.get_token()
     
     # Load the meta
-    for picset_id in picset_ids["picsets"]:
-        r1 = yapics_api.load_meta(token, picset_id)
+    for guid in guids:
+        r1 = yapics_api.load_meta(token, [guid])
     
         # Build the dataset
-        dataset, group = buid_dataset(r1.json()["data"], args.meta_dir)
+        dataset, group = buid_dataset(r1.json()["data"], args.meta_dir, group)
     
         # Save the dataset
         full_paths = dataset["path"].to_list()
@@ -85,28 +58,7 @@ def load_json(args: argparse.Namespace):
 
 
 
-# def get_token(stand):
-#     headers = {"Content-Type": "application/json"}
-#     data_log = {"login": "admin", "password": "nC82JpRPLx61901c"}
-
-#     url = f"https://yapics2.{stand}collect.monster/v1/login"
-
-#     r = requests.post(url, data=json.dumps(data_log), headers=headers)
-#     token = eval(r.text)["token"]
-#     return token
-
-
-# def load_meta(token, picset_ids, stand):
-#     url = f"https://yapics2.{stand}collect.monster/v1/meta/picsets"
-#     head = {"Authorization": f"bearer {token}", "Content-Type": "application/json"}
-
-#     guids = {"guids": picset_ids}
-
-#     r1 = requests.post(url, data=json.dumps(guids), headers=head, timeout=500000)
-#     return r1
-
-
-def check_groups(data, meta_dir):
+def check_groups(data, meta_dir, group):
     # for i in range(1, len(data)):
         # print(data[i-1])
         # if data[i]["picset"]["group"] != data[i - 1]["picset"]["group"]:
@@ -117,7 +69,7 @@ def check_groups(data, meta_dir):
         if "group" in data[j]["picset"]:
             group = data[j]["picset"]["group"][0]["group"]
         else:
-            group = 'group2' # TODO: find out about that problem
+            group = group # TODO: find out about that problem
 
         path2meta = os.path.join(meta_dir, group, data[j]["picset"]["guid"])
         Path(path2meta).mkdir(parents=True, exist_ok=True)
@@ -127,8 +79,8 @@ def check_groups(data, meta_dir):
     return True
 
 
-def buid_dataset(data, meta_dir):
-    if not check_groups(data, meta_dir):
+def buid_dataset(data, meta_dir, group_name='group'):
+    if not check_groups(data, meta_dir, group_name):
         raise Exception("Groups are not equal")
 
     dataset = []
@@ -149,7 +101,7 @@ def buid_dataset(data, meta_dir):
     if "group" in data[0]["picset"]:
         group = data[0]["picset"]["group"][0]["group"]
     else:
-        group = 'group2' # TODO: find out about that problem
+        group = group_name # TODO: find out about that problem
 
     return pd.DataFrame(dataset).fillna(0), group
 

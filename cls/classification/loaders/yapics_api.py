@@ -83,3 +83,13 @@ class YapicsAPI:
             await asyncio.gather(*tasks)
     
     
+# api = YapicsAPI()
+# token = api.get_token()
+
+# url = f"https://yapics2.dev.collect.monster/v1/series?_limit=10"
+# head = {"Authorization": f"bearer {token}", "Content-Type": "application/json"}
+
+# guids = {"payload": {"title": "body_type"}}
+# r1 = requests.post(url, headers=head, timeout=500000)
+
+# print(r1.text)
