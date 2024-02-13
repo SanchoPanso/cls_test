@@ -361,7 +361,7 @@ def get_box(id_item):
 
 def get_box_db(db_handler: PostgreSQLHandler, path: str):
     picture = db_handler.select_picture_by_path(path)
-    segments = json.loads(picture.segments)
+    segments = picture.segments
     
     for obj_num in list(segments.keys()):
         filename = os.path.basename(path)

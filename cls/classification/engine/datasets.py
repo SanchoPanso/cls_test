@@ -180,7 +180,7 @@ class InferenceDBDataset(Dataset):
             if db_pic is None:
                 continue
             
-            segments_data = json.loads(db_pic.segments)
+            segments_data = db_pic.segments
             for i in segments_data:
                 self.mask_fns.append(f"{name}_{i}{ext}")
                 self.segments.append(segments_data[i]['segments'])

@@ -6,6 +6,7 @@ import logging
 from torch.utils.data import DataLoader
 import glob
 from pathlib import Path
+import math
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from cls.classification.utils.general import save_meta, get_boxes_meta_db, get_meta_id
@@ -60,7 +61,7 @@ def main():
 
 def parse_args():
     parser = OptionParser()
-    parser.add_argument('--groups', type=str, nargs='*', default=['dev_group'])
+    parser.add_argument('--groups', type=str, nargs='*', default=['group'])
     # parser.add_argument('--host', type=str, default='localhost')
     # parser.add_argument('--database', type=str, default='localhost')
     # parser.add_argument('--user', type=str, default='localhost')
@@ -224,7 +225,7 @@ def sort_meta(d):
     for key in d:
         for inner_key in d[key]:
             if 'trained' in d[key][inner_key]:
-                d[key][inner_key]['trained'].sort(key=lambda x: sum(x['bbox'][:2]))
+                d[key][inner_key]['trained'].sort(key=lambda x: math.sqrt(sum([i**2 for i in x['bbox'][:2]])))
                 for i, item in enumerate(d[key][inner_key]['trained'], start=1):
                     item['idx'] = i
     return d
