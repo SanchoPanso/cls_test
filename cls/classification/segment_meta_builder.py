@@ -8,6 +8,7 @@ from typing import List
 from torch.utils.data import DataLoader
 import glob
 from pathlib import Path
+import math
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from cls.classification.utils.general import save_meta, get_boxes_meta_db, get_meta_id
@@ -71,8 +72,22 @@ def segment_meta_builder(groups: List[str], args: argparse.Namespace):
                 metas,
             )
     
+    metas = sort_meta(metas)
     LOGGER.info('Saving meta')
     save_meta(metas, model_paths)
+
+
+def parse_args():
+    parser = OptionParser()
+    parser.add_argument('--groups', type=str, nargs='*', default=['group'])
+    # parser.add_argument('--host', type=str, default='localhost')
+    # parser.add_argument('--database', type=str, default='localhost')
+    # parser.add_argument('--user', type=str, default='localhost')
+    # parser.add_argument('--password', type=str, default='localhost')
+    # parser.add_argument('--port', type=str, default='localhost')
+    
+    args = parser.parse_args()
+    return args 
 
 
 def parse_meta_v3(
@@ -223,6 +238,15 @@ def fill_image_meta(image_meta, tag, bbox, cls, model_cat):
         ]
         
     return image_meta
+
+def sort_meta(d):
+    for key in d:
+        for inner_key in d[key]:
+            if 'trained' in d[key][inner_key]:
+                d[key][inner_key]['trained'].sort(key=lambda x: math.sqrt(sum([i**2 for i in x['bbox'][:2]])))
+                for i, item in enumerate(d[key][inner_key]['trained'], start=1):
+                    item['idx'] = i
+    return d
 
     
 if __name__ == '__main__':
