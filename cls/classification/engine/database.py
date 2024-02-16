@@ -1,4 +1,3 @@
-import psycopg2
 import json
 from typing import List
 from sqlalchemy import String, JSON
