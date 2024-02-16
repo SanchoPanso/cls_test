@@ -1,3 +1,4 @@
+import traceback
 from typing import List
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -16,8 +17,9 @@ def post_trained(item: Item):
     try:
         raise ValueError("aaa")
         pipeline(item.guids, YOLO_PATH)
-    except Exception as e:
-        raise HTTPException(502, str(e))
+    except Exception as exc:
+        formatted_lines = traceback.format_exc().splitlines()
+        raise HTTPException(502, formatted_lines[-1])
     
     return item
 
