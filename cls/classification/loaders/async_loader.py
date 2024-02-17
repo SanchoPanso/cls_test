@@ -40,7 +40,7 @@ class Counter:
 
 async def download_files(session, urls, images_dir, counter: Counter):
     for url in urls:
-        url = url.replace('yapics', 'yapics2.dev')
+        #url = url.replace('yapics', 'yapics2.dev')
         async with session.get(url) as response:
             if response.status != 200:
                 counter.failed_num += 1

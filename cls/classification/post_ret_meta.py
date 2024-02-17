@@ -27,7 +27,7 @@ def main():
 
 def parse_args(src_args: Sequence[str] | None = None):
     parser = OptionParser()
-    parser.add_argument('--stand', type=str, default='dev.', choices=['dev.', ''])
+    parser.add_argument('--stand', type=str, default='', choices=['dev.', ''])
     parser.add_argument('--groups', type=str, nargs='*', default=['group'])
     
     args = parser.parse_args(src_args)
@@ -35,7 +35,7 @@ def parse_args(src_args: Sequence[str] | None = None):
 
 
 def post_ret_meta(stand: str, groups: List[str], args):
-    yapics_api = YapicsAPI(args.stand)
+    yapics_api = YapicsAPI(stand)
     token = yapics_api.get_token()
 
     for group in groups:

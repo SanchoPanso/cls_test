@@ -22,12 +22,12 @@ def parse_args() -> argparse.Namespace:
 
 
 def pipeline(guids: str, yolo_model_path: str, stand='dev.'):
-    args = OptionParser().parse_args()
+    args = OptionParser().parse_args([])
     group = get_timestamped_group_name()
     load_guids(guids, stand, group, args)
     create_segments(yolo_model_path, args=args)
     segment_meta_builder([group], args)
-    # post_ret_meta(stand, [group], args)
+    post_ret_meta(stand, [group], args)
 
 
 def get_timestamped_group_name() -> str:

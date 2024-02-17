@@ -60,7 +60,7 @@ class YapicsAPI:
         return r1
 
     def get_downloading_urls(self, urls: list, images_dir: str):
-        prefix_url = "https://static.yapics.collect.monster/"
+        prefix_url = "https://static.yapics2.collect.monster/" # TODO: Check "2"
         full_urls = []
         
         for url in urls:

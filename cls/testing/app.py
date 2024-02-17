@@ -15,7 +15,6 @@ class Item(BaseModel):
 @app.post('/post_trained/')
 def post_trained(item: Item):
     try:
-        raise ValueError("aaa")
         pipeline(item.guids, YOLO_PATH)
     except Exception as exc:
         formatted_lines = traceback.format_exc().splitlines()

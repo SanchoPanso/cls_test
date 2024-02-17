@@ -25,8 +25,8 @@ def main():
 
 def parse_args():
     parser = OptionParser()
-    parser.add_argument('--guids', nargs='*', default=[]) 
-    parser.add_argument('--stand', type=str, default='dev.')
+    parser.add_argument('--guids', nargs='*', default=["5051a8e6-3d01-45bb-adbf-a7c84a7c671f"]) 
+    parser.add_argument('--stand', type=str, default='')#'dev.')
     parser.add_argument('--group', type=str, default='group')
     args = parser.parse_args()
     return args

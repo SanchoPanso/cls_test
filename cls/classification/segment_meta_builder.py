@@ -28,7 +28,7 @@ def main():
 
 def parse_args():
     parser = OptionParser()
-    parser.add_argument('--groups', type=str, nargs='*', default=['group2'])
+    parser.add_argument('--groups', type=str, nargs='*', default=['group'])
     # parser.add_argument('--host', type=str, default='localhost')
     # parser.add_argument('--database', type=str, default='localhost')
     # parser.add_argument('--user', type=str, default='localhost')
@@ -148,7 +148,7 @@ def parse_meta_v3(
             #     image_filenames.append(pic + ".jpeg")
         
         dataset = InferenceDBDataset(pictures_dir, db_handler, image_filenames, preprocessing)
-        loader = DataLoader(dataset, 4, num_workers=32, pin_memory=True, shuffle=False)
+        loader = DataLoader(dataset, 4, num_workers=0, pin_memory=True, shuffle=False)
 
         for batch in loader:
             imgs, segments_reprs, img_paths, mask_fns = batch

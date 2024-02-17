@@ -594,7 +594,7 @@ def save_meta(metas, path_models, mode="meta.json"):
         meta_js["items"] = list(value.values())
 
         for item in meta_js["items"]:
-            item['guid'] = item['origin']['filepath'].split('/')[3]
+            item['guid'] = item['guid']
             for i in ['id', 'title', 'text', 'origin', 'thumb', 'tags']:
                 if i in item:
                     item.pop(i)

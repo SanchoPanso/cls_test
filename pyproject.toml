@@ -32,6 +32,7 @@ wandb = "^0.16.3"
 pytorch-lightning = "^2.2.0.post0"
 kornia = "^0.7.1"
 psycopg2-binary = "^2.9.9"
+pyarrow = "^15.0.0"
 
 
 [build-system]
