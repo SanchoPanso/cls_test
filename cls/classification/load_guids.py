@@ -26,7 +26,7 @@ def main():
 def parse_args():
     parser = OptionParser()
     parser.add_argument('--guids', nargs='*', default=["5051a8e6-3d01-45bb-adbf-a7c84a7c671f"]) 
-    parser.add_argument('--stand', type=str, default='')#'dev.')
+    parser.add_argument('--stand', type=str, default='dev.')
     parser.add_argument('--group', type=str, default='group')
     args = parser.parse_args()
     return args
@@ -93,10 +93,16 @@ def buid_dataset(data, meta_dir, group_name='group'):
         for item in picset["items"]:
             if 'filepath' not in item["origin"] or len(item["origin"]["filepath"]) < 5:
                 continue
+            
+            picset_guid = item['origin']['picset_guid']
+            filename = os.path.basename(item["origin"]["filepath"])
+            path = f"{picset_guid[0]}/{picset_guid[1]}/{picset_guid[2]}/{picset_guid}/origin/{filename}"
             if "trash" in picset_category:
                 dataset.append({"path": item["origin"]["filepath"]})
+                # dataset.append({"path": path})
             else:
                 dataset.append({"path": item["origin"]["filepath"], picset_category: 1})
+                # dataset.append({"path": path, picset_category: 1})
         
     if "group" in data[0]["picset"]:
         group = data[0]["picset"]["group"][0]["group"]

@@ -39,7 +39,7 @@ def create_segments(yolo_model_path,
     
     src_path = args.pictures_dir
     yolo_model_name = os.path.splitext(os.path.basename(yolo_model_path))[0]
-    yolo_model = YOLO(yolo_model_path).to('cuda')
+    yolo_model = YOLO(yolo_model_path).to('cpu')
     list_of_image_paths = glob(os.path.join(src_path, '*'))
 
     db_handler = PostgreSQLHandler()
@@ -47,9 +47,10 @@ def create_segments(yolo_model_path,
     # Exclude already processed images, if we dont want to process all images
     if not process_all:
         done_segments_path = db_handler.select_all_paths()
-        list_of_image_paths = [item for item in list_of_image_paths if item not in done_segments_path]
-    
-    for img_path in tqdm(list_of_image_paths):
+        list_of_image_paths2 = [item for item in list_of_image_paths if os.path.basename(item) not in done_segments_path]
+    else:
+        list_of_image_paths2 = list_of_image_paths
+    for img_path in tqdm(list_of_image_paths2):
         create_image_segments(
             img_path, 
             yolo_model,

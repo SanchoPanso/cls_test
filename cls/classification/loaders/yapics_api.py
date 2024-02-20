@@ -32,6 +32,14 @@ class YapicsAPI:
         r1 = requests.post(url, data=json.dumps(guids), headers=head, timeout=500000)
         return r1
     
+    def set_preparing(self, token: str, picset_ids):
+        url = f"{self.base_url}/picset/preparing"
+        head = {"Authorization": f"bearer {token}", "Content-Type": "application/json"}
+
+        guids = {"guids": picset_ids}
+        r1 = requests.post(url, data=json.dumps(guids), headers=head, timeout=500000)
+        return r1
+    
     def get_data(self, group: str, token: str):
         url = f"{self.base_url}/meta/pictures"
         head = {"Authorization": f"bearer {token}", "Content-Type": "application/json"}
@@ -60,7 +68,7 @@ class YapicsAPI:
         return r1
 
     def get_downloading_urls(self, urls: list, images_dir: str):
-        prefix_url = "https://static.yapics2.collect.monster/" # TODO: Check "2"
+        prefix_url = "https://static.yapics2.dev.collect.monster/" # TODO: Check "2"
         full_urls = []
         
         for url in urls:

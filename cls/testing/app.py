@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from cls.testing.pipeline import pipeline
 
-YOLO_PATH = '/home/achernikov/CLS/people_models/best_people.pt'
+YOLO_PATH = '/data/achernikov/workspace/model_manager/best.pt'
 app = FastAPI()
 
 
@@ -12,7 +12,7 @@ class Item(BaseModel):
     guids: List[str]
 
 
-@app.post('/post_trained/')
+@app.post('/preparing_to_trained/')
 def post_trained(item: Item):
     try:
         pipeline(item.guids, YOLO_PATH)
@@ -20,7 +20,7 @@ def post_trained(item: Item):
         formatted_lines = traceback.format_exc().splitlines()
         raise HTTPException(502, formatted_lines[-1])
     
-    return item
+    return {"status": "OK", "guids": item.guids}
 
 
 @app.get('/test/')
