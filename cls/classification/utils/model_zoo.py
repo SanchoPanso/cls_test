@@ -56,7 +56,7 @@ class TritonInferencer(Inferencer):
                  input_dict: Dict[str, np.ndarray],
                  model_outs: Sequence[str],
                  *args, 
-                 **kwargs) -> Dict[str, np.ndarray]:
+                 **kwargs) -> List[np.ndarray]:
         """
         Perform inference using Triton Server.
 
@@ -249,7 +249,7 @@ class Model(ABC):
 
 class ClassificationModel(Model):
     def process_batch(self, batch: np.ndarray) -> Sequence[np.ndarray]:
-        output = self.inferencer({'images': batch})
+        output = self.inferencer({'input': batch}, ['output'])
         return output
 
 class ModelZoo:

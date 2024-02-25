@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:    
+  triton_server:
+    image: nvcr.io/nvidia/tritonserver:22.08-py3
+    command: ["tritonserver", "--model-repository=/models", "--model-control-mode=explicit", "--load-model=*"]
+    volumes:
+      - ${TRITON_MODEL_REPOSITORY}:/models
+    ports:
+      - ${TRITON_PORT}:8000
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
