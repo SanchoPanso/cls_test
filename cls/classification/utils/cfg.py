@@ -21,6 +21,10 @@ def get_cfg(cfg_path: str = DEFAULT_CFG_PATH) -> EasyDict:
         
         if cfg_category == 'MODELS':
             cfg.update({'MODELS': raw_cfg['MODELS']})
+            continue  
+
+        if cfg_category == 'CLASSES':
+            cfg.update({'CLASSES': raw_cfg['CLASSES']})
             continue    
         
         cfg_category_path = PROJECT_DIR

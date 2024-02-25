@@ -2,6 +2,7 @@ import os
 import torch
 import numpy as np
 import cv2
+from easydict import EasyDict
 from abc import ABC
 import numpy as np
 from numpy import ndarray
@@ -9,9 +10,6 @@ import onnxruntime as ort
 import tritonclient.http as httpclient
 from typing import Tuple, List, Dict, Sequence, Any
 from typing import Any, List
-AVAILABLE_BACKENDS = ['torchscript', 'triton']
-
-
 
 
 class Inferencer(ABC):
@@ -19,9 +17,9 @@ class Inferencer(ABC):
 
     def __call__(self, 
                  input_dict: Dict[str, np.ndarray],
-                 model_outs: Sequence[str],
+                 model_outs: Sequence[str] = None,
                  *args, 
-                 **kwargs) -> Dict[str, np.ndarray]:
+                 **kwargs) -> List[np.ndarray]:
         """Perform inference
 
         Args:
@@ -29,7 +27,7 @@ class Inferencer(ABC):
             model_outs (Sequence[str]): sequence of model output names
 
         Returns:
-            Dict[str, np.ndarray]: dictionary of output arrays with keys - output names
+            List[np.ndarray]: list of output arrays
         """
         pass
 
@@ -43,7 +41,7 @@ class TritonInferencer(Inferencer):
         client (httpclient.InferenceServerClient): The Triton Server client instance.
     """
 
-    def __init__(self, model_path: str, triton_url: str = 'localhost:8000') -> None:
+    def __init__(self, model_path: str, triton_url: str = 'localhost:8000', *args, **kwargs) -> None:
         """
         Args:
             model_name (str): The name of the model to be used for inference.
@@ -53,8 +51,8 @@ class TritonInferencer(Inferencer):
         self.client = httpclient.InferenceServerClient(url=triton_url)
         
     def __call__(self, 
-                 input_dict: Dict[str, np.ndarray],
-                 model_outs: Sequence[str],
+                 input_dict: Dict[str, np.ndarray] | np.ndarray,
+                 model_outs: Sequence[str] = None,
                  *args, 
                  **kwargs) -> List[np.ndarray]:
         """
@@ -71,7 +69,8 @@ class TritonInferencer(Inferencer):
         # Setting up input and output
         inputs = []
         for name in input_dict:
-            inp = httpclient.InferInput(name, input_dict[name].shape, datatype="FP32")
+            datatype = "FP32" if input_dict[name].dtype == np.float32 else "FP16"
+            inp = httpclient.InferInput(name, input_dict[name].shape, datatype=datatype)
             inp.set_data_from_numpy(input_dict[name], binary_data=True)
             inputs.append(inp)
 
@@ -101,7 +100,7 @@ class ONNXInferencer(Inferencer):
     """
     # TODO: add provider examples
 
-    def __init__(self, model_path: str, providers: Sequence[str] = None) -> None:
+    def __init__(self, model_path: str, providers: Sequence[str] = None, *args, **kwargs) -> None:
         """
         Args:
             model_path (str): The path to the ONNX model file.
@@ -110,7 +109,7 @@ class ONNXInferencer(Inferencer):
         super().__init__()
         self.ort = ort.InferenceSession(model_path, providers=providers)
     
-    def __call__(self, input_dict: Dict[str, np.ndarray], check_dims=True, *args, **kwargs) -> Dict[str, np.ndarray]:
+    def __call__(self, input_dict: Dict[str, np.ndarray] | np.ndarray, check_dims=True, *args, **kwargs) -> List[np.ndarray]:
         """
         Perform inference using ONNX Runtime.
 
@@ -136,20 +135,23 @@ class ONNXInferencer(Inferencer):
 
 class TorchscriptInferencer(Inferencer):
     
-    def __init__(self, model_path: str, device: str = None) -> None:
+    def __init__(self, model_path: str, device: str = None, *args, **kwargs) -> None:
         super().__init__()
         self.extra_files: dict = {"num2label.txt": ""}
         self.device: str = device
         self.model: torch.nn.Module = torch.jit.load(model_path, device, _extra_files=self.extra_files)
         self.model.eval()
     
-    def __call__(self, input_dict: Dict[str, np.ndarray], *args, **kwargs) -> Dict[str, np.ndarray]:
+    def __call__(self, input_dict: Dict[str, np.ndarray], *args, **kwargs) -> List[np.ndarray]:
+        if len(input_dict) != 1:
+            raise ValueError
+        
         input_arr = list(input_dict.values())[0]
         input_tensor = torch.from_numpy(input_arr).to(self.device)
         with torch.no_grad():
             output_tensor = self.model(input_tensor)
         output_arr = output_tensor.cpu().numpy()
-        return (output_arr,)
+        return [output_arr]
     
 
 class Model(ABC):
@@ -248,24 +250,62 @@ class Model(ABC):
 
 
 class ClassificationModel(Model):
+    def __init__(
+            self, 
+            model_path: str, 
+            batch_size: int = 1, 
+            dynamic: bool = False, 
+            inference_type: str = 'triton',
+            classes: List[str] = None, 
+            fp16: bool = True,
+            *args, 
+            **kwargs,
+        ):
+
+        super().__init__(model_path, batch_size, dynamic, inference_type, *args, **kwargs)
+        self.classes = classes or []
+        self.fp16 = fp16
+
+
     def process_batch(self, batch: np.ndarray) -> Sequence[np.ndarray]:
-        output = self.inferencer({'input': batch}, ['output'])
+        batch = batch.astype('float16') if self.fp16 else batch.astype('float32')
+        output = self.inferencer({'input.1': batch}, ['output.1'], datatype="FP16")
         return output
+    
+    def get_class_name(self, idx: int):
+        if idx >= len(self.classes):
+            return str(idx)
+        return self.classes[str(idx)]
+    
 
 class ModelZoo:
     __shared_models = {}
     
-    def __init__(self):
-        pass
+    def __init__(self, cfg: EasyDict):
+        self.cfg = cfg
 
-    def get_model(self, path: str, backend: str = 'torch') -> 'Model':
-        assert backend in AVAILABLE_BACKENDS        
+    def get_cls_model(self, model_type: str, inference_type: str = 'torchscript') -> Model:
         
-        identifier = f'{backend}://{path}'
-        if identifier not in self.__shared_models:
-            self.__shared_models[identifier] = None #create_engine(url, echo=echo)
+        # identifier = f'{backend}://{model_type}'
+        # if identifier not in self.__shared_models:
+        #     self.__shared_models[identifier] = None
         
-        model = self.__shared_models[identifier]
+        # model = self.__shared_models[identifier]
+
+        triton_url = os.getenv('TRITON_URL')
+        if inference_type == 'triton':
+            model_path = model_type
+            fp16 = True
+        elif inference_type == 'torchscript':
+            model_path = self.cfg['MODELS'][model_type]
+            fp16 = False
+        else:
+            raise ValueError
+        
+        classes = self.cfg['CLASSES'][model_type]
+        model = ClassificationModel(model_path, 
+                                    classes=classes,
+                                    fp16=fp16,
+                                    inference_type=inference_type, 
+                                    triton_url=triton_url)
         return model
-
-

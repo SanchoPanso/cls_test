@@ -16,6 +16,7 @@ from cls.classification.engine.datasets import InferenceDBDataset
 from cls.classification.engine.augmentation import PreProcess, DataAugmentation
 from cls.classification.engine.options import OptionParser
 from cls.classification.utils.postgres_db import PostgreSQLHandler
+from cls.classification.utils.model_zoo import ModelZoo, ClassificationModel
 
 LOGGER = logging.getLogger(__name__)
 GENDERS = {'male': 'man', 'female': 'girl'}
@@ -28,6 +29,7 @@ def main():
 
 def parse_args():
     parser = OptionParser()
+    parser.add_argument('--inference_type', type=str, default='torchscript')
     parser.add_argument('--groups', type=str, nargs='*', default=['group'])
     # parser.add_argument('--host', type=str, default='localhost')
     # parser.add_argument('--database', type=str, default='localhost')
@@ -58,10 +60,14 @@ def segment_meta_builder(groups: List[str], args: argparse.Namespace):
         for image_group in image_groups:
             LOGGER.info(f'model_group = {model_group}, image_group = {image_group}')
             
-            model_path = model_paths[model_group]
+            # model_path = model_paths[model_group]
+            
+            model_zoo = ModelZoo(args)
+            model = model_zoo.get_cls_model(model_group, args.inference_type)
+
             metas = parse_meta_v3(
                 model_group, 
-                os.path.join(models_dir, model_path), 
+                model, 
                 augmentation, 
                 preprocessing, 
                 datasets_dir, 
@@ -77,22 +83,10 @@ def segment_meta_builder(groups: List[str], args: argparse.Namespace):
     save_meta(metas, model_paths)
 
 
-def parse_args():
-    parser = OptionParser()
-    parser.add_argument('--groups', type=str, nargs='*', default=['group'])
-    # parser.add_argument('--host', type=str, default='localhost')
-    # parser.add_argument('--database', type=str, default='localhost')
-    # parser.add_argument('--user', type=str, default='localhost')
-    # parser.add_argument('--password', type=str, default='localhost')
-    # parser.add_argument('--port', type=str, default='localhost')
-    
-    args = parser.parse_args()
-    return args 
-
 
 def parse_meta_v3(
     model_cat: str,
-    model_path: str,
+    model: ClassificationModel,
     augmentation: DataAugmentation,
     preprocessing: PreProcess,
     datasets_dir: str,
@@ -104,11 +98,11 @@ def parse_meta_v3(
     metas: dict,
 ):
 
-    extra_files = {"num2label.txt": ""}  # values will be replaced with data
-    model = torch.jit.load(model_path, "cpu", _extra_files=extra_files) # TODO: change device
-    model = model.eval()
-    model#.to(torch.float16)
-    num2label = json.loads(extra_files['num2label.txt'])
+    # extra_files = {"num2label.txt": ""}  # values will be replaced with data
+    # model = torch.jit.load(model_path, "cpu", _extra_files=extra_files) # TODO: change device
+    # model = model.eval()
+    # model#.to(torch.float16)
+    # num2label = json.loads(extra_files['num2label.txt'])
 
     picset_list = glob.glob(os.path.join(meta_dir, category, '*'))
     
@@ -154,8 +148,8 @@ def parse_meta_v3(
             imgs, segments_reprs, img_paths, mask_fns = batch
             
             with torch.no_grad():
-                input_tensor = augmentation(imgs.to("cpu"))     # TODO: change device
-                ret_ = model(input_tensor)
+                input_tensor = augmentation(imgs.to("cpu")).numpy()     # TODO: change device
+                ret_ = torch.tensor(model.process_batch(input_tensor)[0])
                 ret_ = torch.sigmoid(ret_)
                 ret_ = torch.round(ret_, decimals=2)
                 ret_ = ret_.to("cpu")
@@ -165,7 +159,8 @@ def parse_meta_v3(
             mask_names = tuple(map(lambda x: os.path.splitext(x)[0], mask_fns))
             for num, id_ in enumerate(mask_names):
                 if val[num] > 0.5:
-                    tag = num2label[str(int(idx[num]))]
+                    # tag = num2label[str(int(idx[num]))]
+                    tag = model.get_class_name(int(idx[num]))
                 else:
                     tag = model_cat + " trash"
                 
