@@ -3,15 +3,19 @@ version: "3.8"
 services:
   web:
     build: .
-    command: poetry run uvicorn cls.testing.app:app --host 0.0.0.0 --port 8080
+    command: poetry run uvicorn cls.testing.app:app --host 0.0.0.0 --port 8080 # > /app/logs/fastapi.log
     ports:
       - ${FASTAPI_PORT}:8080
     volumes:
+      - ./logs:/app/logs
       - ./data_testing2:/app/data_testing2
       - ./people_models:/app/people_models
+      - /data/achernikov/workspace/CLS/DATA:/data/achernikov/workspace/CLS/DATA
     env_file: ./.env
-    extra_hosts:
-      - host.docker.internal:host-gateway
+    # extra_hosts:
+    #   - host.docker.internal:host-gateway
+    depends_on:
+      - worker
     deploy:
       resources:
         reservations:
@@ -21,32 +25,38 @@ services:
               capabilities: [gpu]
 
     
-  # worker:
-  #   build: .
-  #   command: celery -A ml_training.pipeline.tasks worker --loglevel=INFO --logfile=logs/celery.log
-  #   env_file: ./.env
-  #   volumes:
-  #     - ./logs:/app/logs
-  #     - ./experiments:/app/experiments
-  #     - ./datasets:/app/datasets
-  #   deploy:
-  #     resources:
-  #       reservations:
-  #         devices:
-  #           - driver: nvidia
-  #             count: 1
-  #             capabilities: [gpu]
-  #   depends_on:
-  #     - rabbitmq
-  #   networks:
-  #     - ml_training_net
+  worker:
+    build: .
+    command: celery -A cls.testing.worker worker --loglevel=INFO --logfile=/app/logs/celery.log
+    env_file: ./.env
+    # extra_hosts:
+    #   - host.docker.internal:host-gateway
+    volumes:
+      - ./logs:/app/logs
+      - ./data_testing2:/app/data_testing2
+      - ./people_models:/app/people_models
+      - /data/achernikov/workspace/CLS/DATA:/data/achernikov/workspace/CLS/DATA
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    depends_on:
+      - redis
 
+  redis:
+    image: redis:7
   
   # rabbitmq:
   #   image: rabbitmq
-  #   ports:
-  #     - 5672:5672
   #   networks:
-  #     - ml_training_net
+  #     - cls_net
+
+# networks:
+#   cls_net:
+#     driver: bridge
+
 
 

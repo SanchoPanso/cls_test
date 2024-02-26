@@ -38,7 +38,7 @@ class PostgreSQLHandler:
     
     def __init__(
         self,
-        host="localhost",
+        host="172.20.0.1", #"localhost",
         database="psql_db",
         user="psql_user",
         password="root",
