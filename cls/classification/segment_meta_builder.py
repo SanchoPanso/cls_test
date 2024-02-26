@@ -24,13 +24,14 @@ GENDERS = {'male': 'man', 'female': 'girl'}
 
 def main():
     args = parse_args()
-    segment_meta_builder(args.groups, args)
+    segment_meta_builder(args.groups, args.inference_type, args)
 
 
 def parse_args():
     parser = OptionParser()
-    parser.add_argument('--inference_type', type=str, default='torchscript')
     parser.add_argument('--groups', type=str, nargs='*', default=['group'])
+    parser.add_argument('--inference_type', type=str, default='torchscript')
+    
     # parser.add_argument('--host', type=str, default='localhost')
     # parser.add_argument('--database', type=str, default='localhost')
     # parser.add_argument('--user', type=str, default='localhost')
@@ -41,7 +42,7 @@ def parse_args():
     return args 
 
 
-def segment_meta_builder(groups: List[str], args: argparse.Namespace):
+def segment_meta_builder( groups: List[str], inference_type: str, args: argparse.Namespace):
     augmentation = DataAugmentation().eval()
     preprocessing = PreProcess(gray=False, vflip=False, arch="eff")
     
@@ -63,7 +64,7 @@ def segment_meta_builder(groups: List[str], args: argparse.Namespace):
             # model_path = model_paths[model_group]
             
             model_zoo = ModelZoo(args)
-            model = model_zoo.get_cls_model(model_group, args.inference_type)
+            model = model_zoo.get_cls_model(model_group, inference_type)
 
             metas = parse_meta_v3(
                 model_group, 

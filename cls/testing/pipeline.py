@@ -16,8 +16,8 @@ def main():
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument('--guids', nargs='*', default=["4aa26a8b-985e-4e09-b843-29b112d93797"])#["9ea527b3-c5e2-4aa3-9899-094db57f620e"])
-    parser.add_argument('--yolo_model_path', type=str, default='/data/achernikov/workspace/model_manager/best.pt')
+    parser.add_argument('--guids', nargs='*', default=["b675456a-1712-4286-8ea9-750847d9d8ab"])#["9ea527b3-c5e2-4aa3-9899-094db57f620e"])
+    parser.add_argument('--yolo_model_path', type=str, default='people_models/best1.pt')#'/data/achernikov/workspace/model_manager/best.pt')
     parser.add_argument('--stand', type=str, default='dev.')  
     args = parser.parse_args()
     return args
@@ -28,8 +28,8 @@ def pipeline(guids: str, yolo_model_path: str, stand='dev.'):
     group = get_timestamped_group_name()
     set_preparing(guids, stand)
     load_guids(guids, stand, group, args)
-    create_segments(yolo_model_path, args=args)
-    segment_meta_builder([group], args)
+    create_segments(yolo_model_path, process_all=True, args=args)
+    segment_meta_builder([group], 'torchscript', args)
     post_ret_meta(stand, [group], args)
 
 
