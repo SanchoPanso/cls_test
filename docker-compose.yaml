@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+  web:
+    build: .
+    command: poetry run uvicorn cls.testing.app:app --host 0.0.0.0 --port 8080
+    ports:
+      - ${FASTAPI_PORT}:8080
+    volumes:
+      - ./data_testing2:/app/data_testing2
+      - ./people_models:/app/people_models
+    env_file: ./.env
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    
+  # worker:
+  #   build: .
+  #   command: celery -A ml_training.pipeline.tasks worker --loglevel=INFO --logfile=logs/celery.log
+  #   env_file: ./.env
+  #   volumes:
+  #     - ./logs:/app/logs
+  #     - ./experiments:/app/experiments
+  #     - ./datasets:/app/datasets
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
+  #   depends_on:
+  #     - rabbitmq
+  #   networks:
+  #     - ml_training_net
+
+  
+  # rabbitmq:
+  #   image: rabbitmq
+  #   ports:
+  #     - 5672:5672
+  #   networks:
+  #     - ml_training_net
+
+

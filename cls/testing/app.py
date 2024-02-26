@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from cls.testing.pipeline import pipeline
 
-YOLO_PATH = '/data/achernikov/workspace/model_manager/best.pt'
+YOLO_PATH = 'people_models/best1.pt'
 app = FastAPI()
 
 
