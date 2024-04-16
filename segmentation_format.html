@@ -1,0 +1,168 @@
+
+<!DOCTYPE html>
+
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Формат сегментации &#8212; документация CLS </title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/translations.js"></script>
+    <link rel="index" title="Алфавитный указатель" href="genindex.html" />
+    <link rel="search" title="Поиск" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="id1">
+<h1>Формат сегментации<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h1>
+<p>Для начала опишем формат сегментации.
+В папке segments лежат json файлы, чьи имена совпадают
+с именами соответствующих изображений.
+Вот пример содержания такого json - файла:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="s2">&quot;0&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;cls&quot;</span><span class="p">:</span> <span class="s2">&quot;female&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;approved&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;conf&quot;</span><span class="p">:</span> <span class="mf">0.9656772017478943</span><span class="p">,</span>
+    <span class="s2">&quot;bbox&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="mf">7.10723876953125</span><span class="p">,</span>
+    <span class="mf">3.7406158447265625</span><span class="p">,</span>
+    <span class="mf">1598.975830078125</span><span class="p">,</span>
+    <span class="mf">1042.731201171875</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;segments&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">[</span>
+        <span class="mf">0.4703125</span><span class="p">,</span>
+        <span class="mf">0.29910714285714285</span><span class="p">,</span>
+        <span class="mf">0.471875</span><span class="p">,</span>
+        <span class="mf">0.3013392857142857</span><span class="p">,</span>
+        <span class="mf">0.471875</span><span class="p">,</span>
+        <span class="mf">0.30580357142857145</span><span class="p">,</span>
+        <span class="mf">0.4734375</span><span class="p">,</span>
+        <span class="mf">0.30580357142857145</span><span class="p">,</span>
+        <span class="mf">0.475</span><span class="p">,</span>
+        <span class="mf">0.3080357142857143</span><span class="p">,</span>
+        <span class="mf">0.4765625</span><span class="p">,</span>
+        <span class="mf">0.3080357142857143</span><span class="p">,</span>
+        <span class="mf">0.475</span><span class="p">,</span>
+        <span class="mf">0.3080357142857143</span><span class="p">,</span>
+        <span class="mf">0.471875</span><span class="p">,</span>
+        <span class="mf">0.30357142857142855</span><span class="p">,</span>
+        <span class="mf">0.471875</span><span class="p">,</span>
+        <span class="mf">0.29910714285714285</span>
+    <span class="p">],</span>
+    <span class="p">[</span>
+        <span class="mf">0.440625</span><span class="p">,</span>
+        <span class="mf">0.2700892857142857</span>
+    <span class="p">],]</span>
+<span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+<span class="o">...</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>В этом отображении ключи - порядковый номер объекта,
+начиная с нуля (объекты - люди, в данном случае), значения - их описание. В каждой секции объекта:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>«cls» - имя класса («female» или «male»)</p></li>
+<li><p>«status» - статус проверки сегментации (deprecated)</p></li>
+<li><p>«conf» - уверенность сети</p></li>
+<li><p>«bbox» - xywh (абсолютные координаты)</p></li>
+<li><p>«segments» - список сегментов xyn (аналогично segmentation в COCO, но нормированный)</p></li>
+</ul>
+</div></blockquote>
+<p>В ближайшем будущем планируется удалить «status» и сделать «bbox» нормированным.</p>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">CLS</a></h1>
+
+
+
+
+
+
+
+
+<h3>Навигация</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Использование</a></li>
+<li class="toctree-l1"><a class="reference internal" href="classification.html">Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instance.html">Instance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demonstration.html">Demonstration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Быстрый поиск</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Искать" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2024, t1masavin, sanchopanso, romaniox.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/segmentation_format.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

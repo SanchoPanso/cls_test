@@ -1,0 +1,262 @@
+
+<!DOCTYPE html>
+
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Classification &#8212; документация CLS </title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/translations.js"></script>
+    <link rel="index" title="Алфавитный указатель" href="genindex.html" />
+    <link rel="search" title="Поиск" href="search.html" />
+    <link rel="next" title="Instance" href="instance.html" />
+    <link rel="prev" title="Использование" href="usage.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="classification">
+<h1>Classification<a class="headerlink" href="#classification" title="Permalink to this heading">¶</a></h1>
+<p>Для модели классификации рабочий процесс выглядит следющим образом:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#download"><span class="std std-ref">Скачивание данных</span></a></p></li>
+<li><p><a class="reference internal" href="#segment-build"><span class="std std-ref">Создание сегментации</span></a></p></li>
+<li><p><a class="reference internal" href="#train"><span class="std std-ref">Тренировка модели</span></a></p></li>
+<li><p><a class="reference internal" href="#upload"><span class="std std-ref">Выгрузка метаданных</span></a></p></li>
+</ul>
+<p>Также модуль имеет дополнительную функциональность:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#mask-build"><span class="std std-ref">Создание масок</span></a></p></li>
+<li><p><a class="reference internal" href="#inference"><span class="std std-ref">Инференс</span></a></p></li>
+<li><p><a class="reference internal" href="#download-wandb"><span class="std std-ref">Скачать обученную модель из W&amp;B</span></a></p></li>
+</ul>
+<p>Далее в пимерах в качестве группы используется <cite>tits_size</cite>. Группа может быть заменена на любую доступную.
+Все команды в примерах запускаются из корневой папки репозитория.
+Структура файлов соответствует дефолтной из файла <cite>cls/classification/cfg/default.yaml</cite>.
+Подробнее о конфигурации: <a class="reference internal" href="configuration.html"><span class="doc">Формат конфигурации</span></a>.</p>
+<section id="download">
+<span id="id1"></span><h2>Скачивание данных<a class="headerlink" href="#download" title="Permalink to this heading">¶</a></h2>
+<p>Для дальнейшей работы необходимо скачать изображения и их метаданные.
+После скачивания изображения помещаются в папку <cite>DATA/pictures</cite>, метаданные в <cite>DATA/meta</cite>
+и дополнительно в папке <cite>DATA/datasets</cite> создается csv файл, который используется для тренировки.</p>
+<ol class="arabic simple">
+<li><p>Cкачивание датасета по группе:</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">python cls/classification/load_group.py --group tits_size</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p>Cкачивание датасета заднего фона <cite>background</cite> из файла со списком пиксетов <cite>cls/classification/data/json2load_background.json</cite>:</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">python cls/classification/load_json.py --json_path cls/classification/data/json2load_background.json</span>
+</pre></div>
+</div>
+</section>
+<section id="segment-build">
+<span id="id2"></span><h2>Создание сегментации<a class="headerlink" href="#segment-build" title="Permalink to this heading">¶</a></h2>
+<p>Помимо изображений и их метаданных, для различных задач (в частности, тренировки) небходимо создать сегментационные маски
+людей на изображениях. Полученные маски хранятся в базе данных PostgreSQL. Подробнее о формате хранимой сегментации: <a class="reference internal" href="segmentation_format.html"><span class="doc">Формат сегментации</span></a>.</p>
+<p>#. Скрипт <cite>segment_builder.py</cite> проходится по всем изображениям в папке <cite>DATA/pictures</cite>. Вместо <cite>YOUR_MODEL_PATH</cite>
+необходимо вставить путь к вашей модели YOLO, отвечающей за сегментацию людей:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="bp">cls</span><span class="o">/</span><span class="n">classification</span><span class="o">/</span><span class="n">segment_builder</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">model_path</span> <span class="n">YOUR_MODEL_PATH</span>
+</pre></div>
+</div>
+<p>По умолчанию скрипт помечает все изображения как „unchecked“
+(то есть не проверенными разметчиками на наличие плохих масок) в базе данных,
+а также игнорирует уже обраотанные изображения.</p>
+<ol class="arabic">
+<li><dl class="simple">
+<dt>Обработать все изображения в папке <cite>DATA/pictures</cite>::</dt><dd><p>python cls/classification/segment_builder.py –model_path YOUR_MODEL_PATH –process_all</p>
+</dd>
+</dl>
+</li>
+<li><p>Пометить как „approved“ («проверены» разметчиками и не содеражат плохих масок):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="bp">cls</span><span class="o">/</span><span class="n">classification</span><span class="o">/</span><span class="n">segment_builder</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">model_path</span> <span class="n">YOUR_MODEL_PATH</span> <span class="o">--</span><span class="n">mark_approved</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>#. Влючить бэдлист (текстовый файл со списком плохих изображений)
+в базу данных с информацией об изображениях:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="bp">cls</span><span class="o">/</span><span class="n">classification</span><span class="o">/</span><span class="n">push_badlist</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">badlist_path</span> <span class="bp">cls</span><span class="o">/</span><span class="n">classification</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">badlist_common</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>Проверить базу данных можно с помощью блокнота <cite>cls/classification/notebooks/check_database.ipynb</cite>.</p>
+</section>
+<section id="train">
+<span id="id3"></span><h2>Тренировка модели<a class="headerlink" href="#train" title="Permalink to this heading">¶</a></h2>
+<p>После того, как изображения скачаны, csv файл датасета сформирован и сегментации изображений сгенерированы,
+можно запускать тренировку.</p>
+<p>Пример запуска тренировки на 1 эпохи:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="bp">cls</span><span class="o">/</span><span class="n">classification</span><span class="o">/</span><span class="n">train</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">cat</span> <span class="n">tits_size</span> <span class="o">--</span><span class="n">epochs</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>Чтобы получить более подробную информацию о параметрах, воспользуйтесь параметром <cite>–help</cite>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="bp">cls</span><span class="o">/</span><span class="n">classification</span><span class="o">/</span><span class="n">train</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">help</span>
+</pre></div>
+</div>
+<p>Перед тем, как тренировка начнется, программа предложит предоставить ей API ключ от аккаунта W&amp;B.
+Это позволить вести логирование и выгрузку моделей на этот сервис.</p>
+<p>После того, как обучение закончится, результат сохранится в папке <cite>DATA/models/tits_size/{experiment_name}</cite>.
+В этой папке будет содержаться:</p>
+<ul class="simple">
+<li><p>checkpoints - папка с чекпоинтами в формате pytorch-lightning;</p></li>
+<li><p>csv_logs - папка с логом тренировки в формате csv;</p></li>
+<li><p>torchscripts - папка с моделью в формате torchscript;</p></li>
+<li><p>train_batches - папка с тренировочными батчами (для визуальной проверки);</p></li>
+<li><p>onnx - папка с о=моделью в формате onnx.</p></li>
+</ul>
+</section>
+<section id="upload">
+<span id="id4"></span><h2>Выгрузка метаданных<a class="headerlink" href="#upload" title="Permalink to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Создание ret_meta.json. Модели для инференса берутся из конфигурации</p></li>
+</ol>
+<blockquote>
+<div><p><cite>cls/classification/cfg/default.yaml</cite> как переменная <cite>MODELS</cite>.</p>
+</div></blockquote>
+<p>Пример запуска для изображении из групп <cite>sasha test</cite> и <cite>test</cite>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="bp">cls</span><span class="o">/</span><span class="n">classification</span><span class="o">/</span><span class="n">segment_meta_builder</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">groups</span> <span class="s1">&#39;sasha test&#39;</span> <span class="s1">&#39;test&#39;</span>
+</pre></div>
+</div>
+<ol class="arabic">
+<li><p>Отправка ret_meta.json на сервер:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="bp">cls</span><span class="o">/</span><span class="n">classification</span><span class="o">/</span><span class="n">post_ret_meta</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">groups</span> <span class="s1">&#39;sasha test&#39;</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="mask-build">
+<span id="id5"></span><h2>Создание масок<a class="headerlink" href="#mask-build" title="Permalink to this heading">¶</a></h2>
+<p>Создание масок в папке <cite>MARKUP/masks</cite> для разметчиков или инференса.</p>
+<p>Запуск создания масок для группы <cite>test</cite>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">python cls/classification/mask_bulder.py --group test</span>
+</pre></div>
+</div>
+<p>Ntrcn</p>
+</section>
+<section id="inference">
+<span id="id6"></span><h2>Инференс<a class="headerlink" href="#inference" title="Permalink to this heading">¶</a></h2>
+<p>Результаты сохраняются в папке <cite>TEST/inference</cite>.</p>
+<p>Запуск инференса по группе (берет маски из контуров в папке <cite>segments</cite>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="bp">cls</span><span class="o">/</span><span class="n">classification</span><span class="o">/</span><span class="n">inference</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">group</span> <span class="n">test</span> <span class="o">--</span><span class="n">model</span> <span class="n">MODEL_PATH</span>
+</pre></div>
+</div>
+<p>Запуск инференса по папке c изображениями:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="bp">cls</span><span class="o">/</span><span class="n">classification</span><span class="o">/</span><span class="n">inference</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">source</span> <span class="n">DIR_PATH</span> <span class="o">--</span><span class="n">model</span> <span class="n">MODEL_PATH</span>
+</pre></div>
+</div>
+</section>
+<section id="w-b">
+<span id="download-wandb"></span><h2>Скачать обученную модель из W&amp;B<a class="headerlink" href="#w-b" title="Permalink to this heading">¶</a></h2>
+<p>Скачать обученную модель из wandb:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="bp">cls</span><span class="o">/</span><span class="n">classification</span><span class="o">/</span><span class="n">download_wandb</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">artifact_name</span> <span class="n">ARTIFACT_NAME</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">CLS</a></h1>
+
+
+
+
+
+
+
+
+<h3>Навигация</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Использование</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Classification</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#download">Скачивание данных</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#segment-build">Создание сегментации</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#train">Тренировка модели</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#upload">Выгрузка метаданных</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mask-build">Создание масок</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inference">Инференс</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#w-b">Скачать обученную модель из W&amp;B</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="instance.html">Instance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demonstration.html">Demonstration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="usage.html" title="предыдущая глава">Использование</a></li>
+      <li>Next: <a href="instance.html" title="следующая глава">Instance</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Быстрый поиск</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Искать" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2024, t1masavin, sanchopanso, romaniox.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/classification.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
