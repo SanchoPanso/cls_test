@@ -2,51 +2,13 @@ name: Docs
 
 on:
   push:
-    branches: [ main, gh-pages ]
-    tags:
-      - 'v*.*.*'
+    branches: [ main ]
 
 permissions:
     contents: write
 
 jobs:
-  docs-check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        continue-on-error: true
-        with:
-          ref: gh-pages
-      - name: Check gh-pages versions
-        uses: jannekem/run-python-script-action@v1
-        id: script
-        with:
-          script: |
-            import pathlib
-            import re
-
-            from packaging.version import parse, InvalidVersion
-            
-            current_version, path = parse("${{ github.ref_name }}"), "./"
-            
-            with pathlib.Path(path) as dir:
-                for file in dir.iterdir():
-                    if file.is_dir():
-                        try:
-                            last_version = parse(file.name)
-                            if current_version <= last_version:
-                                set_output('is_new_version_docs', 'false')
-                                exit()
-
-                        except InvalidVersion:
-                            pass
-            
-            set_output('is_new_version_docs', 'true')
-    outputs:
-      is_new_version_docs: ${{ steps.script.outputs.is_new_version_docs }}
-
   docs-gen:
-    needs: docs-check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -65,34 +27,6 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           allow_empty_commit: true
-          destination_dir: ./${{ github.ref_name }}
-          force_orphan: false
-          keep_files: true
           personal_token: ${{ secrets.DEPLOY_TOKEN }}
           publish_branch: gh-pages
           publish_dir: docs/_build/
-      - name: Change redirect
-        if: needs.docs-check.outputs.is_new_version_docs == 'true'
-        uses: jannekem/run-python-script-action@v1
-        id: script
-        with:
-          script: |
-            import re
-            
-            path, pattern = "docs/redirect/index.html", re.compile(r"\{\s*%\s*latest-version\s*%\s*}")
-
-            with open(path, "r", encoding="utf8") as file:
-                content = pattern.sub("${{ github.ref_name }}", file.read())
-
-            with open(path, "w+", encoding="utf8") as file:
-                file.write(content)
-      - name: Deploy redirect
-        if: needs.docs-check.outputs.is_new_version_docs == 'true'
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          allow_empty_commit: true
-          force_orphan: false
-          keep_files: true
-          personal_token: ${{ secrets.DEPLOY_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: docs/redirect/
