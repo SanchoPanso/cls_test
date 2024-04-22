@@ -10,6 +10,7 @@ PostgreSQL (Сегментация)
 1. Создать контейнер:
 
 .. code-block:: bash
+
     cd postgres
     docker compose up -d
 
@@ -18,6 +19,7 @@ PostgreSQL (Сегментация)
 Пример:
 
 .. code-block:: bash
+
     url: ...
 
 
