@@ -1,5 +1,5 @@
-Instance
-========
+Сегментация
+===========
 
 1. Выбираем в тулзе нуждные нам guids пиксетов и сохраняем их в файле CLS/classification/scripts/loaders/json2load.json
 2. Запускаем CLS/classification/scripts/loaders/loader_from_json.py, он скачает контент по этим пиксетам и сохранит их в DATA meta|pictre|datasets

@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Добро пожаловать в документацию CLS! &#8212; документация CLS </title>
+    <title>Добро пожаловать в документацию проекта CLS &#8212; документация CLS </title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -18,7 +18,7 @@
     <script src="_static/translations.js"></script>
     <link rel="index" title="Алфавитный указатель" href="genindex.html" />
     <link rel="search" title="Поиск" href="search.html" />
-    <link rel="next" title="Использование" href="usage.html" />
+    <link rel="next" title="Начало работы" href="get_started.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -36,25 +36,29 @@
           <div class="body" role="main">
             
   <section id="cls">
-<h1>Добро пожаловать в документацию CLS!<a class="headerlink" href="#cls" title="Permalink to this heading">¶</a></h1>
-<p><strong>CLS</strong> - это Python-проект для автоматизированной работы загрузке, обработке, хранению данных
-и использованию этих данных для тренировки ML моделей.</p>
-<p>Перейдите в раздел <a class="reference internal" href="usage.html"><span class="doc">Использование</span></a> для дальнейшей информации,
-включая как установить проект.</p>
-<div class="admonition note">
-<p class="admonition-title">Примечание</p>
-<p>This project is under active development.</p>
-</div>
-<section id="contents">
-<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this heading">¶</a></h2>
+<h1>Добро пожаловать в документацию проекта CLS<a class="headerlink" href="#cls" title="Permalink to this heading">¶</a></h1>
+<p>Проект CLS представляет собой инструмент для тренировки моделей классификации и сегментации на основе данных,
+собранных из сервиса <cite>collect.moster</cite>. Этот проект обеспечивает автоматизированный процесс
+загрузки, обработки, использования данных для обучения нейронных сетей, а также выгрузку результатов работы.</p>
+<section id="id1">
+<h2>Начало работы<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
+<p>Чтобы начать использовать проект CLS, следуйте инструкциям в разделе <a class="reference internal" href="get_started.html"><span class="doc">Начало работы</span></a>.</p>
+</section>
+<section id="id2">
+<h2>Содержание<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Использование</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#id2">Установка</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#id3">Модули</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_started.html">Начало работы</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="get_started.html#id2">Установка</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started.html#postgresql">Настройка подключения к PostgreSQL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started.html#id3">Скачивание датасета</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started.html#id4">Сегментация людей</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started.html#id5">Тренировка классификации</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started.html#id6">Выгрузка результатов</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started.html#id7">Что дальше?</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="classification.html">Classification</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="classification.html">Классификация</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="classification.html#download">Скачивание данных</a></li>
 <li class="toctree-l2"><a class="reference internal" href="classification.html#segment-build">Создание сегментации</a></li>
 <li class="toctree-l2"><a class="reference internal" href="classification.html#train">Тренировка модели</a></li>
@@ -64,8 +68,9 @@
 <li class="toctree-l2"><a class="reference internal" href="classification.html#w-b">Скачать обученную модель из W&amp;B</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="instance.html">Instance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instance.html">Сегментация</a></li>
 <li class="toctree-l1"><a class="reference internal" href="demonstration.html">Demonstration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Формат конфигурации</a></li>
 </ul>
 </div>
 </section>
@@ -89,17 +94,18 @@
 
 <h3>Навигация</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Использование</a></li>
-<li class="toctree-l1"><a class="reference internal" href="classification.html">Classification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="instance.html">Instance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_started.html">Начало работы</a></li>
+<li class="toctree-l1"><a class="reference internal" href="classification.html">Классификация</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instance.html">Сегментация</a></li>
 <li class="toctree-l1"><a class="reference internal" href="demonstration.html">Demonstration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Формат конфигурации</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="#">Documentation overview</a><ul>
-      <li>Next: <a href="usage.html" title="следующая глава">Использование</a></li>
+      <li>Next: <a href="get_started.html" title="следующая глава">Начало работы</a></li>
   </ul></li>
 </ul>
 </div>
