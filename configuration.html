@@ -40,6 +40,59 @@
 <h1>Формат конфигурации<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h1>
 <p>Файл конфигурации - yaml файл, в котором прописаны основные настройки пакета, регулирующие расположение файлов и т.д.
 По умолчанию файл расположен в <cite>cls/classification/cfg/default.yaml</cite> и имеет следующее содержание:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1">### --------------------------------------------------</span>
+<span class="c1">### This is a common file structure of this repository</span>
+<span class="c1">### --------------------------------------------------</span>
+
+<span class="c1">### The main data storage for training</span>
+DATA:
+<span class="w">    </span>PATH:<span class="w"> </span><span class="s1">&#39;data_22042024&#39;</span><span class="w"> </span><span class="c1">#&#39;DATA&#39;  # Absolute or relative path (if relative - repo dir is considered as root)</span>
+
+<span class="w">    </span><span class="c1"># The following params are relative paths of subdirs (relative to &#39;path&#39; value)</span>
+<span class="w">    </span>datasets_dir:<span class="w"> </span><span class="s1">&#39;datasets&#39;</span><span class="w">  </span><span class="c1"># Subdir with json files that describe a dataset content for each group</span>
+<span class="w">    </span>pictures_dir:<span class="w"> </span><span class="s1">&#39;pictures&#39;</span><span class="w">  </span><span class="c1"># Subdir with a common pool of image files</span>
+<span class="w">    </span>meta_dir:<span class="w"> </span><span class="s1">&#39;meta&#39;</span><span class="w">          </span><span class="c1"># Subdir with metadata about picsets (each dir is like {group}/{picset}/*.json)</span>
+<span class="w">    </span>models_dir:<span class="w"> </span><span class="s1">&#39;models&#39;</span><span class="w">      </span><span class="c1"># Subdir for training experiments that contains trained models (each experiment contains logs, checkpoints, models, etc)</span>
+<span class="w">    </span>segments_dir:<span class="w"> </span><span class="s1">&#39;segments&#39;</span><span class="w">  </span><span class="c1"># Subdir for json files with image segmentation information (format: bbox - xyxy, segments - xyn)</span>
+<span class="w">    </span>pictures_info_db_path:<span class="w"> </span><span class="s1">&#39;meta/pictures_info.db&#39;</span><span class="w"> </span><span class="c1"># Path to sqlite database with pictures info</span>
+
+
+<span class="c1">### A storage for testing results</span>
+TEST:
+<span class="w">    </span>PATH:<span class="w"> </span><span class="s1">&#39;TEST&#39;</span><span class="w">  </span><span class="c1"># Absolute or relative path (if relative - repo dir is considered as root)</span>
+
+<span class="w">    </span><span class="c1"># The following params are relative paths of subdirs (relative to &#39;path&#39; value)</span>
+<span class="w">    </span>inference_dir:<span class="w"> </span><span class="s1">&#39;inference&#39;</span><span class="w">  </span><span class="c1"># Subdir for inference results</span>
+
+
+<span class="c1">### A storage for temporary data that is used for marking up (e.g. for badlist creating)</span>
+MARKUP:
+<span class="w">    </span>PATH:<span class="w"> </span><span class="s1">&#39;MARKUP&#39;</span><span class="w">  </span><span class="c1"># Absolute or relative path (if relative - repo dir is considered as root)</span>
+
+<span class="w">    </span><span class="c1"># The following params are relative paths of subdirs (relative to &#39;path&#39; value)</span>
+<span class="w">    </span>masks_dir:<span class="w"> </span><span class="s1">&#39;masks&#39;</span><span class="w">  </span><span class="c1"># Subdir for image masks</span>
+
+<span class="c1">### A storage for</span>
+PRODUCTION:
+<span class="w">    </span>PATH:<span class="w"> </span><span class="s1">&#39;PRODUCTION&#39;</span><span class="w">  </span><span class="c1"># Absolute or relative path (if relative - repo dir is considered as root)</span>
+
+
+<span class="c1">### Path to inference models for specific groups. Used for metadata building in `segment_meta_builder.py`</span>
+MODELS:
+<span class="w">    </span><span class="c1"># tits_size: &#39;/home/achernikov/CLS/DATA/models/tits_size/v__3_train_eff_48_0.2/checkpoints/epoch=67-step=29716.pt&#39;</span>
+<span class="w">    </span><span class="c1"># hair_type: &#39;/home/achernikov/CLS/DATA/models/hair_type/v__3_all_eff_48_0.001/checkpoints/epoch=32-step=15543.pt&#39;</span>
+<span class="w">    </span>tits_size:<span class="w"> </span><span class="s1">&#39;/data/achernikov/workspace/CLS/DATA/models/tits_size/v__3_train_eff_48_0.2/checkpoints/epoch=67-step=29716.pt&#39;</span>
+<span class="w">    </span>hair_color:<span class="w"> </span><span class="s1">&#39;/data/achernikov/workspace/CLS/DATA/models/hair_color/v__0_train_eff_32_0.001/checkpoints/epoch=19-step=11160.pt&#39;</span>
+<span class="w">    </span>hair_type:<span class="w"> </span><span class="s1">&#39;/data/achernikov/workspace/CLS/DATA/models/hair_type/v__3_all_eff_48_0.001/checkpoints/epoch=32-step=15543.pt&#39;</span>
+<span class="w">    </span>body_type:<span class="w"> </span><span class="s1">&#39;/data/achernikov/workspace/CLS/DATA/models/body_type2/v__1_all_eff_32_0.001/checkpoints/epoch=47-step=39936.pt&#39;</span>
+
+CLASSES:
+<span class="w">    </span>tits_size:<span class="w"> </span><span class="o">{</span><span class="s2">&quot;0&quot;</span>:<span class="w"> </span><span class="s2">&quot;big tits&quot;</span>,<span class="w"> </span><span class="s2">&quot;1&quot;</span>:<span class="w"> </span><span class="s2">&quot;flat chested&quot;</span>,<span class="w"> </span><span class="s2">&quot;2&quot;</span>:<span class="w"> </span><span class="s2">&quot;huge tits&quot;</span>,<span class="w"> </span><span class="s2">&quot;3&quot;</span>:<span class="w"> </span><span class="s2">&quot;small tits&quot;</span><span class="o">}</span>
+<span class="w">    </span>hair_color:<span class="w"> </span><span class="o">{</span><span class="s2">&quot;0&quot;</span>:<span class="w"> </span><span class="s2">&quot;black hair&quot;</span>,<span class="w"> </span><span class="s2">&quot;1&quot;</span>:<span class="w"> </span><span class="s2">&quot;blonde hair&quot;</span>,<span class="w"> </span><span class="s2">&quot;2&quot;</span>:<span class="w"> </span><span class="s2">&quot;blue hair&quot;</span>,<span class="w"> </span><span class="s2">&quot;3&quot;</span>:<span class="w"> </span><span class="s2">&quot;brown hair&quot;</span>,<span class="w"> </span><span class="s2">&quot;4&quot;</span>:<span class="w"> </span><span class="s2">&quot;green hair&quot;</span>,<span class="w"> </span><span class="s2">&quot;5&quot;</span>:<span class="w"> </span><span class="s2">&quot;pink hair&quot;</span>,<span class="w"> </span><span class="s2">&quot;6&quot;</span>:<span class="w"> </span><span class="s2">&quot;red hair&quot;</span>,<span class="w"> </span><span class="s2">&quot;7&quot;</span>:<span class="w"> </span><span class="s2">&quot;violet hair&quot;</span><span class="o">}</span>
+<span class="w">    </span>hair_type:<span class="w"> </span><span class="o">{</span><span class="s2">&quot;0&quot;</span>:<span class="w"> </span><span class="s2">&quot;curly haired&quot;</span>,<span class="w"> </span><span class="s2">&quot;1&quot;</span>:<span class="w"> </span><span class="s2">&quot;straight hair&quot;</span>,<span class="w"> </span><span class="s2">&quot;2&quot;</span>:<span class="w"> </span><span class="s2">&quot;wavy hair&quot;</span><span class="o">}</span>
+<span class="w">    </span>body_type:<span class="w"> </span><span class="o">{</span><span class="s2">&quot;0&quot;</span>:<span class="w"> </span><span class="s2">&quot;athletic&quot;</span>,<span class="w"> </span><span class="s2">&quot;1&quot;</span>:<span class="w"> </span><span class="s2">&quot;bodybuilder&quot;</span>,<span class="w"> </span><span class="s2">&quot;2&quot;</span>:<span class="w"> </span><span class="s2">&quot;curvy&quot;</span>,<span class="w"> </span><span class="s2">&quot;3&quot;</span>:<span class="w"> </span><span class="s2">&quot;fat&quot;</span>,<span class="w"> </span><span class="s2">&quot;4&quot;</span>:<span class="w"> </span><span class="s2">&quot;normal body&quot;</span>,<span class="w"> </span><span class="s2">&quot;5&quot;</span>:<span class="w"> </span><span class="s2">&quot;skinny&quot;</span><span class="o">}</span>
+</pre></div>
+</div>
 </section>
 
 

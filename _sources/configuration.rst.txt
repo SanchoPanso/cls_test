@@ -5,6 +5,7 @@
 По умолчанию файл расположен в `cls/classification/cfg/default.yaml` и имеет следующее содержание:
 
 .. code-block:: bash
+
     ### --------------------------------------------------
     ### This is a common file structure of this repository
     ### --------------------------------------------------
