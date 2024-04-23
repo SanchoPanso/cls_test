@@ -56,7 +56,9 @@ $<span class="w"> </span><span class="nb">source</span><span class="w"> </span>v
 <p>Для того, чтобы уметь классифицировать людей на фото, их нужно правильно вырезать из изображения.
 Поэтому проект CLS использует базу данных PostgreSQL для хранения данных о сегментации людей.
 Прежде чем начать работу, убедитесь, что у вас установлен и запущен PostgreSQL. Затем укажите параметры подключения в файле конфигурации проекта.</p>
-<p>Доделать</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pictures_info_db_url:<span class="w"> </span><span class="s1">&#39;postgresql+psycopg2://psql_user:root@172.20.0.1:5432/psql_db&#39;</span>
+</pre></div>
+</div>
 <p>Если образ базы данных не запущен, то см. <a class="reference internal" href="postgres.html"><span class="doc">PostgreSQL (Сегментация)</span></a>.</p>
 </section>
 <section id="id3">
@@ -66,15 +68,19 @@ $<span class="w"> </span><span class="nb">source</span><span class="w"> </span>v
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>cls/classification/load_group.py<span class="w"> </span>--group<span class="w"> </span>tits_size
 </pre></div>
 </div>
-<dl class="simple">
-<dt>После выполнения этой команды в корневой папке репозитория должна появиться папка DATA со следующим содержанием:</dt><dd><ul class="simple">
-<li><p>DATA/
-- pictures/
-- datasets/
-- meta/</p></li>
-</ul>
-</dd>
-</dl>
+<p>После выполнения этой команды в корневой папке репозитория должна появиться папка DATA со следующим содержанием:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-<span class="w"> </span>DATA/
+<span class="w">   </span>-<span class="w"> </span>pictures/
+<span class="w">      </span>-<span class="w"> </span>...
+<span class="w">   </span>-<span class="w"> </span>meta/
+<span class="w">      </span>-<span class="w"> </span>...
+<span class="w">   </span>-<span class="w"> </span>datasets/
+<span class="w">      </span>-<span class="w"> </span>tits_size.json
+</pre></div>
+</div>
+<p>Что произошло? Создалась папка с данными, путь к которой прописан в файле конфигурации.
+В этой папке скачались изображения в папку <cite>pictures</cite>, скачались метаданные о наборах изображений в папку <cite>meta</cite>
+и на основе создан json-файл со сводной информацией о датасете. Подробнее см. <span class="xref std std-doc">data_bottles</span>.</p>
 </section>
 <section id="id4">
 <h2>Сегментация людей<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h2>

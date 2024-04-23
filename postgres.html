@@ -38,25 +38,37 @@
   <section id="postgresql">
 <h1>PostgreSQL (Сегментация)<a class="headerlink" href="#postgresql" title="Permalink to this heading">¶</a></h1>
 <p>Для того, чтобы сегментационные маски были доступны для всех пользователей,
-создается отдельный контейнер с образом базы данных PostgreSQL.</p>
+создается отдельный контейнер с образом базы данных PostgreSQL.
+Структура БД задается следующим образом:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>CREATE<span class="w"> </span>TABLE<span class="w"> </span>pictures<span class="w"> </span><span class="o">(</span>
+<span class="w">    </span>id<span class="w"> </span>SERIAL<span class="w"> </span>PRIMARY<span class="w"> </span>KEY,
+<span class="w">    </span>path<span class="w"> </span>VARCHAR<span class="o">(</span><span class="m">255</span><span class="o">)</span><span class="w"> </span>NOT<span class="w"> </span>NULL,
+<span class="w">    </span>model_version<span class="w"> </span>VARCHAR<span class="o">(</span><span class="m">50</span><span class="o">)</span><span class="w"> </span>NOT<span class="w"> </span>NULL,
+<span class="w">    </span>status<span class="w"> </span>VARCHAR<span class="o">(</span><span class="m">50</span><span class="o">)</span><span class="w"> </span>NOT<span class="w"> </span>NULL,
+<span class="w">    </span>segments<span class="w"> </span>jsonb<span class="w"> </span>DEFAULT<span class="w"> </span>NULL
+<span class="o">)</span><span class="p">;</span>
+</pre></div>
+</div>
 <section id="id1">
-<h2>Создание новой БД<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
-<ol class="arabic simple">
-<li><p>Создать контейнер:</p></li>
-</ol>
+<h2>Настройка подключения<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
+<p>1. Создать контейнер.
+Если вы работаете с уже существующей БД, то переходите к п.2.
+Создание таблицы и процесс запуска контейнера уже реализован.
+Все, что нужно - это запустить docker compose:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>postgres
 docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
 </pre></div>
 </div>
-<p>2. Указать URL к БД в файле конфигурации по схеме:
+<p>2. После того, как БД развернута, нужно указать URL к БД в файле конфигурации по схеме: „{dialect}+{driver}://{user}:<a class="reference external" href="mailto:{password}&#37;&#52;&#48;{host">{password}<span>&#64;</span>{host</a>}:{port}/{database}.
+О файле конфигурации см. <a class="reference internal" href="configuration.html"><span class="doc">Формат конфигурации</span></a>.
 Пример:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>url:<span class="w"> </span>...
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pictures_info_db_url:<span class="w"> </span><span class="s1">&#39;postgresql+psycopg2://psql_user:root@172.20.0.1:5432/psql_db&#39;</span>
 </pre></div>
 </div>
 </section>
 <section id="id2">
-<h2>Подключение к существующей БД<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
-<p>Только указать url в файле конфигурации</p>
+<h2>Резервное копирование<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
+<p>Дописать…</p>
 </section>
 </section>
 
@@ -84,8 +96,8 @@ docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> 
 <li class="toctree-l1"><a class="reference internal" href="demonstration.html">Demonstration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Формат конфигурации</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">PostgreSQL (Сегментация)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#id1">Создание новой БД</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">Подключение к существующей БД</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Настройка подключения</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">Резервное копирование</a></li>
 </ul>
 </li>
 </ul>
