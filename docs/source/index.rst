@@ -18,7 +18,7 @@
 
    get_started
    classification
-   instance
+   instance_segmentation
    demonstration
    configuration
    postgres
