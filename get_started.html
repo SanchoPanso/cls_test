@@ -78,13 +78,14 @@ $<span class="w"> </span><span class="nb">source</span><span class="w"> </span>v
 <span class="w">      </span>-<span class="w"> </span>tits_size.json
 </pre></div>
 </div>
-<p>Что произошло? Создалась папка с данными, путь к которой прописан в файле конфигурации.
+<p>Что произошло? Создалась папка с данными <cite>DATA</cite>, путь к которой прописан в файле конфигурации.
 В этой папке скачались изображения в папку <cite>pictures</cite>, скачались метаданные о наборах изображений в папку <cite>meta</cite>
-и на основе создан json-файл со сводной информацией о датасете. Подробнее см. <span class="xref std std-doc">data_bottles</span>.</p>
+и на  их основе создан json-файл со сводной информацией о датасете. Подробнее см. <span class="xref std std-doc">data_bottles</span>.</p>
 </section>
 <section id="id4">
 <h2>Сегментация людей<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h2>
 <p>После загрузки датасета можно приступить к сегментации людей на изображениях и записи сегментационных масок в базу данных.
+Это необходимо, поскольку чтобы классифицировать человека, его нужно вырезать из фотографии.
 Запустите сегментацию следующей командой:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>cls/classification/segment_builder.py<span class="w"> </span>--model_path<span class="w"> </span><span class="si">${</span><span class="nv">YOUR_MODEL_PATH</span><span class="si">}</span>
 </pre></div>
@@ -107,11 +108,24 @@ $<span class="w"> </span><span class="nb">source</span><span class="w"> </span>v
 <span class="w">   </span>-<span class="w"> </span>train_batches/
 </pre></div>
 </div>
+<ul class="simple">
+<li><p>checkpoints - папка с чекпоинтами в формате pytorch-lightning;</p></li>
+<li><p>csv_logs - папка с логом тренировки в формате csv;</p></li>
+<li><p>torchscripts - папка с моделью в формате torchscript;</p></li>
+<li><p>train_batches - папка с тренировочными батчами (для визуальной проверки);</p></li>
+<li><p>onnx - папка с моделью в формате onnx.</p></li>
+</ul>
 </section>
 <section id="id6">
 <h2>Выгрузка результатов<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h2>
-<p>После завершения обучения модели вы можете выгрузить результаты, используя следующую команду:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cls<span class="w"> </span>export-results<span class="w"> </span>--input_model<span class="w"> </span>&lt;путь_к_модели&gt;<span class="w"> </span>--output_dir<span class="w"> </span>&lt;папка_для_сохранения_результатов&gt;
+<p>После завершения обучения модели вы можете выгрузить результаты прохода сети для выбранного датасета.
+Для этого сначала нужно создать файлы с возвращаемой метой (ret_meta.json).</p>
+<p>Пример запуска прохода сеток для изображении из группы <cite>test</cite>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="bp">cls</span><span class="o">/</span><span class="n">classification</span><span class="o">/</span><span class="n">segment_meta_builder</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">groups</span> <span class="s1">&#39;test&#39;</span>
+</pre></div>
+</div>
+<p>После этого можно оправить полученные файлы ret_meta.json на сервер:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="bp">cls</span><span class="o">/</span><span class="n">classification</span><span class="o">/</span><span class="n">post_ret_meta</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">groups</span> <span class="s1">&#39;test&#39;</span>
 </pre></div>
 </div>
 </section>
