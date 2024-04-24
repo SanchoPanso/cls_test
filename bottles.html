@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Бутылки данных &#8212; документация CLS </title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/translations.js"></script>
+    <link rel="index" title="Алфавитный указатель" href="genindex.html" />
+    <link rel="search" title="Поиск" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="id1">
+<h1>Бутылки данных<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h1>
+<p>Для лучшей организации работы все данные
+(изображения, метаданные, эксперименты по тренировке моделей)</p>
+<blockquote>
+<div><p>группируются внутри одной папки, то есть, говоря фигурально, в отдельной «бутылке».</p>
+</div></blockquote>
+</section>
+<section id="id2">
+<h1>Бутылки данных<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h1>
+<section id="id3">
+<h2>Описание<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
+<p>Для того чтобы эффективно организовать проект по скачиванию изображений и обучению нейросетей для классификации,
+важно правильно структурировать хранение данных.
+В данной документации представлен раздел, посвященный концепции «бутылки данных» — специальной директории,
+которая служит контейнером для всех необходимых компонентов проекта: исходных данных, метаданных, обученных моделей и т.д.
+Эта структура помогает обеспечить порядок, удобство доступа и переносимость данных.</p>
+<p>Бутылка данных — это директория, которая функционирует как самодостаточная единица для хранения всех аспектов проекта
+по машинному обучению. Этот подход позволяет легко управлять данными, перемещать их между различными средами
+или даже разными пользователями.</p>
+<p>По умолчанию, бутылка данных располагается в папке <cite>DATA</cite> относительно корня репозитория (см. <a class="reference internal" href="configuration.html"><span class="doc">Формат конфигурации</span></a>).</p>
+</section>
+<section id="id4">
+<h2>Структура бутылки данных<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h2>
+<p>Каждая бутылка данных содержит следующие компоненты:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Исходные данные:</dt><dd><p>Подпапка /pictures
+Содержит изображения, скачанные из различных источников.</p>
+</dd>
+<dt>Метаданные:</dt><dd><p>Подпапка /meta
+Включает файлы, описывающие исходные данные (например, источники данных, авторские права, описательные теги).</p>
+</dd>
+<dt>Датасеты:</dt><dd><p>Подпапка /datasets
+Включает json-файлы, описывающие датасеты</p>
+</dd>
+<dt>Обученные модели:</dt><dd><p>Подпапка /models
+Содержит модели нейросетей, обученные на основе исходных данных, включая файлы конфигурации и весов.</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="id5">
+<h2>Преимущества использования<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h2>
+<blockquote>
+<div><p>Модульность: Бутылки данных могут быть независимо модифицированы, заменены или обновлены без влияния на другие части проекта.
+Переносимость: Все необходимые данные и модели упакованы в одну директорию, что облегчает перенос между машинами или средами.
+Воспроизводимость: Легко воспроизводить результаты и эксперименты, используя определенную версию бутылки данных.
+Управление версиями: Легко отслеживать версии данных и моделей, сохраняя предыдущие состояния проекта для анализа или отладки.</p>
+</div></blockquote>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">CLS</a></h1>
+
+
+
+
+
+
+
+
+<h3>Навигация</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="get_started.html">Начало работы</a></li>
+<li class="toctree-l1"><a class="reference internal" href="classification.html">Классификация</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instance_segmentation.html">Сегментация</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demonstration.html">Demonstration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Формат конфигурации</a></li>
+<li class="toctree-l1"><a class="reference internal" href="postgres.html">PostgreSQL</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Быстрый поиск</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Искать" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2024, t1masavin, sanchopanso, romaniox.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/bottles.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
