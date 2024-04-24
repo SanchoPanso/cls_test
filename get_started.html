@@ -59,7 +59,7 @@ $<span class="w"> </span><span class="nb">source</span><span class="w"> </span>v
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pictures_info_db_url:<span class="w"> </span><span class="s1">&#39;postgresql+psycopg2://psql_user:root@172.20.0.1:5432/psql_db&#39;</span>
 </pre></div>
 </div>
-<p>Если образ базы данных не запущен, то см. <a class="reference internal" href="postgres.html"><span class="doc">PostgreSQL (Сегментация)</span></a>.</p>
+<p>Если образ базы данных не запущен, то см. <a class="reference internal" href="postgres.html"><span class="doc">PostgreSQL</span></a>.</p>
 </section>
 <section id="id3">
 <h2>Скачивание датасета<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
@@ -89,7 +89,7 @@ $<span class="w"> </span><span class="nb">source</span><span class="w"> </span>v
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>cls/classification/segment_builder.py<span class="w"> </span>--model_path<span class="w"> </span><span class="si">${</span><span class="nv">YOUR_MODEL_PATH</span><span class="si">}</span>
 </pre></div>
 </div>
-<p><cite>YOUR_MODEL_PATH</cite> - путь до модели YOLOv8, обученной сегментировать людей. Чтобы обучить новую модель, см. <a class="reference internal" href="instance.html"><span class="doc">Сегментация</span></a>.</p>
+<p><cite>YOUR_MODEL_PATH</cite> - путь до модели YOLOv8, обученной сегментировать людей. Чтобы обучить новую модель, см. <span class="xref std std-doc">instance</span>.</p>
 </section>
 <section id="id5">
 <h2>Тренировка классификации<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h2>
@@ -111,7 +111,7 @@ $<span class="w"> </span><span class="nb">source</span><span class="w"> </span>v
 <blockquote>
 <div><ul class="simple">
 <li><p><a class="reference internal" href="classification.html"><span class="doc">Классификация</span></a> - модуль отвечает за тренировку моделей классификации. В его задачи входит скачивание изображений, нахождение сегментаций, тренировка с использованием <a class="reference external" href="https://wandb.ai/site">W&amp;B</a>, инференс полученных моделей и др.</p></li>
-<li><p><a class="reference internal" href="instance.html"><span class="doc">Сегментация</span></a> - модель отвечает за скачивание датасета сегментации с roboflow и тренировку модели YOLO.</p></li>
+<li><p><span class="xref std std-doc">instance</span> - модель отвечает за скачивание датасета сегментации с roboflow и тренировку модели YOLO.</p></li>
 <li><p><a class="reference internal" href="demonstration.html"><span class="doc">Demonstration</span></a> - модуль отвечает за демонтрацию моделей с использованием <a class="reference external" href="https://www.gradio.app/">gradio</a>.</p></li>
 </ul>
 </div></blockquote>
@@ -148,10 +148,9 @@ $<span class="w"> </span><span class="nb">source</span><span class="w"> </span>v
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="classification.html">Классификация</a></li>
-<li class="toctree-l1"><a class="reference internal" href="instance.html">Сегментация</a></li>
 <li class="toctree-l1"><a class="reference internal" href="demonstration.html">Demonstration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Формат конфигурации</a></li>
-<li class="toctree-l1"><a class="reference internal" href="postgres.html">PostgreSQL (Сегментация)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="postgres.html">PostgreSQL</a></li>
 </ul>
 
 <div class="relations">
