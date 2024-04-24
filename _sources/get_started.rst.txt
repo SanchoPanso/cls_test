@@ -69,7 +69,7 @@
    python cls/classification/segment_builder.py --model_path ${YOUR_MODEL_PATH}
 
 
-`YOUR_MODEL_PATH` - путь до модели YOLOv8, обученной сегментировать людей. Чтобы обучить новую модель, см. :doc:`instance`.
+`YOUR_MODEL_PATH` - путь до модели YOLOv8, обученной сегментировать людей. Чтобы обучить новую модель, см. :doc:`instance_segmentation`.
 
 
 Тренировка классификации
@@ -80,6 +80,19 @@
 .. code-block:: bash
 
    python cls/classification/train.py --cat tits_size --epochs 50
+
+После этого в папке DATA/models/tits_size появится папка с прошедшим экспериментом, 
+в которой можно найти логи и полученные модели:
+
+.. code-block:: bash
+
+   - DATA/models/tits_size/v__0_train_eff_16_0.001/
+      - checkpoints/  
+      - csv_logs/  
+      - onnx/  
+      - torchscripts/  
+      - train_batches/
+
 
 
 Выгрузка результатов

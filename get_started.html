@@ -89,12 +89,22 @@ $<span class="w"> </span><span class="nb">source</span><span class="w"> </span>v
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>cls/classification/segment_builder.py<span class="w"> </span>--model_path<span class="w"> </span><span class="si">${</span><span class="nv">YOUR_MODEL_PATH</span><span class="si">}</span>
 </pre></div>
 </div>
-<p><cite>YOUR_MODEL_PATH</cite> - путь до модели YOLOv8, обученной сегментировать людей. Чтобы обучить новую модель, см. <span class="xref std std-doc">instance</span>.</p>
+<p><cite>YOUR_MODEL_PATH</cite> - путь до модели YOLOv8, обученной сегментировать людей. Чтобы обучить новую модель, см. <a class="reference internal" href="instance_segmentation.html"><span class="doc">Сегментация</span></a>.</p>
 </section>
 <section id="id5">
 <h2>Тренировка классификации<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h2>
 <p>После получения сегментированных данных можно приступить к тренировке модели классификации. Запустите процесс обучения следующей командой:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>cls/classification/train.py<span class="w"> </span>--cat<span class="w"> </span>tits_size<span class="w"> </span>--epochs<span class="w"> </span><span class="m">50</span>
+</pre></div>
+</div>
+<p>После этого в папке DATA/models/tits_size появится папка с прошедшим экспериментом,
+в которой можно найти логи и полученные модели:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-<span class="w"> </span>DATA/models/tits_size/v__0_train_eff_16_0.001/
+<span class="w">   </span>-<span class="w"> </span>checkpoints/
+<span class="w">   </span>-<span class="w"> </span>csv_logs/
+<span class="w">   </span>-<span class="w"> </span>onnx/
+<span class="w">   </span>-<span class="w"> </span>torchscripts/
+<span class="w">   </span>-<span class="w"> </span>train_batches/
 </pre></div>
 </div>
 </section>
@@ -148,6 +158,7 @@ $<span class="w"> </span><span class="nb">source</span><span class="w"> </span>v
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="classification.html">Классификация</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instance_segmentation.html">Сегментация</a></li>
 <li class="toctree-l1"><a class="reference internal" href="demonstration.html">Demonstration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Формат конфигурации</a></li>
 <li class="toctree-l1"><a class="reference internal" href="postgres.html">PostgreSQL</a></li>
