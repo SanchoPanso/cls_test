@@ -151,6 +151,7 @@
 и в формате ONNX с файлами конфигурации для работы с Triton: 
 
 .. code_block:: bash
+
     - new_model/
         - model_onnx/
             - 1/
