@@ -73,10 +73,10 @@
 </pre></div>
 </div>
 <p>Параметры командной строки:</p>
-<blockquote>
-<div><p>–src_dir: путь к папке с исходными датасетами в формате COCO.
-–dst_dir: путь к папке для сохранения датасета в формате YOLO.</p>
-</div></blockquote>
+<ul class="simple">
+<li><p>–src_dir: путь к папке с исходными датасетами в формате COCO.</p></li>
+<li><p>–dst_dir: путь к папке для сохранения датасета в формате YOLO.</p></li>
+</ul>
 <p>Для примера возьмем датасеты из папки segmentation_data/source_datasets и преобразуем их в датасет YOLO в папке segmentation_data/yolo_dataset:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>create_yolo_dataset.py<span class="w"> </span>--src_dir<span class="w"> </span>segmentation_data/source_datasets<span class="w"> </span>--dst_dir<span class="w"> </span>segmentation_data/yolo_dataset
 </pre></div>
@@ -98,11 +98,11 @@
 </pre></div>
 </div>
 <p>Параметры командной строки:</p>
-<blockquote>
-<div><p>–data: путь к подготовленному датасету в формате YOLO.
-–epochs: количество эпох для обучения.
-–batch-size: размер батча.</p>
-</div></blockquote>
+<ul class="simple">
+<li><p>–data: путь к подготовленному датасету в формате YOLO.</p></li>
+<li><p>–epochs: количество эпох для обучения.</p></li>
+<li><p>–batch-size: размер батча.</p></li>
+</ul>
 <div class="admonition note">
 <p class="admonition-title">Примечание</p>
 <p>Проверьте совместимость настроек обучения с вашей аппаратной конфигурацией,
