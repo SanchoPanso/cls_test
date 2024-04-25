@@ -47,11 +47,25 @@
 * --src_dir: путь к папке с исходными датасетами в формате COCO.
 * --dst_dir: путь к папке для сохранения датасета в формате YOLO.
 
-Для примера возьмем датасеты из папки segmentation_data/source_datasets и преобразуем их в датасет YOLO в папке segmentation_data/yolo_dataset:
+Для примера возьмем датасеты из папки `segmentation_data/source_datasets` и преобразуем их в датасет YOLO в папке `segmentation_data/prepared_datasets/yolo_dataset`:
 
 .. code-block:: bash
 
-    python create_yolo_dataset.py --src_dir segmentation_data/source_datasets --dst_dir segmentation_data/yolo_dataset
+    python create_yolo_dataset.py --src_dir segmentation_data/source_datasets --dst_dir segmentation_data/prepared_datasets/yolo_dataset
+
+
+В итоге должна получиться папка со следующей структурой:
+
+.. code-block:: bash
+
+    - segmentation_data/prepared_datasets/yolo_dataset/
+        - train/
+            - images/
+            - labels/
+        - valid/
+            - images/
+            - labels/
+        - data.yaml
 
 
 Обучение модели YOLOv8 на задачу сегментации
@@ -73,10 +87,12 @@
 
 .. code-block:: bash
 
-    python train_yolo_seg.py --data <path_to_yolo_dataset> --epochs <num_epochs> --batch-size <batch_size>
+    python train_yolo_seg.py --model <path_to_model> --project <name_of_project> --data <path_to_yolo_dataset> --epochs <num_epochs> --batch_size <batch_size>
 
 Параметры командной строки:
 
+* --model: путь к обучаемой модели.
+* --project: название проекта (относительный путь к папке с прогонами)
 * --data: путь к подготовленному датасету в формате YOLO.
 * --epochs: количество эпох для обучения.
 * --batch-size: размер батча.
@@ -86,11 +102,13 @@
     Проверьте совместимость настроек обучения с вашей аппаратной конфигурацией, 
     особенно при использовании GPU, чтобы избежать проблем с переполнением памяти.
 
-Для примера возмем полученный YOLO датасет в папке segmentation_data/yolo_dataset и обучим на нем model yolov8x-seg.pt.
+Для примера возмем полученный YOLO датасет в папке `segmentation_data/prepared_datasets/yolo_dataset` и обучим на нем model `yolov8x-seg.pt`.
+Количество эпох поставим равным 1, чтобы быстрее увидеть результат. В реальной ситуации количество эпох обычно начинается от 50.
+Остальные параметры оставим по умолчанию.
 
 .. code-block:: bash
 
-    python train_yolo_seg.py --data segmentation_data/yolo_dataset/data.yaml --model yolov8x-seg.pt
+    python train_yolo_seg.py --data segmentation_data/prepared_datasets/yolo_dataset/data.yaml --model yolov8x-seg.pt
 
 
 .. note::
@@ -99,19 +117,51 @@
     Поэтому при необходимости более тонкой настройки параметров, стоит обратиться к ней.
 
 
-Экспорт модели YOLOv8 в формат для инференса
---------------------------------------------
-
-Для того, чтобы обеспечить эффективную работу полученной сети, ее необходимо конвертировать в соответствующий формат.
-Чтобы экспортировать модель в формат TensorRT, воспользуйтесь следующей командой:
+После того, как тренировка закончилась, появится папка `yolov8_seg_runs`, в которой будут лежать результаты тренировки.
+Помимо прочих результатов, в папке с прогоном можно найти натренированную модель `best.pt`.
 
 .. code-block:: bash
 
-    python export_to_trt.py --src_path <src_path> --dst_path <dst_path>
+    - yolov8_seg_runs/
+        - train/
+            - weights/
+                - best.pt
+                - last.pt
+            - ...
 
 
-После что в <dst_path> появится папка с моделью в формате TensorRT, 
-которая пригодна для размещения в репозитории моделей для Triton Inference Server.
+Экспорт модели YOLOv8 в формат для инференса
+--------------------------------------------
 
+Для того, чтобы обеспечить эффективную работу полученной сети и совместимость с Triton Inference Server, 
+ее необходимо конвертировать в соответствующий формат.
+Возьмем полученную модель `best.pt` и преобразуем ее, воспользуйтесь следующей командой:
+
+.. code-block:: bash
+
+    python export_to_trt.py --src_path yolov8_seg_runs/train/weights/best.pt --dst_path segmentation_data/inference_models/new_model
+
+
+После этого в segmentation_data/inference_models/new_model появится папки с моделью в формате TensorRT 
+и в формате ONNX с файлами конфигурации для работы с Triton: 
+
+.. code_block:: bash
+    - new_model/
+        - model_onnx/
+            - 1/
+                - model.onnx
+                - meta.json
+            - config.pbtxt
+
+        - model_trt/
+            - 1/
+                - model.plan
+                - meta.json
+            - config.pbtxt
+
+
+Папки `model_onnx` и `model_trt` - модели для инференса для репозитория моделей в Triton Server. 
+Наиболее оптимальной является `model_trt` и она используется по умолчанию.
+Для ее запуска разместите ее в репозитории моделей.
 
 

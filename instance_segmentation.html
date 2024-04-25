@@ -77,8 +77,19 @@
 <li><p>–src_dir: путь к папке с исходными датасетами в формате COCO.</p></li>
 <li><p>–dst_dir: путь к папке для сохранения датасета в формате YOLO.</p></li>
 </ul>
-<p>Для примера возьмем датасеты из папки segmentation_data/source_datasets и преобразуем их в датасет YOLO в папке segmentation_data/yolo_dataset:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>create_yolo_dataset.py<span class="w"> </span>--src_dir<span class="w"> </span>segmentation_data/source_datasets<span class="w"> </span>--dst_dir<span class="w"> </span>segmentation_data/yolo_dataset
+<p>Для примера возьмем датасеты из папки <cite>segmentation_data/source_datasets</cite> и преобразуем их в датасет YOLO в папке <cite>segmentation_data/prepared_datasets/yolo_dataset</cite>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>create_yolo_dataset.py<span class="w"> </span>--src_dir<span class="w"> </span>segmentation_data/source_datasets<span class="w"> </span>--dst_dir<span class="w"> </span>segmentation_data/prepared_datasets/yolo_dataset
+</pre></div>
+</div>
+<p>В итоге должна получиться папка со следующей структурой:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-<span class="w"> </span>segmentation_data/prepared_datasets/yolo_dataset/
+<span class="w">    </span>-<span class="w"> </span>train/
+<span class="w">        </span>-<span class="w"> </span>images/
+<span class="w">        </span>-<span class="w"> </span>labels/
+<span class="w">    </span>-<span class="w"> </span>valid/
+<span class="w">        </span>-<span class="w"> </span>images/
+<span class="w">        </span>-<span class="w"> </span>labels/
+<span class="w">    </span>-<span class="w"> </span>data.yaml
 </pre></div>
 </div>
 </section>
@@ -94,11 +105,13 @@
 Для этого потребуется зарегистрироваться на сервисе <a class="reference external" href="https://wandb.ai/">https://wandb.ai/</a> и предоставить api-ключ во время тренировки.</p>
 </div>
 <p>Использование:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>train_yolo_seg.py<span class="w"> </span>--data<span class="w"> </span>&lt;path_to_yolo_dataset&gt;<span class="w"> </span>--epochs<span class="w"> </span>&lt;num_epochs&gt;<span class="w"> </span>--batch-size<span class="w"> </span>&lt;batch_size&gt;
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>train_yolo_seg.py<span class="w"> </span>--model<span class="w"> </span>&lt;path_to_model&gt;<span class="w"> </span>--project<span class="w"> </span>&lt;name_of_project&gt;<span class="w"> </span>--data<span class="w"> </span>&lt;path_to_yolo_dataset&gt;<span class="w"> </span>--epochs<span class="w"> </span>&lt;num_epochs&gt;<span class="w"> </span>--batch_size<span class="w"> </span>&lt;batch_size&gt;
 </pre></div>
 </div>
 <p>Параметры командной строки:</p>
 <ul class="simple">
+<li><p>–model: путь к обучаемой модели.</p></li>
+<li><p>–project: название проекта (относительный путь к папке с прогонами)</p></li>
 <li><p>–data: путь к подготовленному датасету в формате YOLO.</p></li>
 <li><p>–epochs: количество эпох для обучения.</p></li>
 <li><p>–batch-size: размер батча.</p></li>
@@ -108,8 +121,10 @@
 <p>Проверьте совместимость настроек обучения с вашей аппаратной конфигурацией,
 особенно при использовании GPU, чтобы избежать проблем с переполнением памяти.</p>
 </div>
-<p>Для примера возмем полученный YOLO датасет в папке segmentation_data/yolo_dataset и обучим на нем model yolov8x-seg.pt.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>train_yolo_seg.py<span class="w"> </span>--data<span class="w"> </span>segmentation_data/yolo_dataset/data.yaml<span class="w"> </span>--model<span class="w"> </span>yolov8x-seg.pt
+<p>Для примера возмем полученный YOLO датасет в папке <cite>segmentation_data/prepared_datasets/yolo_dataset</cite> и обучим на нем model <cite>yolov8x-seg.pt</cite>.
+Количество эпох поставим равным 1, чтобы быстрее увидеть результат. В реальной ситуации количество эпох обычно начинается от 50.
+Остальные параметры оставим по умолчанию.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>train_yolo_seg.py<span class="w"> </span>--data<span class="w"> </span>segmentation_data/prepared_datasets/yolo_dataset/data.yaml<span class="w"> </span>--model<span class="w"> </span>yolov8x-seg.pt
 </pre></div>
 </div>
 <div class="admonition note">
@@ -117,16 +132,30 @@
 <p>Для тренировки используется библиотека ultralytics.
 Поэтому при необходимости более тонкой настройки параметров, стоит обратиться к ней.</p>
 </div>
+<p>После того, как тренировка закончилась, появится папка <cite>yolov8_seg_runs</cite>, в которой будут лежать результаты тренировки.
+Помимо прочих результатов, в папке с прогоном можно найти натренированную модель <cite>best.pt</cite>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-<span class="w"> </span>yolov8_seg_runs/
+<span class="w">    </span>-<span class="w"> </span>train/
+<span class="w">        </span>-<span class="w"> </span>weights/
+<span class="w">            </span>-<span class="w"> </span>best.pt
+<span class="w">            </span>-<span class="w"> </span>last.pt
+<span class="w">        </span>-<span class="w"> </span>...
+</pre></div>
+</div>
 </section>
 <section id="id2">
 <h2>Экспорт модели YOLOv8 в формат для инференса<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
-<p>Для того, чтобы обеспечить эффективную работу полученной сети, ее необходимо конвертировать в соответствующий формат.
-Чтобы экспортировать модель в формат TensorRT, воспользуйтесь следующей командой:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>export_to_trt.py<span class="w"> </span>--src_path<span class="w"> </span>&lt;src_path&gt;<span class="w"> </span>--dst_path<span class="w"> </span>&lt;dst_path&gt;
+<p>Для того, чтобы обеспечить эффективную работу полученной сети и совместимость с Triton Inference Server,
+ее необходимо конвертировать в соответствующий формат.
+Возьмем полученную модель <cite>best.pt</cite> и преобразуем ее, воспользуйтесь следующей командой:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>export_to_trt.py<span class="w"> </span>--src_path<span class="w"> </span>yolov8_seg_runs/train/weights/best.pt<span class="w"> </span>--dst_path<span class="w"> </span>segmentation_data/inference_models/new_model
 </pre></div>
 </div>
-<p>После что в &lt;dst_path&gt; появится папка с моделью в формате TensorRT,
-которая пригодна для размещения в репозитории моделей для Triton Inference Server.</p>
+<p>После этого в segmentation_data/inference_models/new_model появится папки с моделью в формате TensorRT
+и в формате ONNX с файлами конфигурации для работы с Triton:</p>
+<p>Папки <cite>model_onnx</cite> и <cite>model_trt</cite> - модели для инференса для репозитория моделей в Triton Server.
+Наиболее оптимальной является <cite>model_trt</cite> и она используется по умолчанию.
+Для ее запуска разместите ее в репозитории моделей.</p>
 </section>
 </section>
 
