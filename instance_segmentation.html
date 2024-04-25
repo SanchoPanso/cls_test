@@ -38,18 +38,18 @@
             
   <section id="id1">
 <h1>Сегментация<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h1>
-<p>В этом разделе описывается процесс подготовки и обучения модели YOLOv8 для задачи инстансной сегментации. Он включает в себя описание двух основных шагов:</p>
+<p>В этом разделе описывается процесс подготовки и обучения модели YOLOv8 для задачи инстансной сегментации.
+Он включает в себя описание следующих шагов:</p>
 <ul class="simple">
 <li><p>Создание датасета в формате YOLO</p></li>
 <li><p>Обучение модели YOLOv8 на задачу сегментации</p></li>
+<li><p>Экспорт модели YOLOv8 в формат для инференса</p></li>
 </ul>
 <section id="yolo">
 <h2>Создание датасета в формате YOLO<a class="headerlink" href="#yolo" title="Permalink to this heading">¶</a></h2>
-<p>Назначение:</p>
 <p>Скрипт create_yolo_dataset.py предназначен для конвертации датасетов, аннотированных в формате COCO,
 в формат, совместимый с моделью YOLO.
 Это первый шаг в подготовке данных для обучения.</p>
-<p>Подготовка исходных данных:</p>
 <p>Перед использованием скрипта, убедитесь, что исходные датасеты размещены в папке segmentation_data/source_datasets.
 В этой папке должна быть следующая структура:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-<span class="w"> </span>segmentation_data/source_datasets/
@@ -64,7 +64,6 @@
 <span class="w">    </span>-...
 </pre></div>
 </div>
-<p>Описание работы скрипта:</p>
 <dl class="simple">
 <dt>Скрипт анализирует исходные аннотации COCO, извлекает информацию о положении объектов (bounding boxes)</dt><dd><p>и их классификации, после чего преобразует её в нужный формат.</p>
 </dd>
@@ -75,18 +74,25 @@
 </div>
 <p>Параметры командной строки:</p>
 <blockquote>
-<div><p>–input: путь к файлу с исходными аннотациями COCO.
-–output: директория для сохранения датасета в формате YOLO.</p>
+<div><p>–src_dir: путь к папке с исходными датасетами в формате COCO.
+–dst_dir: путь к папке для сохранения датасета в формате YOLO.</p>
 </div></blockquote>
+<p>Для примера возьмем датасеты из папки segmentation_data/source_datasets и преобразуем их в датасет YOLO в папке segmentation_data/yolo_dataset:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>create_yolo_dataset.py<span class="w"> </span>--src_dir<span class="w"> </span>segmentation_data/source_datasets<span class="w"> </span>--dst_dir<span class="w"> </span>segmentation_data/yolo_dataset
+</pre></div>
+</div>
 </section>
 <section id="yolov8">
 <h2>Обучение модели YOLOv8 на задачу сегментации<a class="headerlink" href="#yolov8" title="Permalink to this heading">¶</a></h2>
-<p>Назначение:</p>
 <p>Скрипт train_yolo_seg.py используется для обучения модели YOLOv8, используя подготовленный на предыдущем шаге датасет.
-Этот процесс является вторым и заключительным шагом в подготовке модели к работе по задаче инстансной сегментации.</p>
-<p>Описание работы скрипта:</p>
+Этот процесс является вторым шагом в подготовке модели к работе по задаче инстансной сегментации.</p>
 <p>Скрипт инициирует обучение модели с возможностью настройки различных параметров,
 таких как количество эпох, размер батча и скорость обучения.</p>
+<div class="admonition note">
+<p class="admonition-title">Примечание</p>
+<p>Также для обучения предусмотрена возможность логирования результатов в W&amp;B.
+Для этого потребуется зарегистрироваться на сервисе <a class="reference external" href="https://wandb.ai/">https://wandb.ai/</a> и предоставить api-ключ во время тренировки.</p>
+</div>
 <p>Использование:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>train_yolo_seg.py<span class="w"> </span>--data<span class="w"> </span>&lt;path_to_yolo_dataset&gt;<span class="w"> </span>--epochs<span class="w"> </span>&lt;num_epochs&gt;<span class="w"> </span>--batch-size<span class="w"> </span>&lt;batch_size&gt;
 </pre></div>
@@ -102,6 +108,25 @@
 <p>Проверьте совместимость настроек обучения с вашей аппаратной конфигурацией,
 особенно при использовании GPU, чтобы избежать проблем с переполнением памяти.</p>
 </div>
+<p>Для примера возмем полученный YOLO датасет в папке segmentation_data/yolo_dataset и обучим на нем model yolov8x-seg.pt.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>train_yolo_seg.py<span class="w"> </span>--data<span class="w"> </span>segmentation_data/yolo_dataset/data.yaml<span class="w"> </span>--model<span class="w"> </span>yolov8x-seg.pt
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Примечание</p>
+<p>Для тренировки используется библиотека ultralytics.
+Поэтому при необходимости более тонкой настройки параметров, стоит обратиться к ней.</p>
+</div>
+</section>
+<section id="id2">
+<h2>Экспорт модели YOLOv8 в формат для инференса<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
+<p>Для того, чтобы обеспечить эффективную работу полученной сети, ее необходимо конвертировать в соответствующий формат.
+Чтобы экспортировать модель в формат TensorRT, воспользуйтесь следующей командой:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>export_to_trt.py<span class="w"> </span>--src_path<span class="w"> </span>&lt;src_path&gt;<span class="w"> </span>--dst_path<span class="w"> </span>&lt;dst_path&gt;
+</pre></div>
+</div>
+<p>После что в &lt;dst_path&gt; появится папка с моделью в формате TensorRT,
+которая пригодна для размещения в репозитории моделей для Triton Inference Server.</p>
 </section>
 </section>
 
@@ -128,6 +153,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Сегментация</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#yolo">Создание датасета в формате YOLO</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#yolov8">Обучение модели YOLOv8 на задачу сегментации</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">Экспорт модели YOLOv8 в формат для инференса</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="demonstration.html">Demonstration</a></li>
