@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>&lt;no title&gt; &#8212; документация CLS </title>
+    <title>Начало работы с классификацией &#8212; документация CLS </title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -36,7 +36,131 @@
 
           <div class="body" role="main">
             
-  
+  <section id="id1">
+<h1>Начало работы с классификацией<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h1>
+<p>Допустим, у вас стоит задача тренировки сетей классификации на основе данных,
+собранных в сервисе collect.moster.
+На этой странице рассказывается, как подготовить данные, обучить модель
+и подготовить ее к разворачиванию для инференса.</p>
+<section id="postgresql">
+<h2>Настройка подключения к PostgreSQL<a class="headerlink" href="#postgresql" title="Permalink to this heading">¶</a></h2>
+<p>Для того, чтобы уметь классифицировать людей на фото, их нужно правильно вырезать из изображения.
+Поэтому проект CLS использует базу данных PostgreSQL для хранения данных о сегментации людей.</p>
+<p>Прежде чем начать работу, убедитесь, что у вас установлен и запущен PostgreSQL.
+Затем укажите параметры подключения в файле конфигурации проекта.
+Подробнее см. <a class="reference internal" href="postgres.html"><span class="doc">PostgreSQL</span></a>.</p>
+</section>
+<section id="id2">
+<h2>Скачивание датасета<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
+<p>Для обучения модели нужны изображения и их разметка.
+Допустим, мы хотим обучить классифицировать группу <cite>tits_size</cite>.
+Для загрузки такого датасета из сервиса <cite>collect.moster</cite> выполните следующую команду:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>cls/classification/load_group.py<span class="w"> </span>--group<span class="w"> </span>tits_size
+</pre></div>
+</div>
+<p>После выполнения этой команды в корневой папке репозитория должна появиться
+папка classification_data со следующим содержанием:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-<span class="w"> </span>classification_data/
+<span class="w">   </span>-<span class="w"> </span>pictures/
+<span class="w">      </span>-<span class="w"> </span>...
+<span class="w">   </span>-<span class="w"> </span>meta/
+<span class="w">      </span>-<span class="w"> </span>...
+<span class="w">   </span>-<span class="w"> </span>datasets/
+<span class="w">     </span>-<span class="w"> </span>tits_size/
+<span class="w">         </span>-<span class="w"> </span>tits_size.json
+</pre></div>
+</div>
+<p>Что произошло? Создалась папка с данными <cite>classification_data</cite>, путь к которой прописан в файле конфигурации.
+В этой папке скачались изображения в папку <cite>pictures</cite>, скачались метаданные о наборах изображений в папку <cite>meta</cite>
+и на их основе создан json-файл со сводной информацией о датасете. Подробнее см. <a class="reference internal" href="bottles.html"><span class="doc">Бутылки данных</span></a>.</p>
+</section>
+<section id="id3">
+<h2>Сегментация людей<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
+<p>После загрузки датасета можно приступить к сегментации людей на изображениях и
+записи сегментационных масок в базу данных.
+Это необходимо, поскольку чтобы классифицировать человека, его нужно вырезать из фотографии.</p>
+<p>Скачаем обученную модель из общего хранилища и сохраним в <cite>person_models/best.pt</cite>
+следующими командами (пароль ssh - «password»):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>person_models
+scp<span class="w"> </span>-P<span class="w"> </span><span class="m">4000</span><span class="w"> </span>user@0.0.0.0:/storage/other/best.pt<span class="w"> </span>person_models/best.pt
+</pre></div>
+</div>
+<p>Теперь запустите сегментацию:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>cls/classification/segment_builder.py<span class="w"> </span>--model_path<span class="w"> </span>person_models/best.pt
+</pre></div>
+</div>
+<p>Чтобы обучить новую модель сегментции, см. <a class="reference internal" href="instance_segmentation.html"><span class="doc">Сегментация</span></a>.</p>
+</section>
+<section id="id4">
+<h2>Тренировка классификации<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h2>
+<p>После получения сегментированных данных можно приступить к тренировке модели классификации.
+Запустите процесс обучения следующей командой:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>cls/classification/train.py<span class="w"> </span>--cat<span class="w"> </span>tits_size<span class="w"> </span>--epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span>--batch<span class="w"> </span><span class="m">4</span>
+</pre></div>
+</div>
+<p>Это обучение всего лишь на одну эпоху. Оно сделано просто в качестве демонстрации.
+В реальности количество эпох обычно больше 50.</p>
+<p>После этого в папке classification_data/models/tits_size появится папка с прошедшим экспериментом,
+в которой можно найти логи и полученные модели:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-<span class="w"> </span>DATA/models/tits_size/v__0_train_eff_16_0.001/
+<span class="w">   </span>-<span class="w"> </span>checkpoints/
+<span class="w">   </span>-<span class="w"> </span>csv_logs/
+<span class="w">   </span>-<span class="w"> </span>onnx/
+<span class="w">   </span>-<span class="w"> </span>torchscripts/
+<span class="w">   </span>-<span class="w"> </span>train_batches/
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>checkpoints - папка с чекпоинтами в формате pytorch-lightning;</p></li>
+<li><p>csv_logs - папка с логом тренировки в формате csv;</p></li>
+<li><p>torchscripts - папка с моделью в формате torchscript;</p></li>
+<li><p>train_batches - папка с тренировочными батчами (для визуальной проверки);</p></li>
+<li><p>onnx - папка с моделью в формате onnx.</p></li>
+</ul>
+</section>
+<section id="tensorrt">
+<h2>Конвертация в TensorRT<a class="headerlink" href="#tensorrt" title="Permalink to this heading">¶</a></h2>
+<p>Для эффективного деплоя модели нужно конвертировать ее в формат TensorRT.
+Это можно сделать следующей командой:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>cls/classification/export.py<span class="w"> </span>--group<span class="w"> </span>tits_size
+</pre></div>
+</div>
+<p>Скрипт автоматически найдет последнюю обученную модель для группы tits_size и произведет конвертацию.
+После выполнения появится папка со следующим содержанием:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-<span class="w"> </span>classification_data/
+<span class="w">    </span>-<span class="w"> </span>inference_models/
+<span class="w">        </span>-<span class="w"> </span>tits_size/
+<span class="w">            </span>-<span class="w"> </span>inference_model
+<span class="w">                </span>-meta.json
+<span class="w">                </span>-<span class="w"> </span>model.onnx
+<span class="w">                </span>-<span class="w"> </span>model_onnx.zip<span class="w">    </span><span class="c1"># версия модели для triton в формате onnx</span>
+<span class="w">                </span>-<span class="w"> </span>model.plan
+<span class="w">                </span>-<span class="w"> </span>model_trt.zip<span class="w">     </span><span class="c1"># версия модели для triton в формате trt</span>
+</pre></div>
+</div>
+<p>Чтобы отправить trt-модель в общее хранилище, с присвоением версии (к примеру, 0.0.2),
+воспользуйтесь API от model storage:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="s1">&#39;http://localhost:8300/upload_new_version/&#39;</span><span class="w"> </span><span class="se">\</span>
+-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+-H<span class="w"> </span><span class="s1">&#39;Content-Type: multipart/form-data&#39;</span><span class="w"> </span><span class="se">\</span>
+-F<span class="w"> </span><span class="s1">&#39;src_file=@classification_data_test/inference_models/tits_size/inference_model/model_trt.zip;type=application/x-zip-compressed&#39;</span><span class="w"> </span><span class="se">\</span>
+-F<span class="w"> </span><span class="s1">&#39;model_name=tits_size&#39;</span><span class="w"> </span><span class="se">\</span>
+-F<span class="w"> </span><span class="s1">&#39;model_version=0.0.2&#39;</span>
+</pre></div>
+</div>
+<p>В ответ должно вернуться {«version»: «0.0.2»}, что скажет об успешной доставке модели в хранилище.</p>
+<div class="admonition note">
+<p class="admonition-title">Примечание</p>
+<p>В будущем планируется обернуть этот вызов в отдельный скрипт</p>
+</div>
+</section>
+<section id="id5">
+<h2>Что дальше?<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h2>
+<p>Чтобы подробнее ознакомиться с возможностями этоо модуля, обратитесь к <a class="reference internal" href="classification.html"><span class="doc">Классификация</span></a>.</p>
+</section>
+</section>
+
 
           </div>
           
@@ -54,7 +178,16 @@
 
 
 <h3>Навигация</h3>
-<ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Начало работы с классификацией</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#postgresql">Настройка подключения к PostgreSQL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">Скачивание датасета</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">Сегментация людей</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">Тренировка классификации</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tensorrt">Конвертация в TensorRT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">Что дальше?</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="get_started_with_instance_segmentation.html">Начало работы с cегментацией</a></li>
 <li class="toctree-l1"><a class="reference internal" href="classification.html">Классификация</a></li>
 <li class="toctree-l1"><a class="reference internal" href="instance_segmentation.html">Сегментация</a></li>
