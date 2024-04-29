@@ -18,7 +18,7 @@
     <script src="_static/translations.js"></script>
     <link rel="index" title="Алфавитный указатель" href="genindex.html" />
     <link rel="search" title="Поиск" href="search.html" />
-    <link rel="next" title="Начало работы" href="get_started.html" />
+    <link rel="next" title="&lt;no title&gt;" href="get_started_with_classification.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -41,21 +41,31 @@
 собранных из сервиса <cite>collect.moster</cite>. Этот проект обеспечивает автоматизированный процесс
 загрузки, обработки, использования данных для обучения нейронных сетей, а также выгрузку результатов работы.</p>
 <section id="id1">
-<h2>Начало работы<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
-<p>Чтобы начать использовать проект CLS, следуйте инструкциям в разделе <a class="reference internal" href="get_started.html"><span class="doc">Начало работы</span></a>.</p>
+<h2>Установка<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
+<p>Для установки проекта CLS, выполните следующие команды:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/t1masavin/CLS.git<span class="w"> </span>-b<span class="w"> </span>develop
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>CLS
+$<span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
+$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>venv/bin/activate
+<span class="o">(</span>venv<span class="o">)</span><span class="w"> </span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>poetry
+<span class="o">(</span>venv<span class="o">)</span><span class="w"> </span>$<span class="w"> </span>poetry<span class="w"> </span>install<span class="w"> </span>.
+</pre></div>
+</div>
 </section>
 <section id="id2">
-<h2>Содержание<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
+<h2>Начало работы<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
+<p>Чтобы начать использовать проект CLS, следуйте инструкциям
+в разделах <a class="reference internal" href="get_started_with_classification.html"><span class="doc">&lt;no title&gt;</span></a> и <a class="reference internal" href="get_started_with_instance_segmentation.html"><span class="doc">Начало работы с cегментацией</span></a>.</p>
+</section>
+<section id="id3">
+<h2>Содержание<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="get_started.html">Начало работы</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="get_started.html#id2">Установка</a></li>
-<li class="toctree-l2"><a class="reference internal" href="get_started.html#postgresql">Настройка подключения к PostgreSQL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="get_started.html#id3">Скачивание датасета</a></li>
-<li class="toctree-l2"><a class="reference internal" href="get_started.html#id4">Сегментация людей</a></li>
-<li class="toctree-l2"><a class="reference internal" href="get_started.html#id5">Тренировка классификации</a></li>
-<li class="toctree-l2"><a class="reference internal" href="get_started.html#id6">Выгрузка результатов</a></li>
-<li class="toctree-l2"><a class="reference internal" href="get_started.html#id7">Что дальше?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_started_with_instance_segmentation.html">Начало работы с cегментацией</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="get_started_with_instance_segmentation.html#id1">Получение исходного датасета</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started_with_instance_segmentation.html#yolo">Создание датасета в формате YOLO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started_with_instance_segmentation.html#yolov8">Обучение модели YOLOv8 на задачу сегментации</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started_with_instance_segmentation.html#id2">Экспорт модели YOLOv8 в формат для инференса</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="classification.html">Классификация</a><ul>
@@ -104,7 +114,7 @@
 
 <h3>Навигация</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="get_started.html">Начало работы</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_started_with_instance_segmentation.html">Начало работы с cегментацией</a></li>
 <li class="toctree-l1"><a class="reference internal" href="classification.html">Классификация</a></li>
 <li class="toctree-l1"><a class="reference internal" href="instance_segmentation.html">Сегментация</a></li>
 <li class="toctree-l1"><a class="reference internal" href="demonstration.html">Demonstration</a></li>
@@ -116,7 +126,7 @@
 <h3>Related Topics</h3>
 <ul>
   <li><a href="#">Documentation overview</a><ul>
-      <li>Next: <a href="get_started.html" title="следующая глава">Начало работы</a></li>
+      <li>Next: <a href="get_started_with_classification.html" title="следующая глава">&lt;no title&gt;</a></li>
   </ul></li>
 </ul>
 </div>
