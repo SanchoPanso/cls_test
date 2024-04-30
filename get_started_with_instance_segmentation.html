@@ -270,7 +270,7 @@ unzip<span class="w"> </span>segmentation_data/initial_datasets/segmentation_dat
 <p>Для того, чтобы обеспечить эффективную работу полученной сети и совместимость с Triton Inference Server,
 ее необходимо конвертировать в соответствующий формат.
 Возьмем последнюю полученную модель и преобразуем ее, воспользуйтесь следующей командой:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>export_to_trt.py
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>cls/instance_segmentation/export_to_trt.py
 </pre></div>
 </div>
 <p>После этого в segmentation_data/inference_models/instance_segmentation_model появятся модели в формате TensorRT

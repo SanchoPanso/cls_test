@@ -109,7 +109,7 @@
 
 .. code-block:: bash
 
-    python export_to_trt.py
+    python cls/instance_segmentation/export_to_trt.py
 
 
 После этого в segmentation_data/inference_models/instance_segmentation_model появятся модели в формате TensorRT 
