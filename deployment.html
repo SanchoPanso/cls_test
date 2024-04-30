@@ -216,20 +216,10 @@ id<span class="w"> </span>-g<span class="w">   </span><span class="c1"># USER_GI
 <h3>Подготовка хранилища<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
 <p>В конфигурации docker-compose.yaml определены два тома:</p>
 <blockquote>
-<div><dl class="field-list simple">
-<dt class="field-odd">./storage:/storage<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Общее хранилище для файлов.
-Это место, где можно хранить различные данные, доступ к которым необходим из контейнера.
-Все файлы, помещенные в локальную папку storage, будут доступны внутри контейнера по пути /storage.</p>
-</dd>
-<dt class="field-even">./storage/model_repository:/models<span class="colon">:</span></dt>
-<dd class="field-even"><p>Репозиторий моделей для Triton Server.
-Этот том используется для хранения моделей,
-которые Triton Server будет использовать для выполнения инференса.
-Модели должны быть организованы в соответствии с требованиями Triton Server,
-и они должны быть доступны в папке storage/model_repository на хосте.</p>
-</dd>
-</dl>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">./storage:/storage</span></code> - Общее хранилище для файлов. Это место, где можно хранить различные данные, доступ к которым необходим из контейнера. Все файлы, помещенные в локальную папку storage, будут доступны внутри контейнера по пути /storage.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">./storage/model_repository:/models</span></code> - Репозиторий моделей для Triton Server. Этот том используется для хранения моделей, которые Triton Server будет использовать для выполнения инференса. Модели должны быть организованы в соответствии с требованиями Triton Server, и они должны быть доступны в папке storage/model_repository на хосте.</p></li>
+</ul>
 </div></blockquote>
 </section>
 <section id="id4">
