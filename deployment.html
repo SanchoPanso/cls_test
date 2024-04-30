@@ -24,7 +24,8 @@
       <script src="_static/theme.js" defer></script>
     
   <link rel="index" title="Алфавитный указатель" href="genindex.html" />
-  <link rel="search" title="Поиск" href="search.html" /> 
+  <link rel="search" title="Поиск" href="search.html" />
+  <link rel="prev" title="PostgreSQL" href="postgres.html" /> 
   </head>
 
   <body>
@@ -73,7 +74,7 @@
       <p class="caption">
         <span class="caption-text"><a href="index.html#id3">содержание</a></span>
       </p>
-      <ul class="">
+      <ul class="current">
         
           <li class="toctree-l1 ">
             
@@ -138,6 +139,21 @@
           </li>
 
         
+          <li class="toctree-l1 current">
+            
+              <a href="#" class="reference internal current">Разворачивание</a>
+            
+
+            
+              <ul>
+                
+                  <li class="toctree-l2"><a href="#model-storage" class="reference internal">Model Storage</a></li>
+                
+              </ul>
+            
+          </li>
+
+        
       </ul>
     </div>
   
@@ -155,6 +171,10 @@
   
 
   <ul class="page-nav">
+  <li class="prev">
+    <a href="postgres.html"
+       title="предыдущая глава">← PostgreSQL</a>
+  </li>
 </ul>
   
 </div>
@@ -165,9 +185,6 @@
 <h1>Разворачивание<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h1>
 <section id="model-storage">
 <h2>Model Storage<a class="headerlink" href="#model-storage" title="Permalink to this heading">¶</a></h2>
-<p>Ваша конфигурация представляет собой совокупность компонентов:
-Docker-контейнер с SSH сервером, Triton Server и FastAPI сервером.
-Ниже представлена детальная инструкция по развертыванию данного решения.</p>
 <section id="id2">
 <h3>Клонирование репозитория<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
 <p>Клонируйте ваш репозиторий с Dockerfile и остальными необходимыми файлами в вашу рабочую среду:</p>
@@ -196,15 +213,31 @@ id<span class="w"> </span>-g<span class="w">   </span><span class="c1"># USER_GI
 </div>
 </section>
 <section id="id3">
-<h3>Запуск контейнера<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
+<h3>Подготовка хранилища<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
+<p>В конфигурации docker-compose.yaml определены два тома:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>./storage:/storage</cite> - Общее хранилище для файлов.</p></li>
+</ul>
+<p>Это место, где можно хранить различные данные, доступ к которым необходим из контейнера.
+Все файлы, помещенные в локальную папку storage, будут доступны внутри контейнера по пути /storage.
+* <cite>./storage/model_repository:/models</cite> - Репозиторий моделей для Triton Server.
+Этот том используется для хранения моделей,
+которые Triton Server будет использовать для выполнения инференса.
+Модели должны быть организованы в соответствии с требованиями Triton Server,
+и они должны быть доступны в папке storage/model_repository на хосте.</p>
+</div></blockquote>
+</section>
+<section id="id4">
+<h3>Запуск контейнера<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
 <p>Используйте Docker Compose для сборки и запуска вашего контейнера:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker-compose<span class="w"> </span>up<span class="w"> </span>--build<span class="w"> </span>-d
 </pre></div>
 </div>
 <p>Команда соберет образ и запустит контейнер на основе вашего docker-compose.yaml и Dockerfile.</p>
 </section>
-<section id="id4">
-<h3>Проверка работы сервисов<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
+<section id="id5">
+<h3>Проверка работы сервисов<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
 <section id="ssh">
 <h4>Проверка SSH<a class="headerlink" href="#ssh" title="Permalink to this heading">¶</a></h4>
 <p>После того как контейнер будет запущен, вы можете проверить SSH доступ:</p>
@@ -233,15 +266,15 @@ id<span class="w"> </span>-g<span class="w">   </span><span class="c1"># USER_GI
 </section>
 <section id="triton-server">
 <h4>Проверка Triton Server<a class="headerlink" href="#triton-server" title="Permalink to this heading">¶</a></h4>
-<p>Для проверки сервера Triton убедитесь, что он доступен и работает, открыв в браузере:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>http://localhost:8100/v2/health/live
+<p>Для проверки сервера Triton убедитесь, что он доступен и работает, выполнив команду:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-o<span class="w"> </span>/dev/null<span class="w"> </span>-s<span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;%{http_code}\n&quot;</span><span class="w"> </span>http://localhost:8100/v2/health/live
 </pre></div>
 </div>
-<p>Это покажет, жив ли Triton server.</p>
+<p>Если Triton server жив, то команда вернет код 200.</p>
 </section>
 </section>
-<section id="id5">
-<h3>Остановка и очистка<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
+<section id="id6">
+<h3>Остановка и очистка<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h3>
 <p>Для остановки и удаления контейнера используйте следующую команду Docker Compose:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker-compose<span class="w"> </span>down
 </pre></div>
@@ -255,6 +288,10 @@ id<span class="w"> </span>-g<span class="w">   </span><span class="c1"># USER_GI
           </div>
           <div class="page-nav">
             <div class="inner"><ul class="page-nav">
+  <li class="prev">
+    <a href="postgres.html"
+       title="предыдущая глава">← PostgreSQL</a>
+  </li>
 </ul><div class="footer" role="contentinfo">
       &#169; Copyright 2024, t1masavin, sanchopanso, romaniox.
     <br>
