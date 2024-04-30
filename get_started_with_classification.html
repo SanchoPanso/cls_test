@@ -211,14 +211,14 @@
 </div>
 <p>После выполнения этой команды в корневой папке репозитория должна появиться
 папка classification_data со следующим содержанием:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-<span class="w"> </span>classification_data/
-<span class="w">   </span>-<span class="w"> </span>pictures/
-<span class="w">      </span>-<span class="w"> </span>...
-<span class="w">   </span>-<span class="w"> </span>meta/
-<span class="w">      </span>-<span class="w"> </span>...
-<span class="w">   </span>-<span class="w"> </span>datasets/
-<span class="w">     </span>-<span class="w"> </span>tits_size/
-<span class="w">         </span>-<span class="w"> </span>tits_size.json
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">classification_data</span><span class="o">/</span>
+   <span class="o">-</span> <span class="n">pictures</span><span class="o">/</span>
+      <span class="o">-</span> <span class="o">...</span>
+   <span class="o">-</span> <span class="n">meta</span><span class="o">/</span>
+      <span class="o">-</span> <span class="o">...</span>
+   <span class="o">-</span> <span class="n">datasets</span><span class="o">/</span>
+     <span class="o">-</span> <span class="n">tits_size</span><span class="o">/</span>
+         <span class="o">-</span> <span class="n">tits_size</span><span class="o">.</span><span class="n">json</span>
 </pre></div>
 </div>
 <p>Что произошло? Создалась папка с данными <cite>classification_data</cite>, путь к которой прописан в файле конфигурации.
@@ -253,14 +253,18 @@ scp<span class="w"> </span>-P<span class="w"> </span><span class="m">4000</span>
 В реальности количество эпох обычно больше 50.</p>
 <p>После этого в папке classification_data/models/tits_size появится папка с прошедшим экспериментом,
 в которой можно найти логи и полученные модели:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-<span class="w"> </span>DATA/models/tits_size/v__0_train_eff_16_0.001/
-<span class="w">   </span>-<span class="w"> </span>checkpoints/
-<span class="w">   </span>-<span class="w"> </span>csv_logs/
-<span class="w">   </span>-<span class="w"> </span>onnx/
-<span class="w">   </span>-<span class="w"> </span>torchscripts/
-<span class="w">   </span>-<span class="w"> </span>train_batches/
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">DATA</span><span class="o">/</span><span class="n">models</span><span class="o">/</span><span class="n">tits_size</span><span class="o">/</span><span class="n">v__0_train_eff_16_0</span><span class="mf">.001</span><span class="o">/</span>
 </pre></div>
 </div>
+<blockquote>
+<div><ul class="simple">
+<li><p>checkpoints/</p></li>
+<li><p>csv_logs/</p></li>
+<li><p>onnx/</p></li>
+<li><p>torchscripts/</p></li>
+<li><p>train_batches/</p></li>
+</ul>
+</div></blockquote>
 <ul class="simple">
 <li><p>checkpoints - папка с чекпоинтами в формате pytorch-lightning;</p></li>
 <li><p>csv_logs - папка с логом тренировки в формате csv;</p></li>
@@ -278,15 +282,15 @@ scp<span class="w"> </span>-P<span class="w"> </span><span class="m">4000</span>
 </div>
 <p>Скрипт автоматически найдет последнюю обученную модель для группы tits_size и произведет конвертацию.
 После выполнения появится папка со следующим содержанием:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-<span class="w"> </span>classification_data/
-<span class="w">    </span>-<span class="w"> </span>inference_models/
-<span class="w">        </span>-<span class="w"> </span>tits_size/
-<span class="w">            </span>-<span class="w"> </span>inference_model
-<span class="w">                </span>-meta.json
-<span class="w">                </span>-<span class="w"> </span>model.onnx
-<span class="w">                </span>-<span class="w"> </span>model_onnx.zip<span class="w">    </span><span class="c1"># версия модели для triton в формате onnx</span>
-<span class="w">                </span>-<span class="w"> </span>model.plan
-<span class="w">                </span>-<span class="w"> </span>model_trt.zip<span class="w">     </span><span class="c1"># версия модели для triton в формате trt</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">classification_data</span><span class="o">/</span>
+    <span class="o">-</span> <span class="n">inference_models</span><span class="o">/</span>
+        <span class="o">-</span> <span class="n">tits_size</span><span class="o">/</span>
+            <span class="o">-</span> <span class="n">inference_model</span>
+                <span class="o">-</span><span class="n">meta</span><span class="o">.</span><span class="n">json</span>
+                <span class="o">-</span> <span class="n">model</span><span class="o">.</span><span class="n">onnx</span>
+                <span class="o">-</span> <span class="n">model_onnx</span><span class="o">.</span><span class="n">zip</span>    <span class="c1"># версия модели для triton в формате onnx</span>
+                <span class="o">-</span> <span class="n">model</span><span class="o">.</span><span class="n">plan</span>
+                <span class="o">-</span> <span class="n">model_trt</span><span class="o">.</span><span class="n">zip</span>     <span class="c1"># версия модели для triton в формате trt</span>
 </pre></div>
 </div>
 <p>Чтобы отправить trt-модель в общее хранилище, с присвоением версии (к примеру, 0.0.2),
@@ -295,7 +299,7 @@ scp<span class="w"> </span>-P<span class="w"> </span><span class="m">4000</span>
 <span class="s1">&#39;http://localhost:8300/upload_new_version/&#39;</span><span class="w"> </span><span class="se">\</span>
 -H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
 -H<span class="w"> </span><span class="s1">&#39;Content-Type: multipart/form-data&#39;</span><span class="w"> </span><span class="se">\</span>
--F<span class="w"> </span><span class="s1">&#39;src_file=@classification_data_test/inference_models/tits_size/inference_model/model_trt.zip;type=application/x-zip-compressed&#39;</span><span class="w"> </span><span class="se">\</span>
+-F<span class="w"> </span><span class="s1">&#39;src_file=@classification_data/inference_models/tits_size/inference_model/model_trt.zip;type=application/x-zip-compressed&#39;</span><span class="w"> </span><span class="se">\</span>
 -F<span class="w"> </span><span class="s1">&#39;model_name=tits_size&#39;</span><span class="w"> </span><span class="se">\</span>
 -F<span class="w"> </span><span class="s1">&#39;model_version=0.0.2&#39;</span>
 </pre></div>
@@ -303,7 +307,7 @@ scp<span class="w"> </span>-P<span class="w"> </span><span class="m">4000</span>
 <p>В ответ должно вернуться {«version»: «0.0.2»}, что скажет об успешной доставке модели в хранилище.</p>
 <div class="admonition note">
 <p class="admonition-title">Примечание</p>
-<p>В будущем планируется обернуть этот вызов в отдельный скрипт</p>
+<p>В будущем планируется обернуть этот вызов в отдельный скрипт.</p>
 </div>
 </section>
 <section id="id5">

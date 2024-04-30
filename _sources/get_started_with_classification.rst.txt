@@ -29,9 +29,7 @@
    python cls/classification/load_group.py --group tits_size
 
 После выполнения этой команды в корневой папке репозитория должна появиться 
-папка classification_data со следующим содержанием:
-
-.. code-block:: bash
+папка classification_data со следующим содержанием::
 
    - classification_data/
       - pictures/
@@ -87,11 +85,9 @@
 В реальности количество эпох обычно больше 50.
 
 После этого в папке classification_data/models/tits_size появится папка с прошедшим экспериментом, 
-в которой можно найти логи и полученные модели:
+в которой можно найти логи и полученные модели::
 
-.. code-block:: bash
-
-   - DATA/models/tits_size/v__0_train_eff_16_0.001/
+- DATA/models/tits_size/v__0_train_eff_16_0.001/
       - checkpoints/  
       - csv_logs/  
       - onnx/  
@@ -115,9 +111,7 @@
    python cls/classification/export.py --group tits_size
 
 Скрипт автоматически найдет последнюю обученную модель для группы tits_size и произведет конвертацию.
-После выполнения появится папка со следующим содержанием:
-
-.. code-block:: bash
+После выполнения появится папка со следующим содержанием::
 
     - classification_data/
         - inference_models/
@@ -138,7 +132,7 @@
     'http://localhost:8300/upload_new_version/' \
     -H 'accept: application/json' \
     -H 'Content-Type: multipart/form-data' \
-    -F 'src_file=@classification_data_test/inference_models/tits_size/inference_model/model_trt.zip;type=application/x-zip-compressed' \
+    -F 'src_file=@classification_data/inference_models/tits_size/inference_model/model_trt.zip;type=application/x-zip-compressed' \
     -F 'model_name=tits_size' \
     -F 'model_version=0.0.2'
 
@@ -146,7 +140,7 @@
 
 .. note::
 
-    В будущем планируется обернуть этот вызов в отдельный скрипт
+    В будущем планируется обернуть этот вызов в отдельный скрипт.
 
 
 Что дальше?
