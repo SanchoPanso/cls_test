@@ -37,4 +37,5 @@
    demonstration
    configuration
    postgres
+   deployment
 
