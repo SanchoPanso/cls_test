@@ -16,6 +16,16 @@
 Затем укажите параметры подключения в файле конфигурации проекта.
 Подробнее см. :doc:`postgres`.
 
+.. note::
+
+   Как правило, база данных уже развернута.
+   Проверить это можно, запустив команду `docker ps`. 
+   По умалчанию в списке контейнеров требуемая БД будет выглядеть примерно так:
+
+   .. code-block :: bash
+
+      7d5f83ae53dd   postgres:16.1-alpine3.19       "docker-entrypoint.s…"   3 months ago   Up 12 days    0.0.0.0:5432->5432/tcp, :::5432->5432/tcp     postgresql_postgres_1
+
 
 Скачивание датасета
 -------------------
@@ -29,7 +39,9 @@
    python cls/classification/load_group.py --group tits_size
 
 После выполнения этой команды в корневой папке репозитория должна появиться 
-папка classification_data со следующим содержанием::
+папка classification_data со следующим содержанием:
+
+.. code-block:: bash
 
    - classification_data/
       - pictures/
@@ -67,6 +79,17 @@
 
    python cls/classification/segment_builder.py --model_path person_models/best.pt
 
+.. note::
+
+   Если база данных уже развернута, скорее всего, картинки уже пройдены,
+   процесс завершится быстро и в логе вы увидите следующее сообщение:
+
+   .. code-block:: bash
+
+      __main__: DB already has 37805 images, that will be skiped during segmentation
+   
+   Так и задумано. Если вы хотите перезаписать сегментацию, то используйте флаг `--process_all`
+   
 
 Чтобы обучить новую модель сегментции, см. :doc:`instance_segmentation`.
 
@@ -81,18 +104,23 @@
 
    python cls/classification/train.py --cat tits_size --epochs 1 --batch 4
 
-Это обучение всего лишь на одну эпоху. Оно сделано просто в качестве демонстрации.
-В реальности количество эпох обычно больше 50.
+.. note:: 
+
+   Это обучение всего лишь на одну эпоху и с маленьким батчем. 
+   Оно сделано просто в качестве демонстрации.
+   В реальности количество эпох обычно больше 50, а батч - больше 16.
 
 После этого в папке classification_data/models/tits_size появится папка с прошедшим экспериментом, 
-в которой можно найти логи и полученные модели::
+в которой можно найти логи и полученные модели:
 
-- DATA/models/tits_size/v__0_train_eff_16_0.001/
-      - checkpoints/  
-      - csv_logs/  
-      - onnx/  
-      - torchscripts/  
-      - train_batches/
+.. code-block:: bash
+
+   - DATA/models/tits_size/v__0_train_eff_16_0.001/
+         - checkpoints/  
+         - csv_logs/  
+         - onnx/  
+         - torchscripts/  
+         - train_batches/
 
 * checkpoints - папка с чекпоинтами в формате pytorch-lightning;
 * csv_logs - папка с логом тренировки в формате csv;
@@ -111,12 +139,14 @@
    python cls/classification/export.py --group tits_size
 
 Скрипт автоматически найдет последнюю обученную модель для группы tits_size и произведет конвертацию.
-После выполнения появится папка со следующим содержанием::
+После выполнения появится папка со следующим содержанием:
+
+.. code-block:: bash
 
     - classification_data/
         - inference_models/
             - tits_size/
-                - inference_model
+                - inference_model/
                     -meta.json  
                     - model.onnx  
                     - model_onnx.zip    # версия модели для triton в формате onnx
