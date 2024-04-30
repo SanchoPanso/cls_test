@@ -102,6 +102,8 @@
                 
                   <li class="toctree-l2"><a href="#id2" class="reference internal">Экспорт модели YOLOv8 в формат для инференса</a></li>
                 
+                  <li class="toctree-l2"><a href="#id3" class="reference internal">Что дальше?</a></li>
+                
               </ul>
             
           </li>
@@ -185,38 +187,26 @@
             
   <section id="c">
 <h1>Начало работы с cегментацией<a class="headerlink" href="#c" title="Permalink to this heading">¶</a></h1>
-<p><a class="reference external" href="https://paperswithcode.com/task/instance-segmentation">Instance Segmentation</a> -
-задача компьютерного зрения, целью которой является нахождение отдельных объектов на изображении,
-которое включет в себя определение границ каждого объекта, присвоение каждому объекту метки класса и
-определение попиксельной маски объекта.</p>
-<p>В этом разделе описывается процесс подготовки и обучения модели YOLOv8 для задачи инстансной сегментации.
-Он включает в себя описание следующих шагов:</p>
-<ul class="simple">
-<li><p>Создание датасета в формате YOLO</p></li>
-<li><p>Обучение модели YOLOv8 на задачу сегментации</p></li>
-<li><p>Экспорт модели YOLOv8 в формат для инференса</p></li>
-</ul>
+<p>В этом разделе описывается процесс подготовки и обучения модели YOLOv8 для задачи инстансной сегментации.</p>
 <section id="id1">
 <h2>Получение исходного датасета<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
-<p>Для тренировки нужны исходные датасеты в формате COCO.
-Скачаем и распакуем демонстрационный датасет
-из общего хранилища (пароль ssh - «password»):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>segmentation_data_test/initial_datasets
+<p>Для тренировки нужны исходные датасеты в формате COCO, которые собираются разметчиками.
+В целях демонстрации скачаем и распакуем в папку <cite>segmentation_data/initial_datasets</cite>
+небольшой демонстрационный датасет из общего хранилища (пароль ssh - «password»):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>segmentation_data/initial_datasets
 scp<span class="w"> </span>-P<span class="w"> </span><span class="m">4000</span><span class="w"> </span>user@0.0.0.0:/storage/other/segmentation_dataset.zip<span class="w"> </span>segmentation_data_test/initial_datasets/segmentation_dataset.zip
-unzip<span class="w"> </span>segmentation_data_test/initial_datasets/segmentation_dataset.zip<span class="w"> </span>-d<span class="w"> </span>segmentation_data_test/initial_datasets/
+unzip<span class="w"> </span>segmentation_data/initial_datasets/segmentation_dataset.zip<span class="w"> </span>-d<span class="w"> </span>segmentation_data/initial_datasets/
 </pre></div>
 </div>
-<p>python cls/instance_segmentation/create_yolo_dataset.py
-python cls/instance_segmentation/train_yolo_seg.py –model yolov8s-seg.pt –epochs 1</p>
 </section>
 <section id="yolo">
 <h2>Создание датасета в формате YOLO<a class="headerlink" href="#yolo" title="Permalink to this heading">¶</a></h2>
 <p>Скрипт create_yolo_dataset.py предназначен для конвертации датасетов, аннотированных в формате COCO,
 в формат, совместимый с моделью YOLO.
 Это первый шаг в подготовке данных для обучения.</p>
-<p>Перед использованием скрипта, убедитесь, что исходные датасеты размещены в папке segmentation_data/source_datasets.
-В этой папке должна быть следующая структура:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-<span class="w"> </span>segmentation_data/source_datasets/
+<p>Итак, мы имеем исходные данные в папке segmentation_data/initial_datasets.
+В этой папке для всех датасетов должна быть следующая структура:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-<span class="w"> </span>segmentation_data/initial_datasets/
 <span class="w">    </span>-<span class="w"> </span>dataset1/
 <span class="w">        </span>-<span class="w"> </span>images/
 <span class="w">        </span>-<span class="w"> </span>annotations/
@@ -228,21 +218,8 @@ python cls/instance_segmentation/train_yolo_seg.py –model yolov8s-seg.pt –ep
 <span class="w">    </span>-...
 </pre></div>
 </div>
-<dl class="simple">
-<dt>Скрипт анализирует исходные аннотации COCO, извлекает информацию о положении объектов (bounding boxes)</dt><dd><p>и их классификации, после чего преобразует её в нужный формат.</p>
-</dd>
-</dl>
-<p>Использование:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>create_yolo_dataset.py<span class="w"> </span>--src_dir<span class="w"> </span>&lt;path_to_coco_annotations&gt;<span class="w"> </span>--dst_dir<span class="w"> </span>&lt;path_to_yolo_dataset&gt;
-</pre></div>
-</div>
-<p>Параметры командной строки:</p>
-<ul class="simple">
-<li><p>–src_dir: путь к папке с исходными датасетами в формате COCO.</p></li>
-<li><p>–dst_dir: путь к папке для сохранения датасета в формате YOLO.</p></li>
-</ul>
-<p>Для примера возьмем датасеты из папки <cite>segmentation_data/source_datasets</cite> и преобразуем их в датасет YOLO в папке <cite>segmentation_data/prepared_datasets/yolo_dataset</cite>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>create_yolo_dataset.py<span class="w"> </span>--src_dir<span class="w"> </span>segmentation_data/source_datasets<span class="w"> </span>--dst_dir<span class="w"> </span>segmentation_data/prepared_datasets/yolo_dataset
+<p>Для того, чтобы прочитать все исходные датасеты и сложить подготовленный датасет в папку <cite>segmentation_data/prepared_datasets</cite>, воспользуйтесь следующей командной:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>cls/instance_segmentation/create_yolo_dataset.py
 </pre></div>
 </div>
 <p>В итоге должна получиться папка со следующей структурой:</p>
@@ -259,49 +236,30 @@ python cls/instance_segmentation/train_yolo_seg.py –model yolov8s-seg.pt –ep
 </section>
 <section id="yolov8">
 <h2>Обучение модели YOLOv8 на задачу сегментации<a class="headerlink" href="#yolov8" title="Permalink to this heading">¶</a></h2>
-<p>Скрипт train_yolo_seg.py используется для обучения модели YOLOv8, используя подготовленный на предыдущем шаге датасет.
-Этот процесс является вторым шагом в подготовке модели к работе по задаче инстансной сегментации.</p>
-<p>Скрипт инициирует обучение модели с возможностью настройки различных параметров,
+<p>Скрипт train_yolo_seg.py используется для обучения модели YOLOv8,
+используя подготовленный на предыдущем шаге датасет.
+Скрипт инициирует обучение модели с возможностью настройки различных параметров,
 таких как количество эпох, размер батча и скорость обучения.</p>
 <div class="admonition note">
 <p class="admonition-title">Примечание</p>
 <p>Также для обучения предусмотрена возможность логирования результатов в W&amp;B.
-Для этого потребуется зарегистрироваться на сервисе <a class="reference external" href="https://wandb.ai/">https://wandb.ai/</a> и предоставить api-ключ во время тренировки.</p>
+Для ее использования потребуется зарегистрироваться на сервисе <a class="reference external" href="https://wandb.ai/">https://wandb.ai/</a> и
+предоставить api-ключ во время тренировки.</p>
 </div>
-<p>Использование:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>train_yolo_seg.py<span class="w"> </span>--model<span class="w"> </span>&lt;path_to_model&gt;<span class="w"> </span>--project<span class="w"> </span>&lt;name_of_project&gt;<span class="w"> </span>--data<span class="w"> </span>&lt;path_to_yolo_dataset&gt;<span class="w"> </span>--epochs<span class="w"> </span>&lt;num_epochs&gt;<span class="w"> </span>--batch_size<span class="w"> </span>&lt;batch_size&gt;
-</pre></div>
-</div>
-<p>Параметры командной строки:</p>
-<ul class="simple">
-<li><p>–model: путь к обучаемой модели.</p></li>
-<li><p>–project: название проекта (относительный путь к папке с прогонами)</p></li>
-<li><p>–data: путь к подготовленному датасету в формате YOLO.</p></li>
-<li><p>–epochs: количество эпох для обучения.</p></li>
-<li><p>–batch-size: размер батча.</p></li>
-</ul>
-<div class="admonition note">
-<p class="admonition-title">Примечание</p>
-<p>Проверьте совместимость настроек обучения с вашей аппаратной конфигурацией,
-особенно при использовании GPU, чтобы избежать проблем с переполнением памяти.</p>
-</div>
-<p>Для примера возмем полученный YOLO датасет в папке <cite>segmentation_data/prepared_datasets/yolo_dataset</cite> и обучим на нем model <cite>yolov8x-seg.pt</cite>.
-Количество эпох поставим равным 1, чтобы быстрее увидеть результат. В реальной ситуации количество эпох обычно начинается от 50.
-Остальные параметры оставим по умолчанию.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>train_yolo_seg.py<span class="w"> </span>--data<span class="w"> </span>segmentation_data/prepared_datasets/yolo_dataset/data.yaml<span class="w"> </span>--model<span class="w"> </span>yolov8x-seg.pt
+<p>Обучим модель на подготовленных данных:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>cls/instance_segmentation/train_yolo_seg.py<span class="w"> </span>--model<span class="w"> </span>yolov8s-seg.pt<span class="w"> </span>--epochs<span class="w"> </span><span class="m">1</span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Примечание</p>
-<p>Для тренировки используется библиотека ultralytics.
-Поэтому при необходимости более тонкой настройки параметров, стоит обратиться к ней.</p>
+<p>Здесь используется легковесная модель <cite>yolov8s-seg.pt</cite> и небольшое количество эпох 1.
+В реальности используется тяжелая модель <cite>yolov8x-seg.pt</cite> и количество эпох больше 100.</p>
 </div>
-<p>После того, как тренировка закончилась, появится папка <cite>yolov8_seg_runs</cite>, в которой будут лежать результаты тренировки.
-Помимо прочих результатов, в папке с прогоном можно найти натренированную модель <cite>best.pt</cite>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-<span class="w"> </span>yolov8_seg_runs/
+<p>В итоге получится следующая папка:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-<span class="w"> </span>segmntation_data/models/
 <span class="w">    </span>-<span class="w"> </span>train/
 <span class="w">        </span>-<span class="w"> </span>weights/
-<span class="w">            </span>-<span class="w"> </span>best.pt
+<span class="w">            </span>-<span class="w"> </span>best.pt<span class="w">   </span><span class="c1"># Лучшая модель, полученная во время тренировки</span>
 <span class="w">            </span>-<span class="w"> </span>last.pt
 <span class="w">        </span>-<span class="w"> </span>...
 </pre></div>
@@ -311,15 +269,32 @@ python cls/instance_segmentation/train_yolo_seg.py –model yolov8s-seg.pt –ep
 <h2>Экспорт модели YOLOv8 в формат для инференса<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
 <p>Для того, чтобы обеспечить эффективную работу полученной сети и совместимость с Triton Inference Server,
 ее необходимо конвертировать в соответствующий формат.
-Возьмем полученную модель <cite>best.pt</cite> и преобразуем ее, воспользуйтесь следующей командой:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>export_to_trt.py<span class="w"> </span>--src_path<span class="w"> </span>yolov8_seg_runs/train/weights/best.pt<span class="w"> </span>--dst_path<span class="w"> </span>segmentation_data/inference_models/new_model
+Возьмем последнюю полученную модель и преобразуем ее, воспользуйтесь следующей командой:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>export_to_trt.py
 </pre></div>
 </div>
-<p>После этого в segmentation_data/inference_models/new_model появится папки с моделью в формате TensorRT
-и в формате ONNX с файлами конфигурации для работы с Triton:</p>
-<p>Папки <cite>model_onnx</cite> и <cite>model_trt</cite> - модели для инференса для репозитория моделей в Triton Server.
-Наиболее оптимальной является <cite>model_trt</cite> и она используется по умолчанию.
-Для ее запуска разместите ее в репозитории моделей.</p>
+<p>После этого в segmentation_data/inference_models/instance_segmentation_model появятся модели в формате TensorRT
+и в формате ONNX для работы с Triton, файл с метаданными и подготовленные архивы для отправки в хранилище:</p>
+<p>Чтобы отправить trt-модель в общее хранилище, с присвоением версии (к примеру, 0.0.2),
+воспользуйтесь API от model storage:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="s1">&#39;http://localhost:8300/upload_new_version/&#39;</span><span class="w"> </span><span class="se">\</span>
+-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+-H<span class="w"> </span><span class="s1">&#39;Content-Type: multipart/form-data&#39;</span><span class="w"> </span><span class="se">\</span>
+-F<span class="w"> </span><span class="s1">&#39;src_file=@segmentation_data/inference_models/instance_segmentation_model/model_trt.zip;type=application/x-zip-compressed&#39;</span><span class="w"> </span><span class="se">\</span>
+-F<span class="w"> </span><span class="s1">&#39;model_name=tits_size&#39;</span><span class="w"> </span><span class="se">\</span>
+-F<span class="w"> </span><span class="s1">&#39;model_version=0.0.2&#39;</span>
+</pre></div>
+</div>
+<p>В ответ должно вернуться {«version»: «0.0.2»}, что скажет об успешной доставке модели в хранилище.</p>
+<div class="admonition note">
+<p class="admonition-title">Примечание</p>
+<p>В будущем планируется обернуть этот вызов в отдельный скрипт.</p>
+</div>
+</section>
+<section id="id3">
+<h2>Что дальше?<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
+<p>Чтобы подробнее ознакомиться с возможностями этоо модуля, обратитесь к <a class="reference internal" href="instance_segmentation.html"><span class="doc">Сегментация</span></a>.</p>
 </section>
 </section>
 
