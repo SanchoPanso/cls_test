@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html  lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+      <title>Разворачивание</title>
+    
+          <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+          <link rel="stylesheet" href="_static/theme.css " type="text/css" />
+      
+      <!-- sphinx script_files -->
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/translations.js"></script>
+
+      
+      <!-- bundled in js (rollup iife) -->
+      <!-- <script src="_static/theme-vendors.js"></script> -->
+      <script src="_static/theme.js" defer></script>
+    
+  <link rel="index" title="Алфавитный указатель" href="genindex.html" />
+  <link rel="search" title="Поиск" href="search.html" /> 
+  </head>
+
+  <body>
+    <div id="app">
+    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="index.html" class="home-link">
+    
+      <span class="site-name">CLS</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Быстрый поиск</span>
+    <div class="searchformwrapper">
+      <form class="search" action="search.html" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Поиск" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="index.html#id3">содержание</a></span>
+      </p>
+      <ul class="">
+        
+          <li class="toctree-l1 ">
+            
+              <a href="get_started_with_classification.html" class="reference internal ">Начало работы с классификацией</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="get_started_with_instance_segmentation.html" class="reference internal ">Начало работы с cегментацией</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="classification.html" class="reference internal ">Классификация</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="instance_segmentation.html" class="reference internal ">Сегментация</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="demonstration.html" class="reference internal ">Demonstration</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="configuration.html" class="reference internal ">Формат конфигурации</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="postgres.html" class="reference internal ">PostgreSQL</a>
+            
+
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+    
+    <li>Разворачивание</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main" v-pre>
+            
+  <section id="id1">
+<h1>Разворачивание<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h1>
+<section id="model-storage">
+<h2>Model Storage<a class="headerlink" href="#model-storage" title="Permalink to this heading">¶</a></h2>
+<p>Ваша конфигурация представляет собой совокупность компонентов:
+Docker-контейнер с SSH сервером, Triton Server и FastAPI сервером.
+Ниже представлена детальная инструкция по развертыванию данного решения.</p>
+<section id="id2">
+<h3>Клонирование репозитория<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<p>Клонируйте ваш репозиторий с Dockerfile и остальными необходимыми файлами в вашу рабочую среду:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/SanchoPanso/model_storage.git
+<span class="nb">cd</span><span class="w"> </span>model_storage
+</pre></div>
+</div>
+</section>
+<section id="env">
+<h3>Конфигурация .env файла<a class="headerlink" href="#env" title="Permalink to this heading">¶</a></h3>
+<p>Убедитесь, что файл <cite>.env</cite> находится в корне вашего проекта и
+содержит нужные переменные окружения.
+Проверьте, чтобы значения в файле соответствовали
+вашим требованиям безопасности и конфиденциальности.</p>
+<div class="admonition note">
+<p class="admonition-title">Примечание</p>
+<p>Скорее всего, ничего менять не нужно. Однако, могут возникнуть
+проблемы с доступом к файлам, созданным в volume из запущенного контейнера.
+Поэтому вам может понадобиться установить
+номер пользователя USER_UID и номер группы USER_GID,
+равными значениям у вашего локального пользователя, которые можно найти командами:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>id<span class="w"> </span>-u<span class="w">   </span><span class="c1"># USER_UID</span>
+id<span class="w"> </span>-g<span class="w">   </span><span class="c1"># USER_GID</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="id3">
+<h3>Запуск контейнера<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
+<p>Используйте Docker Compose для сборки и запуска вашего контейнера:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker-compose<span class="w"> </span>up<span class="w"> </span>--build<span class="w"> </span>-d
+</pre></div>
+</div>
+<p>Команда соберет образ и запустит контейнер на основе вашего docker-compose.yaml и Dockerfile.</p>
+</section>
+<section id="id4">
+<h3>Проверка работы сервисов<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
+<section id="ssh">
+<h4>Проверка SSH<a class="headerlink" href="#ssh" title="Permalink to this heading">¶</a></h4>
+<p>После того как контейнер будет запущен, вы можете проверить SSH доступ:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ssh<span class="w"> </span>user@0.0.0.0<span class="w"> </span>-p<span class="w"> </span><span class="m">4000</span>
+</pre></div>
+</div>
+<p>Замените user, если вы использовали другое значение в вашем .env файле.
+Также предоставьте пароль, записанный в том же .env файле.</p>
+</section>
+<section id="fastapi">
+<h4>Проверка FastAPI<a class="headerlink" href="#fastapi" title="Permalink to this heading">¶</a></h4>
+<p>Откройте в браузере следующий URL для доступа к FastAPI серверу:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>http://localhost:8300/docs
+</pre></div>
+</div>
+<p>Здесь вы сможете увидеть сваггер документацию вашего API.</p>
+<div class="admonition note">
+<p class="admonition-title">Примечание</p>
+<p>Если вы работаете на удаленном компьютере с досупом по SSH,
+используйте проброс порта на локальную машину,
+чтобы иметь доступ к сервису, в том числе и в браузере:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ssh<span class="w"> </span>-L<span class="w"> </span><span class="m">8300</span>:localhost:8300<span class="w"> </span>achernikov@88.146.116.23<span class="w"> </span>-p<span class="w"> </span><span class="m">999</span><span class="w"> </span>-i<span class="w"> </span>&lt;path-to-your-private-key&gt;
+</pre></div>
+</div>
+</div>
+</section>
+<section id="triton-server">
+<h4>Проверка Triton Server<a class="headerlink" href="#triton-server" title="Permalink to this heading">¶</a></h4>
+<p>Для проверки сервера Triton убедитесь, что он доступен и работает, открыв в браузере:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>http://localhost:8100/v2/health/live
+</pre></div>
+</div>
+<p>Это покажет, жив ли Triton server.</p>
+</section>
+</section>
+<section id="id5">
+<h3>Остановка и очистка<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
+<p>Для остановки и удаления контейнера используйте следующую команду Docker Compose:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker-compose<span class="w"> </span>down
+</pre></div>
+</div>
+<p>Это остановит и удалит все контейнеры, а также сеть, которые были созданы.</p>
+</section>
+</section>
+</section>
+
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2024, t1masavin, sanchopanso, romaniox.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.9.1.
+</div>
+            </div>
+          </div>
+      </page>
+    </div></div>
+    
+    
+  </body>
+</html>
