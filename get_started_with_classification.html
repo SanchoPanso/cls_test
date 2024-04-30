@@ -200,6 +200,15 @@
 <p>Прежде чем начать работу, убедитесь, что у вас установлен и запущен PostgreSQL.
 Затем укажите параметры подключения в файле конфигурации проекта.
 Подробнее см. <a class="reference internal" href="postgres.html"><span class="doc">PostgreSQL</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Примечание</p>
+<p>Как правило, база данных уже развернута.
+Проверить это можно, запустив команду <cite>docker ps</cite>.
+По умалчанию в списке контейнеров требуемая БД будет выглядеть примерно так:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>7d5f83ae53dd<span class="w">   </span>postgres:16.1-alpine3.19<span class="w">       </span><span class="s2">&quot;docker-entrypoint.s…&quot;</span><span class="w">   </span><span class="m">3</span><span class="w"> </span>months<span class="w"> </span>ago<span class="w">   </span>Up<span class="w"> </span><span class="m">12</span><span class="w"> </span>days<span class="w">    </span><span class="m">0</span>.0.0.0:5432-&gt;5432/tcp,<span class="w"> </span>:::5432-&gt;5432/tcp<span class="w">     </span>postgresql_postgres_1
+</pre></div>
+</div>
+</div>
 </section>
 <section id="id2">
 <h2>Скачивание датасета<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
@@ -211,14 +220,14 @@
 </div>
 <p>После выполнения этой команды в корневой папке репозитория должна появиться
 папка classification_data со следующим содержанием:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">classification_data</span><span class="o">/</span>
-   <span class="o">-</span> <span class="n">pictures</span><span class="o">/</span>
-      <span class="o">-</span> <span class="o">...</span>
-   <span class="o">-</span> <span class="n">meta</span><span class="o">/</span>
-      <span class="o">-</span> <span class="o">...</span>
-   <span class="o">-</span> <span class="n">datasets</span><span class="o">/</span>
-     <span class="o">-</span> <span class="n">tits_size</span><span class="o">/</span>
-         <span class="o">-</span> <span class="n">tits_size</span><span class="o">.</span><span class="n">json</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-<span class="w"> </span>classification_data/
+<span class="w">   </span>-<span class="w"> </span>pictures/
+<span class="w">      </span>-<span class="w"> </span>...
+<span class="w">   </span>-<span class="w"> </span>meta/
+<span class="w">      </span>-<span class="w"> </span>...
+<span class="w">   </span>-<span class="w"> </span>datasets/
+<span class="w">     </span>-<span class="w"> </span>tits_size/
+<span class="w">         </span>-<span class="w"> </span>tits_size.json
 </pre></div>
 </div>
 <p>Что произошло? Создалась папка с данными <cite>classification_data</cite>, путь к которой прописан в файле конфигурации.
@@ -240,6 +249,15 @@ scp<span class="w"> </span>-P<span class="w"> </span><span class="m">4000</span>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>cls/classification/segment_builder.py<span class="w"> </span>--model_path<span class="w"> </span>person_models/best.pt
 </pre></div>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Примечание</p>
+<p>Если база данных уже развернута, скорее всего, картинки уже пройдены,
+процесс завершится быстро и в логе вы увидите следующее сообщение:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>__main__:<span class="w"> </span>DB<span class="w"> </span>already<span class="w"> </span>has<span class="w"> </span><span class="m">37805</span><span class="w"> </span>images,<span class="w"> </span>that<span class="w"> </span>will<span class="w"> </span>be<span class="w"> </span>skiped<span class="w"> </span>during<span class="w"> </span>segmentation
+</pre></div>
+</div>
+<p>Так и задумано. Если вы хотите перезаписать сегментацию, то используйте флаг <cite>–process_all</cite></p>
+</div>
 <p>Чтобы обучить новую модель сегментции, см. <a class="reference internal" href="instance_segmentation.html"><span class="doc">Сегментация</span></a>.</p>
 </section>
 <section id="id4">
@@ -249,22 +267,22 @@ scp<span class="w"> </span>-P<span class="w"> </span><span class="m">4000</span>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>cls/classification/train.py<span class="w"> </span>--cat<span class="w"> </span>tits_size<span class="w"> </span>--epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span>--batch<span class="w"> </span><span class="m">4</span>
 </pre></div>
 </div>
-<p>Это обучение всего лишь на одну эпоху. Оно сделано просто в качестве демонстрации.
-В реальности количество эпох обычно больше 50.</p>
+<div class="admonition note">
+<p class="admonition-title">Примечание</p>
+<p>Это обучение всего лишь на одну эпоху и с маленьким батчем.
+Оно сделано просто в качестве демонстрации.
+В реальности количество эпох обычно больше 50, а батч - больше 16.</p>
+</div>
 <p>После этого в папке classification_data/models/tits_size появится папка с прошедшим экспериментом,
 в которой можно найти логи и полученные модели:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">DATA</span><span class="o">/</span><span class="n">models</span><span class="o">/</span><span class="n">tits_size</span><span class="o">/</span><span class="n">v__0_train_eff_16_0</span><span class="mf">.001</span><span class="o">/</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-<span class="w"> </span>DATA/models/tits_size/v__0_train_eff_16_0.001/
+<span class="w">      </span>-<span class="w"> </span>checkpoints/
+<span class="w">      </span>-<span class="w"> </span>csv_logs/
+<span class="w">      </span>-<span class="w"> </span>onnx/
+<span class="w">      </span>-<span class="w"> </span>torchscripts/
+<span class="w">      </span>-<span class="w"> </span>train_batches/
 </pre></div>
 </div>
-<blockquote>
-<div><ul class="simple">
-<li><p>checkpoints/</p></li>
-<li><p>csv_logs/</p></li>
-<li><p>onnx/</p></li>
-<li><p>torchscripts/</p></li>
-<li><p>train_batches/</p></li>
-</ul>
-</div></blockquote>
 <ul class="simple">
 <li><p>checkpoints - папка с чекпоинтами в формате pytorch-lightning;</p></li>
 <li><p>csv_logs - папка с логом тренировки в формате csv;</p></li>
@@ -282,15 +300,15 @@ scp<span class="w"> </span>-P<span class="w"> </span><span class="m">4000</span>
 </div>
 <p>Скрипт автоматически найдет последнюю обученную модель для группы tits_size и произведет конвертацию.
 После выполнения появится папка со следующим содержанием:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">classification_data</span><span class="o">/</span>
-    <span class="o">-</span> <span class="n">inference_models</span><span class="o">/</span>
-        <span class="o">-</span> <span class="n">tits_size</span><span class="o">/</span>
-            <span class="o">-</span> <span class="n">inference_model</span>
-                <span class="o">-</span><span class="n">meta</span><span class="o">.</span><span class="n">json</span>
-                <span class="o">-</span> <span class="n">model</span><span class="o">.</span><span class="n">onnx</span>
-                <span class="o">-</span> <span class="n">model_onnx</span><span class="o">.</span><span class="n">zip</span>    <span class="c1"># версия модели для triton в формате onnx</span>
-                <span class="o">-</span> <span class="n">model</span><span class="o">.</span><span class="n">plan</span>
-                <span class="o">-</span> <span class="n">model_trt</span><span class="o">.</span><span class="n">zip</span>     <span class="c1"># версия модели для triton в формате trt</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-<span class="w"> </span>classification_data/
+<span class="w">    </span>-<span class="w"> </span>inference_models/
+<span class="w">        </span>-<span class="w"> </span>tits_size/
+<span class="w">            </span>-<span class="w"> </span>inference_model/
+<span class="w">                </span>-meta.json
+<span class="w">                </span>-<span class="w"> </span>model.onnx
+<span class="w">                </span>-<span class="w"> </span>model_onnx.zip<span class="w">    </span><span class="c1"># версия модели для triton в формате onnx</span>
+<span class="w">                </span>-<span class="w"> </span>model.plan
+<span class="w">                </span>-<span class="w"> </span>model_trt.zip<span class="w">     </span><span class="c1"># версия модели для triton в формате trt</span>
 </pre></div>
 </div>
 <p>Чтобы отправить trt-модель в общее хранилище, с присвоением версии (к примеру, 0.0.2),
