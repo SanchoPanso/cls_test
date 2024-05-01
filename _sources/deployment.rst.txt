@@ -144,7 +144,7 @@
 
 .. code-block:: bash
 
-    git@bitbucket.org:luckytube/modeler.git
+    git clone git@bitbucket.org:luckytube/modeler.git -b develop
     cd modeler
 
 Конфигурация .env файла
