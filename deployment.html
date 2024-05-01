@@ -147,7 +147,9 @@
             
               <ul>
                 
-                  <li class="toctree-l2"><a href="#model-storage" class="reference internal">Model Storage</a></li>
+                  <li class="toctree-l2"><a href="#model-storage" class="reference internal">Разворачивание Model Storage</a></li>
+                
+                  <li class="toctree-l2"><a href="#modeler" class="reference internal">Разворачивание Modeler</a></li>
                 
               </ul>
             
@@ -183,10 +185,17 @@
             
   <section id="id1">
 <h1>Разворачивание<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h1>
+<p>Для того, чтобы развернуть систему инференса, которая обрабатывает запросы из RabbitMQ,
+нужно выполнить следующие шаги:</p>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="#model-storage"><span class="std std-ref">Разворачивание Model Storage</span></a></p></li>
+<li><p><a class="reference internal" href="#modeler"><span class="std std-ref">Разворачивание Modeler</span></a></p></li>
+</ol>
 <section id="model-storage">
-<h2>Model Storage<a class="headerlink" href="#model-storage" title="Permalink to this heading">¶</a></h2>
-<section id="id2">
-<h3>Клонирование репозитория<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<span id="id2"></span><h2>Разворачивание Model Storage<a class="headerlink" href="#model-storage" title="Permalink to this heading">¶</a></h2>
+<p>На данном этапе мы разворачивам хранилище данных, которое хостит модели в Triton Server.</p>
+<section id="id3">
+<h3>Клонирование репозитория<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
 <p>Клонируйте ваш репозиторий с Dockerfile и остальными необходимыми файлами в вашу рабочую среду:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/SanchoPanso/model_storage.git
 <span class="nb">cd</span><span class="w"> </span>model_storage
@@ -212,8 +221,8 @@ id<span class="w"> </span>-g<span class="w">   </span><span class="c1"># USER_GI
 </div>
 </div>
 </section>
-<section id="id3">
-<h3>Подготовка хранилища<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
+<section id="id4">
+<h3>Подготовка хранилища<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
 <p>В конфигурации docker-compose.yaml определены два тома:</p>
 <blockquote>
 <div><ul class="simple">
@@ -221,17 +230,22 @@ id<span class="w"> </span>-g<span class="w">   </span><span class="c1"># USER_GI
 <li><p><code class="docutils literal notranslate"><span class="pre">./storage/model_repository:/models</span></code> - Репозиторий моделей для Triton Server. Этот том используется для хранения моделей, которые Triton Server будет использовать для выполнения инференса. Модели должны быть организованы в соответствии с требованиями Triton Server, и они должны быть доступны в папке storage/model_repository на хосте.</p></li>
 </ul>
 </div></blockquote>
+<p>Бэкап хранилища можно взять отсюда: <a class="reference external" href="https://drive.google.com/file/d/1ByyoanrLkJqibiT-fM-Tfpyd42FXyHfo/view?usp=sharing">https://drive.google.com/file/d/1ByyoanrLkJqibiT-fM-Tfpyd42FXyHfo/view?usp=sharing</a></p>
+<div class="admonition note">
+<p class="admonition-title">Примечание</p>
+<p>Это временное хранение бэкапа, его необходимо переместить в другое место</p>
+</div>
 </section>
-<section id="id4">
-<h3>Запуск контейнера<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
+<section id="id5">
+<h3>Запуск контейнера<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
 <p>Используйте Docker Compose для сборки и запуска вашего контейнера:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker-compose<span class="w"> </span>up<span class="w"> </span>--build<span class="w"> </span>-d
 </pre></div>
 </div>
 <p>Команда соберет образ и запустит контейнер на основе вашего docker-compose.yaml и Dockerfile.</p>
 </section>
-<section id="id5">
-<h3>Проверка работы сервисов<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
+<section id="id6">
+<h3>Проверка работы сервисов<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h3>
 <section id="ssh">
 <h4>Проверка SSH<a class="headerlink" href="#ssh" title="Permalink to this heading">¶</a></h4>
 <p>После того как контейнер будет запущен, вы можете проверить SSH доступ:</p>
@@ -267,8 +281,83 @@ id<span class="w"> </span>-g<span class="w">   </span><span class="c1"># USER_GI
 <p>Если Triton server жив, то команда вернет код 200.</p>
 </section>
 </section>
-<section id="id6">
-<h3>Остановка и очистка<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h3>
+<section id="id7">
+<h3>Остановка и очистка<a class="headerlink" href="#id7" title="Permalink to this heading">¶</a></h3>
+<p>Для остановки и удаления контейнера используйте следующую команду Docker Compose:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker-compose<span class="w"> </span>down
+</pre></div>
+</div>
+<p>Это остановит и удалит все контейнеры, а также сеть, которые были созданы.</p>
+</section>
+</section>
+<section id="modeler">
+<span id="id8"></span><h2>Разворачивание Modeler<a class="headerlink" href="#modeler" title="Permalink to this heading">¶</a></h2>
+<p>На данном этапе происходит разворачивание системы обработки запросов через RabbitMQ
+и инференс моделей Triton Server данных, пришедших с этими запросами.</p>
+<section id="id9">
+<h3>Клонирование репозитория<a class="headerlink" href="#id9" title="Permalink to this heading">¶</a></h3>
+<p>Клонируйте ваш репозиторий с Dockerfile и остальными необходимыми файлами в вашу рабочую среду:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git@bitbucket.org:luckytube/modeler.git
+<span class="nb">cd</span><span class="w"> </span>modeler
+</pre></div>
+</div>
+</section>
+<section id="id10">
+<h3>Конфигурация .env файла<a class="headerlink" href="#id10" title="Permalink to this heading">¶</a></h3>
+<p>Убедитесь, что файл <cite>.env</cite> находится в корне вашего проекта и
+содержит нужные переменные окружения.</p>
+<p>Убедитесь, что IP адрес в переменных <code class="docutils literal notranslate"><span class="pre">TRITON_HOST</span></code>, <code class="docutils literal notranslate"><span class="pre">ADDITIONAL_TRITON_HOST</span></code> совпадает c
+IP адресом model storage. Узнать его адрес можно следующей командой:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>inspect<span class="w"> </span>-f<span class="w"> </span><span class="s1">&#39;{{range.NetworkSettings.Networks}}{{.Gateway}}{{end}}&#39;</span><span class="w"> </span>model_storage
+</pre></div>
+</div>
+</section>
+<section id="id11">
+<h3>Запуск контейнера<a class="headerlink" href="#id11" title="Permalink to this heading">¶</a></h3>
+<p>Используйте Docker Compose для сборки и запуска вашего контейнера:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker-compose<span class="w"> </span>up<span class="w"> </span>--build<span class="w"> </span>-d
+</pre></div>
+</div>
+<p>Команда соберет образ и запустит контейнер на основе вашего docker-compose.yaml и Dockerfile.
+Внутри контейнера запустится 2 сервера: тестовый и для продакшена.</p>
+</section>
+<section id="id12">
+<h3>Проверка работы сервисов<a class="headerlink" href="#id12" title="Permalink to this heading">¶</a></h3>
+<section id="id13">
+<h4>Проверка логов<a class="headerlink" href="#id13" title="Permalink to this heading">¶</a></h4>
+<p>В папке <code class="docutils literal notranslate"><span class="pre">logs</span></code> появится 2 файла:</p>
+<ul class="simple">
+<li><p>test.log</p></li>
+<li><p>prod.log</p></li>
+</ul>
+<p>Здесь хранятся логи для серверов для тестирования и для продакшена, соответственно.
+Если прослушка очереди RabbitMQ стартовала успешно, в начале файлов появится следующее сообщение:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>x<span class="o">]</span><span class="w"> </span>Awaiting<span class="w"> </span>RPC<span class="w"> </span>requests
+</pre></div>
+</div>
+<p>Также здесь записываются входные и выходные данные обработки.</p>
+</section>
+<section id="id14">
+<h4>Проверка клиента<a class="headerlink" href="#id14" title="Permalink to this heading">¶</a></h4>
+<p>После того как контейнер будет запущен, вы можете запустить тестового клиента,
+который посылает сообщение в RabbitMQ и ждет ответа.</p>
+<p>Для его запуска установите необходимые пакеты Python и запустите его:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
+$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>venv/bin/activate
+<span class="o">(</span>venv<span class="o">)</span><span class="w"> </span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>poetry
+<span class="o">(</span>venv<span class="o">)</span><span class="w"> </span>$<span class="w"> </span>poetry<span class="w"> </span>install<span class="w"> </span>.
+<span class="o">(</span>venv<span class="o">)</span><span class="w"> </span>$<span class="w"> </span>python<span class="w"> </span>rabbit_client.py
+</pre></div>
+</div>
+</section>
+<section id="postgresql">
+<h4>Проверка PostgreSQL<a class="headerlink" href="#postgresql" title="Permalink to this heading">¶</a></h4>
+<p>Для просмотра базы данных PostgreSQL с логами воспользуйтесь данными из .env файла
+и, например, расширением VS Code для просмотра таблицы с логами.</p>
+</section>
+</section>
+<section id="id15">
+<h3>Остановка и очистка<a class="headerlink" href="#id15" title="Permalink to this heading">¶</a></h3>
 <p>Для остановки и удаления контейнера используйте следующую команду Docker Compose:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker-compose<span class="w"> </span>down
 </pre></div>
