@@ -25,7 +25,7 @@
     
   <link rel="index" title="Алфавитный указатель" href="genindex.html" />
   <link rel="search" title="Поиск" href="search.html" />
-  <link rel="next" title="Классификация" href="classification.html" />
+  <link rel="next" title="Разворачивание" href="deployment.html" />
   <link rel="prev" title="Начало работы с классификацией" href="get_started_with_classification.html" /> 
   </head>
 
@@ -94,17 +94,28 @@
             
               <ul>
                 
-                  <li class="toctree-l2"><a href="#id1" class="reference internal">Получение исходного датасета</a></li>
+                  <li class="toctree-l2"><a href="#id1" class="reference internal">Установка</a></li>
+                
+                  <li class="toctree-l2"><a href="#id2" class="reference internal">Получение исходного датасета</a></li>
                 
                   <li class="toctree-l2"><a href="#yolo" class="reference internal">Создание датасета в формате YOLO</a></li>
                 
                   <li class="toctree-l2"><a href="#yolov8" class="reference internal">Обучение модели YOLOv8 на задачу сегментации</a></li>
                 
-                  <li class="toctree-l2"><a href="#id2" class="reference internal">Экспорт модели YOLOv8 в формат для инференса</a></li>
+                  <li class="toctree-l2"><a href="#id3" class="reference internal">Экспорт модели YOLOv8 в формат для инференса</a></li>
                 
-                  <li class="toctree-l2"><a href="#id3" class="reference internal">Что дальше?</a></li>
+                  <li class="toctree-l2"><a href="#id4" class="reference internal">Что дальше?</a></li>
                 
               </ul>
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="deployment.html" class="reference internal ">Разворачивание</a>
+            
+
             
           </li>
 
@@ -154,15 +165,6 @@
           </li>
 
         
-          <li class="toctree-l1 ">
-            
-              <a href="deployment.html" class="reference internal ">Разворачивание</a>
-            
-
-            
-          </li>
-
-        
       </ul>
     </div>
   
@@ -185,8 +187,8 @@
        title="предыдущая глава">← Начало работы с классификацией</a>
   </li>
   <li class="next">
-    <a href="classification.html"
-       title="следующая глава">Классификация →</a>
+    <a href="deployment.html"
+       title="следующая глава">Разворачивание →</a>
   </li>
 </ul>
   
@@ -198,7 +200,19 @@
 <h1>Начало работы с cегментацией<a class="headerlink" href="#c" title="Permalink to this heading">¶</a></h1>
 <p>В этом разделе описывается процесс подготовки и обучения модели YOLOv8 для задачи инстансной сегментации.</p>
 <section id="id1">
-<h2>Получение исходного датасета<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
+<h2>Установка<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
+<p>Для установки проекта CLS, выполните следующие команды:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/t1masavin/CLS.git<span class="w"> </span>-b<span class="w"> </span>develop
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>CLS
+$<span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
+$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>venv/bin/activate
+<span class="o">(</span>venv<span class="o">)</span><span class="w"> </span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>poetry
+<span class="o">(</span>venv<span class="o">)</span><span class="w"> </span>$<span class="w"> </span>poetry<span class="w"> </span>install<span class="w"> </span>.
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h2>Получение исходного датасета<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
 <p>Для тренировки нужны исходные датасеты в формате COCO, которые собираются разметчиками.
 В целях демонстрации скачаем и распакуем в папку <cite>segmentation_data/initial_datasets</cite>
 небольшой демонстрационный датасет из общего хранилища (пароль ssh - «password»):</p>
@@ -274,8 +288,8 @@ unzip<span class="w"> </span>segmentation_data/initial_datasets/segmentation_dat
 </pre></div>
 </div>
 </section>
-<section id="id2">
-<h2>Экспорт модели YOLOv8 в формат для инференса<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
+<section id="id3">
+<h2>Экспорт модели YOLOv8 в формат для инференса<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
 <p>Для того, чтобы обеспечить эффективную работу полученной сети и совместимость с Triton Inference Server,
 ее необходимо конвертировать в соответствующий формат.
 Возьмем последнюю полученную модель и преобразуем ее, воспользуйтесь следующей командой:</p>
@@ -301,8 +315,8 @@ unzip<span class="w"> </span>segmentation_data/initial_datasets/segmentation_dat
 <p>В будущем планируется обернуть этот вызов в отдельный скрипт.</p>
 </div>
 </section>
-<section id="id3">
-<h2>Что дальше?<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
+<section id="id4">
+<h2>Что дальше?<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h2>
 <p>Чтобы подробнее ознакомиться с возможностями этоо модуля, обратитесь к <a class="reference internal" href="instance_segmentation.html"><span class="doc">Сегментация</span></a>.</p>
 </section>
 </section>
@@ -316,8 +330,8 @@ unzip<span class="w"> </span>segmentation_data/initial_datasets/segmentation_dat
        title="предыдущая глава">← Начало работы с классификацией</a>
   </li>
   <li class="next">
-    <a href="classification.html"
-       title="следующая глава">Классификация →</a>
+    <a href="deployment.html"
+       title="следующая глава">Разворачивание →</a>
   </li>
 </ul><div class="footer" role="contentinfo">
       &#169; Copyright 2024, t1masavin, sanchopanso, romaniox.

@@ -26,7 +26,7 @@
   <link rel="index" title="Алфавитный указатель" href="genindex.html" />
   <link rel="search" title="Поиск" href="search.html" />
   <link rel="next" title="Начало работы с cегментацией" href="get_started_with_instance_segmentation.html" />
-  <link rel="prev" title="Добро пожаловать в документацию проекта CLS" href="index.html" /> 
+  <link rel="prev" title="Документация ML для HDSex.org" href="index.html" /> 
   </head>
 
   <body>
@@ -85,17 +85,19 @@
             
               <ul>
                 
+                  <li class="toctree-l2"><a href="#id2" class="reference internal">Установка</a></li>
+                
                   <li class="toctree-l2"><a href="#postgresql" class="reference internal">Настройка подключения к PostgreSQL</a></li>
                 
-                  <li class="toctree-l2"><a href="#id2" class="reference internal">Скачивание датасета</a></li>
+                  <li class="toctree-l2"><a href="#id3" class="reference internal">Скачивание датасета</a></li>
                 
-                  <li class="toctree-l2"><a href="#id3" class="reference internal">Сегментация людей</a></li>
+                  <li class="toctree-l2"><a href="#id4" class="reference internal">Сегментация людей</a></li>
                 
-                  <li class="toctree-l2"><a href="#id4" class="reference internal">Тренировка классификации</a></li>
+                  <li class="toctree-l2"><a href="#id5" class="reference internal">Тренировка классификации</a></li>
                 
                   <li class="toctree-l2"><a href="#tensorrt" class="reference internal">Конвертация в TensorRT</a></li>
                 
-                  <li class="toctree-l2"><a href="#id5" class="reference internal">Что дальше?</a></li>
+                  <li class="toctree-l2"><a href="#id6" class="reference internal">Что дальше?</a></li>
                 
               </ul>
             
@@ -105,6 +107,15 @@
           <li class="toctree-l1 ">
             
               <a href="get_started_with_instance_segmentation.html" class="reference internal ">Начало работы с cегментацией</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="deployment.html" class="reference internal ">Разворачивание</a>
             
 
             
@@ -156,15 +167,6 @@
           </li>
 
         
-          <li class="toctree-l1 ">
-            
-              <a href="deployment.html" class="reference internal ">Разворачивание</a>
-            
-
-            
-          </li>
-
-        
       </ul>
     </div>
   
@@ -184,7 +186,7 @@
   <ul class="page-nav">
   <li class="prev">
     <a href="index.html"
-       title="предыдущая глава">← Добро пожаловать в документацию проекта CLS</a>
+       title="предыдущая глава">← Документация ML для HDSex.org</a>
   </li>
   <li class="next">
     <a href="get_started_with_instance_segmentation.html"
@@ -202,6 +204,18 @@
 собранных в сервисе collect.moster.
 На этой странице рассказывается, как подготовить данные, обучить модель
 и подготовить ее к разворачиванию для инференса.</p>
+<section id="id2">
+<h2>Установка<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
+<p>Для установки проекта CLS, выполните следующие команды:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/t1masavin/CLS.git<span class="w"> </span>-b<span class="w"> </span>develop
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>CLS
+$<span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
+$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>venv/bin/activate
+<span class="o">(</span>venv<span class="o">)</span><span class="w"> </span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>poetry
+<span class="o">(</span>venv<span class="o">)</span><span class="w"> </span>$<span class="w"> </span>poetry<span class="w"> </span>install<span class="w"> </span>.
+</pre></div>
+</div>
+</section>
 <section id="postgresql">
 <h2>Настройка подключения к PostgreSQL<a class="headerlink" href="#postgresql" title="Permalink to this heading">¶</a></h2>
 <p>Для того, чтобы уметь классифицировать людей на фото, их нужно правильно вырезать из изображения.
@@ -219,8 +233,8 @@
 </div>
 </div>
 </section>
-<section id="id2">
-<h2>Скачивание датасета<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
+<section id="id3">
+<h2>Скачивание датасета<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
 <p>Для обучения модели нужны изображения и их разметка.
 Допустим, мы хотим обучить классифицировать группу <cite>tits_size</cite>.
 Для загрузки такого датасета из сервиса <cite>collect.moster</cite> выполните следующую команду:</p>
@@ -243,8 +257,8 @@
 В этой папке скачались изображения в папку <cite>pictures</cite>, скачались метаданные о наборах изображений в папку <cite>meta</cite>
 и на их основе создан json-файл со сводной информацией о датасете. Подробнее см. <a class="reference internal" href="bottles.html"><span class="doc">Бутылки данных</span></a>.</p>
 </section>
-<section id="id3">
-<h2>Сегментация людей<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
+<section id="id4">
+<h2>Сегментация людей<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h2>
 <p>После загрузки датасета можно приступить к сегментации людей на изображениях и
 записи сегментационных масок в базу данных.
 Это необходимо, поскольку чтобы классифицировать человека, его нужно вырезать из фотографии.</p>
@@ -269,8 +283,8 @@ scp<span class="w"> </span>-P<span class="w"> </span><span class="m">4000</span>
 </div>
 <p>Чтобы обучить новую модель сегментции, см. <a class="reference internal" href="instance_segmentation.html"><span class="doc">Сегментация</span></a>.</p>
 </section>
-<section id="id4">
-<h2>Тренировка классификации<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h2>
+<section id="id5">
+<h2>Тренировка классификации<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h2>
 <p>После получения сегментированных данных можно приступить к тренировке модели классификации.
 Запустите процесс обучения следующей командой:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>cls/classification/train.py<span class="w"> </span>--cat<span class="w"> </span>tits_size<span class="w"> </span>--epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span>--batch<span class="w"> </span><span class="m">4</span>
@@ -337,8 +351,8 @@ scp<span class="w"> </span>-P<span class="w"> </span><span class="m">4000</span>
 <p>В будущем планируется обернуть этот вызов в отдельный скрипт.</p>
 </div>
 </section>
-<section id="id5">
-<h2>Что дальше?<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h2>
+<section id="id6">
+<h2>Что дальше?<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h2>
 <p>Чтобы подробнее ознакомиться с возможностями этоо модуля, обратитесь к <a class="reference internal" href="classification.html"><span class="doc">Классификация</span></a>.</p>
 </section>
 </section>
@@ -349,7 +363,7 @@ scp<span class="w"> </span>-P<span class="w"> </span><span class="m">4000</span>
             <div class="inner"><ul class="page-nav">
   <li class="prev">
     <a href="index.html"
-       title="предыдущая глава">← Добро пожаловать в документацию проекта CLS</a>
+       title="предыдущая глава">← Документация ML для HDSex.org</a>
   </li>
   <li class="next">
     <a href="get_started_with_instance_segmentation.html"

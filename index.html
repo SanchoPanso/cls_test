@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-      <title>Добро пожаловать в документацию проекта CLS</title>
+      <title>Документация ML для HDSex.org</title>
     
           <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
           <link rel="stylesheet" href="_static/theme.css " type="text/css" />
@@ -96,6 +96,15 @@
         
           <li class="toctree-l1 ">
             
+              <a href="deployment.html" class="reference internal ">Разворачивание</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
               <a href="classification.html" class="reference internal ">Классификация</a>
             
 
@@ -139,15 +148,6 @@
           </li>
 
         
-          <li class="toctree-l1 ">
-            
-              <a href="deployment.html" class="reference internal ">Разворачивание</a>
-            
-
-            
-          </li>
-
-        
       </ul>
     </div>
   
@@ -160,7 +160,7 @@
   <ul class="breadcrumbs">
     <li><a href="#">Docs</a> &raquo;</li>
     
-    <li>Добро пожаловать в документацию проекта CLS</li>
+    <li>Документация ML для HDSex.org</li>
   </ul>
   
 
@@ -175,70 +175,44 @@
 <hr>
           <div class="content" role="main" v-pre>
             
-  <section id="cls">
-<h1>Добро пожаловать в документацию проекта CLS<a class="headerlink" href="#cls" title="Permalink to this heading">¶</a></h1>
-<p>Проект CLS представляет собой инструмент для тренировки моделей классификации и сегментации на основе данных,
+  <section id="ml-hdsex-org">
+<h1>Документация ML для HDSex.org<a class="headerlink" href="#ml-hdsex-org" title="Permalink to this heading">¶</a></h1>
+<section id="id1">
+<h2>Обучение<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
+<p>Обучение осуществляется в рамках репозитория CLS.
+Проект CLS представляет собой инструмент для тренировки моделей классификации и сегментации на основе данных,
 собранных из сервиса <cite>collect.moster</cite>. Этот проект обеспечивает автоматизированный процесс
 загрузки, обработки, использования данных для обучения нейронных сетей, а также выгрузку результатов работы.</p>
-<section id="id1">
-<h2>Установка<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
-<p>Для установки проекта CLS, выполните следующие команды:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/t1masavin/CLS.git<span class="w"> </span>-b<span class="w"> </span>develop
-$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>CLS
-$<span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
-$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>venv/bin/activate
-<span class="o">(</span>venv<span class="o">)</span><span class="w"> </span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>poetry
-<span class="o">(</span>venv<span class="o">)</span><span class="w"> </span>$<span class="w"> </span>poetry<span class="w"> </span>install<span class="w"> </span>.
-</pre></div>
-</div>
+<p>Смотрите в <a class="reference internal" href="get_started_with_classification.html"><span class="doc">Начало работы с классификацией</span></a> и <a class="reference internal" href="get_started_with_instance_segmentation.html"><span class="doc">Начало работы с cегментацией</span></a>,
+чтобы начать обучение от подготовки данных до отправки модели на развертывание.</p>
 </section>
 <section id="id2">
-<h2>Начало работы<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
-<p>Чтобы начать использовать проект CLS, следуйте инструкциям
-в разделах <a class="reference internal" href="get_started_with_classification.html"><span class="doc">Начало работы с классификацией</span></a> и <a class="reference internal" href="get_started_with_instance_segmentation.html"><span class="doc">Начало работы с cегментацией</span></a>.</p>
+<h2>Развертывание<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
+<p>Перейдите в раздел <a class="reference internal" href="deployment.html"><span class="doc">Разворачивание</span></a>, чтобы узнать,
+как разворачивать обученные модели детекции и классификации для инференса
+с использованием Triton Server.</p>
 </section>
 <section id="id3">
 <h2>Содержание<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="get_started_with_classification.html">Начало работы с классификацией</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="get_started_with_classification.html#id2">Установка</a></li>
 <li class="toctree-l2"><a class="reference internal" href="get_started_with_classification.html#postgresql">Настройка подключения к PostgreSQL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="get_started_with_classification.html#id2">Скачивание датасета</a></li>
-<li class="toctree-l2"><a class="reference internal" href="get_started_with_classification.html#id3">Сегментация людей</a></li>
-<li class="toctree-l2"><a class="reference internal" href="get_started_with_classification.html#id4">Тренировка классификации</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started_with_classification.html#id3">Скачивание датасета</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started_with_classification.html#id4">Сегментация людей</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started_with_classification.html#id5">Тренировка классификации</a></li>
 <li class="toctree-l2"><a class="reference internal" href="get_started_with_classification.html#tensorrt">Конвертация в TensorRT</a></li>
-<li class="toctree-l2"><a class="reference internal" href="get_started_with_classification.html#id5">Что дальше?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started_with_classification.html#id6">Что дальше?</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="get_started_with_instance_segmentation.html">Начало работы с cегментацией</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="get_started_with_instance_segmentation.html#id1">Получение исходного датасета</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started_with_instance_segmentation.html#id1">Установка</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started_with_instance_segmentation.html#id2">Получение исходного датасета</a></li>
 <li class="toctree-l2"><a class="reference internal" href="get_started_with_instance_segmentation.html#yolo">Создание датасета в формате YOLO</a></li>
 <li class="toctree-l2"><a class="reference internal" href="get_started_with_instance_segmentation.html#yolov8">Обучение модели YOLOv8 на задачу сегментации</a></li>
-<li class="toctree-l2"><a class="reference internal" href="get_started_with_instance_segmentation.html#id2">Экспорт модели YOLOv8 в формат для инференса</a></li>
-<li class="toctree-l2"><a class="reference internal" href="get_started_with_instance_segmentation.html#id3">Что дальше?</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="classification.html">Классификация</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="classification.html#download">Скачивание данных</a></li>
-<li class="toctree-l2"><a class="reference internal" href="classification.html#segment-build">Создание сегментации</a></li>
-<li class="toctree-l2"><a class="reference internal" href="classification.html#train">Тренировка модели</a></li>
-<li class="toctree-l2"><a class="reference internal" href="classification.html#upload">Выгрузка метаданных</a></li>
-<li class="toctree-l2"><a class="reference internal" href="classification.html#mask-build">Создание масок</a></li>
-<li class="toctree-l2"><a class="reference internal" href="classification.html#inference">Инференс</a></li>
-<li class="toctree-l2"><a class="reference internal" href="classification.html#w-b">Скачать обученную модель из W&amp;B</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="instance_segmentation.html">Сегментация</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="instance_segmentation.html#yolo">Создание датасета в формате YOLO</a></li>
-<li class="toctree-l2"><a class="reference internal" href="instance_segmentation.html#yolov8">Обучение модели YOLOv8 на задачу сегментации</a></li>
-<li class="toctree-l2"><a class="reference internal" href="instance_segmentation.html#id2">Экспорт модели YOLOv8 в формат для инференса</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="demonstration.html">Demonstration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configuration.html">Формат конфигурации</a></li>
-<li class="toctree-l1"><a class="reference internal" href="postgres.html">PostgreSQL</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="postgres.html#id1">Настройка подключения</a></li>
-<li class="toctree-l2"><a class="reference internal" href="postgres.html#id2">Резервное копирование</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started_with_instance_segmentation.html#id3">Экспорт модели YOLOv8 в формат для инференса</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started_with_instance_segmentation.html#id4">Что дальше?</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="deployment.html">Разворачивание</a><ul>
@@ -269,6 +243,29 @@ $<span class="w"> </span><span class="nb">source</span><span class="w"> </span>v
 <li class="toctree-l3"><a class="reference internal" href="deployment.html#id15">Остановка и очистка</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="classification.html">Классификация</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classification.html#download">Скачивание данных</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classification.html#segment-build">Создание сегментации</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classification.html#train">Тренировка модели</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classification.html#upload">Выгрузка метаданных</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classification.html#mask-build">Создание масок</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classification.html#inference">Инференс</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classification.html#w-b">Скачать обученную модель из W&amp;B</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="instance_segmentation.html">Сегментация</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="instance_segmentation.html#yolo">Создание датасета в формате YOLO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instance_segmentation.html#yolov8">Обучение модели YOLOv8 на задачу сегментации</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instance_segmentation.html#id2">Экспорт модели YOLOv8 в формат для инференса</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="demonstration.html">Demonstration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Формат конфигурации</a></li>
+<li class="toctree-l1"><a class="reference internal" href="postgres.html">PostgreSQL</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="postgres.html#id1">Настройка подключения</a></li>
+<li class="toctree-l2"><a class="reference internal" href="postgres.html#id2">Резервное копирование</a></li>
 </ul>
 </li>
 </ul>
