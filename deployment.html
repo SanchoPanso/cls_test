@@ -34,7 +34,7 @@
     <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
   <router-link to="index.html" class="home-link">
     
-      <span class="site-name">HDSEX: AI</span>
+      <span class="site-name">HDSEX: ML</span>
     
   </router-link>
 
@@ -272,7 +272,7 @@ id<span class="w"> </span>-g<span class="w">   </span><span class="c1"># USER_GI
 <p>Если вы работаете на удаленном компьютере с досупом по SSH,
 используйте проброс порта на локальную машину,
 чтобы иметь доступ к сервису, в том числе и в браузере:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ssh<span class="w"> </span>-L<span class="w"> </span><span class="m">8300</span>:localhost:8300<span class="w"> </span>achernikov@88.146.116.23<span class="w"> </span>-p<span class="w"> </span><span class="m">999</span><span class="w"> </span>-i<span class="w"> </span>&lt;path-to-your-private-key&gt;
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ssh<span class="w"> </span>-L<span class="w"> </span><span class="m">8300</span>:localhost:8300<span class="w"> </span>&lt;your-username&gt;@88.146.116.23<span class="w"> </span>-p<span class="w"> </span><span class="m">999</span><span class="w"> </span>-i<span class="w"> </span>&lt;path-to-your-private-key&gt;
 </pre></div>
 </div>
 </div>
@@ -299,6 +299,11 @@ id<span class="w"> </span>-g<span class="w">   </span><span class="c1"># USER_GI
 <span id="id8"></span><h2>Разворачивание Modeler<a class="headerlink" href="#modeler" title="Permalink to this heading">¶</a></h2>
 <p>На данном этапе происходит разворачивание системы обработки запросов через RabbitMQ
 и инференс моделей Triton Server данных, пришедших с этими запросами.</p>
+<div class="admonition note">
+<p class="admonition-title">Примечание</p>
+<p>Убедитесь, что model storage запущен на предыдущем шаге (.. _model_storage:).
+В нем хостятся модели для инференса и без него modeler не будет работать.</p>
+</div>
 <section id="id9">
 <h3>Клонирование репозитория<a class="headerlink" href="#id9" title="Permalink to this heading">¶</a></h3>
 <p>Клонируйте ваш репозиторий с Dockerfile и остальными необходимыми файлами в вашу рабочую среду:</p>
