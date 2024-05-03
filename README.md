@@ -1,4 +1,4 @@
-# Документация к AI части HDsex.org
+# Документация к ML части HDsex.org
 
 Документация по обучению и развертыванию нейросетей для hdsex.org.
 Она доступна по ссылке: https://sanchopanso.github.io/cls_test.

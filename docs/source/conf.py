@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'HDSEX: AI'
+project = 'HDSEX: ML'
 copyright = '2024, t1masavin, sanchopanso, romaniox'
 author = 't1masavin, sanchopanso, romaniox'
 
