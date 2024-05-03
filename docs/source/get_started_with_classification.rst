@@ -6,6 +6,20 @@
 На этой странице рассказывается, как подготовить данные, обучить модель 
 и подготовить ее к разворачиванию для инференса.
 
+Установка
+---------
+
+Для установки проекта CLS, выполните следующие команды:
+
+.. code-block:: bash
+
+   $ git clone https://github.com/t1masavin/CLS.git -b develop
+   $ cd CLS
+   $ python3 -m venv venv
+   $ source venv/bin/activate
+   (venv) $ pip install poetry
+   (venv) $ poetry install .
+
 Настройка подключения к PostgreSQL
 ----------------------------------
 

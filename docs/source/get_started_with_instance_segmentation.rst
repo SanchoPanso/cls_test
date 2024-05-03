@@ -3,6 +3,20 @@
 
 В этом разделе описывается процесс подготовки и обучения модели YOLOv8 для задачи инстансной сегментации. 
 
+Установка
+---------
+
+Для установки проекта CLS, выполните следующие команды:
+
+.. code-block:: bash
+
+   $ git clone https://github.com/t1masavin/CLS.git -b develop
+   $ cd CLS
+   $ python3 -m venv venv
+   $ source venv/bin/activate
+   (venv) $ pip install poetry
+   (venv) $ poetry install .
+
 Получение исходного датасета
 -----------------------------
 
