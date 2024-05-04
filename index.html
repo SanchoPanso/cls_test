@@ -96,7 +96,16 @@
         
           <li class="toctree-l1 ">
             
-              <a href="deployment.html" class="reference internal ">Разворачивание</a>
+              <a href="model_storage_deployment.html" class="reference internal ">Разворачивание Model Storage</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="modeler_deployment.html" class="reference internal ">Разворачивание Modeler</a>
             
 
             
@@ -177,20 +186,31 @@
             
   <section id="ml-hdsex-org">
 <h1>Документация ML для HDSex.org<a class="headerlink" href="#ml-hdsex-org" title="Permalink to this heading">¶</a></h1>
+<p>Здесь размещены руководства для различных ML решений, созданных для сайта HDSex.org.</p>
 <section id="id1">
 <h2>Обучение<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
-<p>Обучение осуществляется в рамках репозитория CLS.
+<p>Обучение моделей детекции и сегментации осуществляется в рамках репозитория <a class="reference external" href="https://github.com/t1masavin/CLS.git">CLS</a>.
 Проект CLS представляет собой инструмент для тренировки моделей классификации и сегментации на основе данных,
 собранных из сервиса <cite>collect.moster</cite>. Этот проект обеспечивает автоматизированный процесс
 загрузки, обработки, использования данных для обучения нейронных сетей, а также выгрузку результатов работы.</p>
-<p>Смотрите в <a class="reference internal" href="get_started_with_classification.html"><span class="doc">Начало работы с классификацией</span></a> и <a class="reference internal" href="get_started_with_instance_segmentation.html"><span class="doc">Начало работы с cегментацией</span></a>,
-чтобы начать обучение от подготовки данных до отправки модели на развертывание.</p>
+<p>Перейдите в следующие разделы, чтобы начать обучение от подготовки данных до отправки модели на развертывание:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="get_started_with_classification.html"><span class="doc">Начало работы с классификацией</span></a></p></li>
+<li><p><a class="reference internal" href="get_started_with_instance_segmentation.html"><span class="doc">Начало работы с cегментацией</span></a></p></li>
+</ul>
 </section>
 <section id="id2">
 <h2>Развертывание<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
-<p>Перейдите в раздел <a class="reference internal" href="deployment.html"><span class="doc">Разворачивание</span></a>, чтобы узнать,
+<p>Развертывание сетей детекции и классификации осуществляется
+с помощью репозиториев <a href="#id4"><span class="problematic" id="id5">`model storage&lt;https://github.com/SanchoPanso/model_storage.git&gt;`_</span></a> и
+<a href="#id6"><span class="problematic" id="id7">`modeler&lt;https://bitbucket.org/luckytube/modeler/src/develop/&gt;`_</span></a></p>
+<p>Перейдите в следующие разделы, чтобы узнать,
 как разворачивать обученные модели детекции и классификации для инференса
-с использованием Triton Server.</p>
+с использованием Triton Server:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="model_storage_deployment.html"><span class="doc">Разворачивание Model Storage</span></a></p></li>
+<li><p><a class="reference internal" href="modeler_deployment.html"><span class="doc">Разворачивание Modeler</span></a></p></li>
+</ul>
 </section>
 <section id="id3">
 <h2>Содержание<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
@@ -215,34 +235,31 @@
 <li class="toctree-l2"><a class="reference internal" href="get_started_with_instance_segmentation.html#id4">Что дальше?</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="deployment.html">Разворачивание</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="deployment.html#model-storage">Разворачивание Model Storage</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="deployment.html#id3">Клонирование репозитория</a></li>
-<li class="toctree-l3"><a class="reference internal" href="deployment.html#env">Конфигурация .env файла</a></li>
-<li class="toctree-l3"><a class="reference internal" href="deployment.html#id4">Подготовка хранилища</a></li>
-<li class="toctree-l3"><a class="reference internal" href="deployment.html#id5">Запуск контейнера</a></li>
-<li class="toctree-l3"><a class="reference internal" href="deployment.html#id6">Проверка работы сервисов</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="deployment.html#ssh">Проверка SSH</a></li>
-<li class="toctree-l4"><a class="reference internal" href="deployment.html#fastapi">Проверка FastAPI</a></li>
-<li class="toctree-l4"><a class="reference internal" href="deployment.html#triton-server">Проверка Triton Server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_storage_deployment.html">Разворачивание Model Storage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="model_storage_deployment.html#id2">Клонирование репозитория</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_storage_deployment.html#env">Конфигурация .env файла</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_storage_deployment.html#id3">Подготовка хранилища</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_storage_deployment.html#id4">Запуск контейнера</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_storage_deployment.html#id5">Проверка работы сервисов</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="model_storage_deployment.html#ssh">Проверка SSH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_storage_deployment.html#fastapi">Проверка FastAPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_storage_deployment.html#triton-server">Проверка Triton Server</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="deployment.html#id7">Остановка и очистка</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_storage_deployment.html#id6">Остановка и очистка</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="deployment.html#modeler">Разворачивание Modeler</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="deployment.html#id9">Клонирование репозитория</a></li>
-<li class="toctree-l3"><a class="reference internal" href="deployment.html#id10">Конфигурация .env файла</a></li>
-<li class="toctree-l3"><a class="reference internal" href="deployment.html#id11">Запуск контейнера</a></li>
-<li class="toctree-l3"><a class="reference internal" href="deployment.html#id12">Проверка работы сервисов</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="deployment.html#id13">Проверка логов</a></li>
-<li class="toctree-l4"><a class="reference internal" href="deployment.html#id14">Проверка клиента</a></li>
-<li class="toctree-l4"><a class="reference internal" href="deployment.html#postgresql">Проверка PostgreSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modeler_deployment.html">Разворачивание Modeler</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modeler_deployment.html#id2">Клонирование репозитория</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modeler_deployment.html#env">Конфигурация .env файла</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modeler_deployment.html#id3">Запуск контейнера</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modeler_deployment.html#id4">Проверка работы сервисов</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modeler_deployment.html#id5">Проверка логов</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modeler_deployment.html#id6">Проверка клиента</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modeler_deployment.html#postgresql">Проверка PostgreSQL</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="deployment.html#id15">Остановка и очистка</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="modeler_deployment.html#id7">Остановка и очистка</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="classification.html">Классификация</a><ul>
