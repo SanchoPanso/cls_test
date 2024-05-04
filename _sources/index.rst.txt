@@ -20,8 +20,8 @@
 -------------
 
 Развертывание сетей детекции и классификации осуществляется 
-с помощью репозиториев `model storage<https://github.com/SanchoPanso/model_storage.git>`_ и 
-`modeler<https://bitbucket.org/luckytube/modeler/src/develop/>`_
+с помощью репозиториев `model storage <https://github.com/SanchoPanso/model_storage.git>`_ и 
+`modeler <https://bitbucket.org/luckytube/modeler/src/develop/>`_.
 
 Перейдите в следующие разделы, чтобы узнать, 
 как разворачивать обученные модели детекции и классификации для инференса
