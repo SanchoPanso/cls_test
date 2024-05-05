@@ -138,7 +138,7 @@
             
               <ul>
                 
-                  <li class="toctree-l2"><a href="#demonstration" class="reference internal">Demonstration</a></li>
+                  <li class="toctree-l2"><a href="#yolo" class="reference internal">Демонстрация работы YOLO</a></li>
                 
               </ul>
             
@@ -174,14 +174,27 @@
             
   <section id="demonstration">
 <h1>Demonstration<a class="headerlink" href="#demonstration" title="Permalink to this heading">¶</a></h1>
-<p>Запускается через <a class="reference external" href="https://github.com/SanchoPanso/CLS/cls/demonstration/gradio_YOLO.py">gradio_YOLO.py</a>
-с указанием группы, мету которой мы отправляем обратно.
-Раскладывать по папкам - на стороне никиты, ему отправляю маски, он их раскладывает по папкам скриптом,
-смотрит косяки в разметке, и в детекции.</p>
-<div class="admonition note">
-<p class="admonition-title">Примечание</p>
-<p>Эта страница пока просто заглушка</p>
+<section id="yolo">
+<h2>Демонстрация работы YOLO<a class="headerlink" href="#yolo" title="Permalink to this heading">¶</a></h2>
+<p>Чтобы продемонстрировать работу обученной сети YOLOv8, перейдите в файл <code class="docutils literal notranslate"><span class="pre">cls/demonstration/gradio_yolo.py</span></code>
+и укажите путь до модели в формате .pt:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">YOLO_PATH</span> <span class="o">=</span> <span class="s2">&quot;/data/achernikov/workspace/CLS/hds_persons_yolov8/train10/weights/best.pt&quot;</span>
+</pre></div>
 </div>
+<p>Далее запустите скрипт в фоновом режиме:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nohup<span class="w"> </span>python<span class="w"> </span>-u<span class="w"> </span>cls/demonstration/gradio_yolo.py<span class="w"> </span>&gt;<span class="w"> </span>gradio_yolo.out<span class="w"> </span><span class="p">&amp;</span>
+</pre></div>
+</div>
+<p>После этого лог программы будет записываться в файл <code class="docutils literal notranslate"><span class="pre">gradio_yolo.out</span></code>.
+В нем вы сможете найти публичную ссылку, по которой нужно перейти,
+чтобы начать тестирование:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Running<span class="w"> </span>on<span class="w"> </span><span class="nb">local</span><span class="w"> </span>URL:<span class="w">  </span>http://127.0.0.1:7860
+<span class="hll">Running<span class="w"> </span>on<span class="w"> </span>public<span class="w"> </span>URL:<span class="w"> </span>https://c3918ba8d689c8cf42.gradio.live
+</span>
+This<span class="w"> </span>share<span class="w"> </span>link<span class="w"> </span>expires<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">72</span><span class="w"> </span>hours.<span class="w"> </span>For<span class="w"> </span>free<span class="w"> </span>permanent<span class="w"> </span>hosting<span class="w"> </span>and<span class="w"> </span>GPU<span class="w"> </span>upgrades,<span class="w"> </span>run<span class="w"> </span><span class="sb">`</span>gradio<span class="w"> </span>deploy<span class="sb">`</span><span class="w"> </span>from<span class="w"> </span>Terminal<span class="w"> </span>to<span class="w"> </span>deploy<span class="w"> </span>to<span class="w"> </span>Spaces<span class="w"> </span><span class="o">(</span>https://huggingface.co/spaces<span class="o">)</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
