@@ -6,6 +6,11 @@
 На этой странице рассказывается, как подготовить данные, обучить модель 
 и подготовить ее к разворачиванию для инференса.
 
+.. note::
+
+   Прежде чем использовать этот гайд, убедитель, 
+   что у вас запущен model_storage из шага :ref:`model_storage`.
+
 Установка
 ---------
 
@@ -13,12 +18,13 @@
 
 .. code-block:: bash
 
-   $ git clone https://github.com/t1masavin/CLS.git -b develop
-   $ cd CLS
-   $ python3 -m venv venv
-   $ source venv/bin/activate
-   (venv) $ pip install poetry
-   (venv) $ poetry install .
+   git clone https://github.com/t1masavin/CLS.git -b develop
+   cd CLS
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install poetry
+   poetry config virtualenvs.in-project true
+   poetry install .
 
 Настройка подключения к PostgreSQL
 ----------------------------------
@@ -63,8 +69,7 @@
       - meta/
          - ...
       - datasets/
-        - tits_size/
-            - tits_size.json
+         - tits_size.json
 
 Что произошло? Создалась папка с данными `classification_data`, путь к которой прописан в файле конфигурации. 
 В этой папке скачались изображения в папку `pictures`, скачались метаданные о наборах изображений в папку `meta`
@@ -145,6 +150,10 @@
 Конвертация в TensorRT
 ----------------------
 
+.. attention::
+
+   Конвертация модели может происходить некорректно, необходимо это проверить. 
+
 Для эффективного деплоя модели нужно конвертировать ее в формат TensorRT.
 Это можно сделать следующей командой:
 
@@ -167,6 +176,10 @@
                     - model.plan  
                     - model_trt.zip     # версия модели для triton в формате trt
 
+
+Отправка модели в хранилище
+---------------------------
+
 Чтобы отправить trt-модель в общее хранилище, с присвоением версии (к примеру, 0.0.2), 
 воспользуйтесь API от model storage:
 
@@ -180,7 +193,10 @@
     -F 'model_name=tits_size' \
     -F 'model_version=0.0.2'
 
-В ответ должно вернуться {"version": "0.0.2"}, что скажет об успешной доставке модели в хранилище.
+В ответ должен вернуться следующий ответ, что скажет об успешной доставке модели в хранилище:: 
+
+   {"version": "0.0.2"}
+
 
 .. note::
 
