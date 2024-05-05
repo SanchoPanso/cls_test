@@ -97,7 +97,9 @@
                 
                   <li class="toctree-l2"><a href="#tensorrt" class="reference internal">Конвертация в TensorRT</a></li>
                 
-                  <li class="toctree-l2"><a href="#id6" class="reference internal">Что дальше?</a></li>
+                  <li class="toctree-l2"><a href="#id6" class="reference internal">Отправка модели в хранилище</a></li>
+                
+                  <li class="toctree-l2"><a href="#id7" class="reference internal">Что дальше?</a></li>
                 
               </ul>
             
@@ -158,24 +160,6 @@
           </li>
 
         
-          <li class="toctree-l1 ">
-            
-              <a href="configuration.html" class="reference internal ">Формат конфигурации</a>
-            
-
-            
-          </li>
-
-        
-          <li class="toctree-l1 ">
-            
-              <a href="postgres.html" class="reference internal ">PostgreSQL</a>
-            
-
-            
-          </li>
-
-        
       </ul>
     </div>
   
@@ -213,15 +197,21 @@
 собранных в сервисе collect.moster.
 На этой странице рассказывается, как подготовить данные, обучить модель
 и подготовить ее к разворачиванию для инференса.</p>
+<div class="admonition note">
+<p class="admonition-title">Примечание</p>
+<p>Прежде чем использовать этот гайд, убедитель,
+что у вас запущен model_storage из шага <a class="reference internal" href="model_storage_deployment.html#model-storage"><span class="std std-ref">Разворачивание Model Storage</span></a>.</p>
+</div>
 <section id="id2">
 <h2>Установка<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
 <p>Для установки проекта CLS, выполните следующие команды:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/t1masavin/CLS.git<span class="w"> </span>-b<span class="w"> </span>develop
-$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>CLS
-$<span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
-$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>venv/bin/activate
-<span class="o">(</span>venv<span class="o">)</span><span class="w"> </span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>poetry
-<span class="o">(</span>venv<span class="o">)</span><span class="w"> </span>$<span class="w"> </span>poetry<span class="w"> </span>install<span class="w"> </span>.
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/t1masavin/CLS.git<span class="w"> </span>-b<span class="w"> </span>develop
+<span class="nb">cd</span><span class="w"> </span>CLS
+python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
+<span class="nb">source</span><span class="w"> </span>venv/bin/activate
+pip<span class="w"> </span>install<span class="w"> </span>poetry
+poetry<span class="w"> </span>config<span class="w"> </span>virtualenvs.in-project<span class="w"> </span><span class="nb">true</span>
+poetry<span class="w"> </span>install<span class="w"> </span>.
 </pre></div>
 </div>
 </section>
@@ -231,7 +221,7 @@ $<span class="w"> </span><span class="nb">source</span><span class="w"> </span>v
 Поэтому проект CLS использует базу данных PostgreSQL для хранения данных о сегментации людей.</p>
 <p>Прежде чем начать работу, убедитесь, что у вас установлен и запущен PostgreSQL.
 Затем укажите параметры подключения в файле конфигурации проекта.
-Подробнее см. <a class="reference internal" href="postgres.html"><span class="doc">PostgreSQL</span></a>.</p>
+Подробнее см. <span class="xref std std-doc">postgres</span>.</p>
 <div class="admonition note">
 <p class="admonition-title">Примечание</p>
 <p>Как правило, база данных уже развернута.
@@ -258,8 +248,7 @@ $<span class="w"> </span><span class="nb">source</span><span class="w"> </span>v
 <span class="w">   </span>-<span class="w"> </span>meta/
 <span class="w">      </span>-<span class="w"> </span>...
 <span class="w">   </span>-<span class="w"> </span>datasets/
-<span class="w">     </span>-<span class="w"> </span>tits_size/
-<span class="w">         </span>-<span class="w"> </span>tits_size.json
+<span class="w">      </span>-<span class="w"> </span>tits_size.json
 </pre></div>
 </div>
 <p>Что произошло? Создалась папка с данными <cite>classification_data</cite>, путь к которой прописан в файле конфигурации.
@@ -325,6 +314,10 @@ scp<span class="w"> </span>-P<span class="w"> </span><span class="m">4000</span>
 </section>
 <section id="tensorrt">
 <h2>Конвертация в TensorRT<a class="headerlink" href="#tensorrt" title="Permalink to this heading">¶</a></h2>
+<div class="admonition attention">
+<p class="admonition-title">Внимание</p>
+<p>Конвертация модели может происходить некорректно, необходимо это проверить.</p>
+</div>
 <p>Для эффективного деплоя модели нужно конвертировать ее в формат TensorRT.
 Это можно сделать следующей командой:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>cls/classification/export.py<span class="w"> </span>--group<span class="w"> </span>tits_size
@@ -343,6 +336,9 @@ scp<span class="w"> </span>-P<span class="w"> </span><span class="m">4000</span>
 <span class="w">                </span>-<span class="w"> </span>model_trt.zip<span class="w">     </span><span class="c1"># версия модели для triton в формате trt</span>
 </pre></div>
 </div>
+</section>
+<section id="id6">
+<h2>Отправка модели в хранилище<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h2>
 <p>Чтобы отправить trt-модель в общее хранилище, с присвоением версии (к примеру, 0.0.2),
 воспользуйтесь API от model storage:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
@@ -354,14 +350,17 @@ scp<span class="w"> </span>-P<span class="w"> </span><span class="m">4000</span>
 -F<span class="w"> </span><span class="s1">&#39;model_version=0.0.2&#39;</span>
 </pre></div>
 </div>
-<p>В ответ должно вернуться {«version»: «0.0.2»}, что скажет об успешной доставке модели в хранилище.</p>
+<p>В ответ должен вернуться следующий ответ, что скажет об успешной доставке модели в хранилище:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.0.2&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Примечание</p>
 <p>В будущем планируется обернуть этот вызов в отдельный скрипт.</p>
 </div>
 </section>
-<section id="id6">
-<h2>Что дальше?<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h2>
+<section id="id7">
+<h2>Что дальше?<a class="headerlink" href="#id7" title="Permalink to this heading">¶</a></h2>
 <p>Чтобы подробнее ознакомиться с возможностями этоо модуля, обратитесь к <a class="reference internal" href="classification.html"><span class="doc">Классификация</span></a>.</p>
 </section>
 </section>

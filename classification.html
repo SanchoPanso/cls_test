@@ -133,7 +133,11 @@
                 
                   <li class="toctree-l2"><a href="#inference" class="reference internal">Инференс</a></li>
                 
-                  <li class="toctree-l2"><a href="#w-b" class="reference internal">Скачать обученную модель из W&B</a></li>
+                  <li class="toctree-l2"><a href="#postgresql" class="reference internal">PostgreSQL</a></li>
+                
+                  <li class="toctree-l2"><a href="#cls-configuration" class="reference internal">Формат конфигурации</a></li>
+                
+                  <li class="toctree-l2"><a href="#id10" class="reference internal">Структура данных</a></li>
                 
               </ul>
             
@@ -152,24 +156,6 @@
           <li class="toctree-l1 ">
             
               <a href="demonstration.html" class="reference internal ">Demonstration</a>
-            
-
-            
-          </li>
-
-        
-          <li class="toctree-l1 ">
-            
-              <a href="configuration.html" class="reference internal ">Формат конфигурации</a>
-            
-
-            
-          </li>
-
-        
-          <li class="toctree-l1 ">
-            
-              <a href="postgres.html" class="reference internal ">PostgreSQL</a>
             
 
             
@@ -220,12 +206,12 @@
 <ul class="simple">
 <li><p><a class="reference internal" href="#mask-build"><span class="std std-ref">Создание масок</span></a></p></li>
 <li><p><a class="reference internal" href="#inference"><span class="std std-ref">Инференс</span></a></p></li>
-<li><p><a class="reference internal" href="#download-wandb"><span class="std std-ref">Скачать обученную модель из W&amp;B</span></a></p></li>
+<li><p><span class="xref std std-ref">download_wandb</span></p></li>
 </ul>
 <p>Далее в пимерах в качестве группы используется <cite>tits_size</cite>. Группа может быть заменена на любую доступную.
 Все команды в примерах запускаются из корневой папки репозитория.
-Структура файлов соответствует дефолтной из файла <cite>cls/classification/cfg/default.yaml</cite>.
-Подробнее о конфигурации: <a class="reference internal" href="configuration.html"><span class="doc">Формат конфигурации</span></a>.</p>
+Структура файлов соответствует дефолтной из файла <cite>cls/classification/cfg/configuration.yaml</cite>.
+Подробнее о конфигурации: <a class="reference internal" href="#cls-configuration"><span class="std std-ref">Формат конфигурации</span></a>.</p>
 <section id="download">
 <span id="id2"></span><h2>Скачивание данных<a class="headerlink" href="#download" title="Permalink to this heading">¶</a></h2>
 <p>Для дальнейшей работы необходимо скачать изображения и их метаданные.
@@ -247,7 +233,8 @@
 <section id="segment-build">
 <span id="id3"></span><h2>Создание сегментации<a class="headerlink" href="#segment-build" title="Permalink to this heading">¶</a></h2>
 <p>Помимо изображений и их метаданных, для различных задач (в частности, тренировки) небходимо создать сегментационные маски
-людей на изображениях. Полученные маски хранятся в базе данных PostgreSQL. Подробнее о формате хранимой сегментации: <a class="reference internal" href="segmentation_format.html"><span class="doc">Формат сегментации</span></a>.</p>
+людей на изображениях. Полученные маски хранятся в базе данных PostgreSQL.
+Подробнее о формате хранимой сегментации: <a class="reference internal" href="segmentation_format.html"><span class="doc">Формат сегментации</span></a>.</p>
 <p>#. Скрипт <cite>segment_builder.py</cite> проходится по всем изображениям в папке <cite>DATA/pictures</cite>. Вместо <cite>YOUR_MODEL_PATH</cite>
 необходимо вставить путь к вашей модели YOLO, отвечающей за сегментацию людей:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="bp">cls</span><span class="o">/</span><span class="n">classification</span><span class="o">/</span><span class="n">segment_builder</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">model_path</span> <span class="n">YOUR_MODEL_PATH</span>
@@ -268,11 +255,12 @@
 </div>
 </li>
 </ol>
-<p>#. Влючить бэдлист (текстовый файл со списком плохих изображений)
+<p>#. Включить бэдлист (текстовый файл со списком плохих изображений)
 в базу данных с информацией об изображениях:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="bp">cls</span><span class="o">/</span><span class="n">classification</span><span class="o">/</span><span class="n">push_badlist</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">badlist_path</span> <span class="bp">cls</span><span class="o">/</span><span class="n">classification</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">badlist_common</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
+<p>Включение бэдлиста позволит пометить изображения как отклоненные («rejected») и не использовать при обучении.</p>
 <p>Проверить базу данных можно с помощью блокнота <cite>cls/classification/notebooks/check_database.ipynb</cite>.</p>
 </section>
 <section id="train">
@@ -283,20 +271,20 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="bp">cls</span><span class="o">/</span><span class="n">classification</span><span class="o">/</span><span class="n">train</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">cat</span> <span class="n">tits_size</span> <span class="o">--</span><span class="n">epochs</span> <span class="mi">1</span>
 </pre></div>
 </div>
-<p>Чтобы получить более подробную информацию о параметрах, воспользуйтесь параметром <cite>–help</cite>:</p>
+<p>Чтобы получить более подробную информацию о параметрах, воспользуйтесь параметром <code class="docutils literal notranslate"><span class="pre">--help</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="bp">cls</span><span class="o">/</span><span class="n">classification</span><span class="o">/</span><span class="n">train</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">help</span>
 </pre></div>
 </div>
 <p>Перед тем, как тренировка начнется, программа предложит предоставить ей API ключ от аккаунта W&amp;B.
 Это позволить вести логирование и выгрузку моделей на этот сервис.</p>
-<p>После того, как обучение закончится, результат сохранится в папке <cite>DATA/models/tits_size/{experiment_name}</cite>.
+<p>После того, как обучение закончится, результат сохранится в папке <code class="docutils literal notranslate"><span class="pre">DATA/models/tits_size/{experiment_name}</span></code>.
 В этой папке будет содержаться:</p>
 <ul class="simple">
 <li><p>checkpoints - папка с чекпоинтами в формате pytorch-lightning;</p></li>
 <li><p>csv_logs - папка с логом тренировки в формате csv;</p></li>
 <li><p>torchscripts - папка с моделью в формате torchscript;</p></li>
 <li><p>train_batches - папка с тренировочными батчами (для визуальной проверки);</p></li>
-<li><p>onnx - папка с о=моделью в формате onnx.</p></li>
+<li><p>onnx - папка с моделью в формате onnx.</p></li>
 </ul>
 </section>
 <section id="upload">
@@ -340,12 +328,85 @@
 </pre></div>
 </div>
 </section>
-<section id="w-b">
-<span id="download-wandb"></span><h2>Скачать обученную модель из W&amp;B<a class="headerlink" href="#w-b" title="Permalink to this heading">¶</a></h2>
-<p>Скачать обученную модель из wandb:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="bp">cls</span><span class="o">/</span><span class="n">classification</span><span class="o">/</span><span class="n">download_wandb</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">artifact_name</span> <span class="n">ARTIFACT_NAME</span>
+<section id="postgresql">
+<h2>PostgreSQL<a class="headerlink" href="#postgresql" title="Permalink to this heading">¶</a></h2>
+<p>Для того, чтобы сегментационные маски были доступны для всех пользователей,
+создается отдельный контейнер с образом базы данных PostgreSQL.
+Структура БД задается следующим образом:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>CREATE<span class="w"> </span>TABLE<span class="w"> </span>pictures<span class="w"> </span><span class="o">(</span>
+<span class="w">    </span>id<span class="w"> </span>SERIAL<span class="w"> </span>PRIMARY<span class="w"> </span>KEY,
+<span class="w">    </span>path<span class="w"> </span>VARCHAR<span class="o">(</span><span class="m">255</span><span class="o">)</span><span class="w"> </span>NOT<span class="w"> </span>NULL,
+<span class="w">    </span>model_version<span class="w"> </span>VARCHAR<span class="o">(</span><span class="m">50</span><span class="o">)</span><span class="w"> </span>NOT<span class="w"> </span>NULL,
+<span class="w">    </span>status<span class="w"> </span>VARCHAR<span class="o">(</span><span class="m">50</span><span class="o">)</span><span class="w"> </span>NOT<span class="w"> </span>NULL,
+<span class="w">    </span>segments<span class="w"> </span>jsonb<span class="w"> </span>DEFAULT<span class="w"> </span>NULL
+<span class="o">)</span><span class="p">;</span>
 </pre></div>
 </div>
+<section id="cls-postgres">
+<span id="id8"></span><h3>Настройка подключения<a class="headerlink" href="#cls-postgres" title="Permalink to this heading">¶</a></h3>
+<p>1. Создать контейнер.
+Если вы работаете с уже существующей БД, то переходите к п.2.
+Создание таблицы и процесс запуска контейнера уже реализован.
+Все, что нужно - это запустить docker compose:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>postgres
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</pre></div>
+</div>
+<p>2. После того, как БД развернута, нужно указать URL к БД в файле конфигурации по схеме: „{dialect}+{driver}://{user}:<a class="reference external" href="mailto:{password}&#37;&#52;&#48;{host">{password}<span>&#64;</span>{host</a>}:{port}/{database}.
+О файле конфигурации см. <a class="reference internal" href="#cls-configuration"><span class="std std-ref">Формат конфигурации</span></a>.
+Пример:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pictures_info_db_url:<span class="w"> </span><span class="s1">&#39;postgresql+psycopg2://psql_user:root@172.20.0.1:5432/psql_db&#39;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="cls-configuration">
+<span id="id9"></span><h2>Формат конфигурации<a class="headerlink" href="#cls-configuration" title="Permalink to this heading">¶</a></h2>
+<p>Файл конфигурации - yaml файл, в котором прописаны основные настройки пакета, регулирующие расположение файлов и т.д.
+По умолчанию файл расположен в <cite>cls/classification/cfg/configuration.yaml</cite> и имеет следующее содержание:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1">### --------------------------------------------------</span>
+<span class="c1">### This is a common file structure of this repository</span>
+<span class="c1">### --------------------------------------------------</span>
+
+<span class="c1">### The main data storage for training</span>
+data_path:<span class="w"> </span><span class="s1">&#39;classification_data&#39;</span><span class="w"> </span><span class="c1">#&#39;DATA&#39;  # Absolute or relative path (if relative - repo dir is considered as root)</span>
+
+<span class="c1"># The following params are relative paths of subdirs (relative to &#39;path&#39; value)</span>
+datasets_dir:<span class="w"> </span><span class="s1">&#39;datasets&#39;</span><span class="w">  </span><span class="c1"># Subdir with json files that describe a dataset content for each group</span>
+pictures_dir:<span class="w"> </span><span class="s1">&#39;pictures&#39;</span><span class="w">  </span><span class="c1"># Subdir with a common pool of image files</span>
+meta_dir:<span class="w"> </span><span class="s1">&#39;meta&#39;</span><span class="w">          </span><span class="c1"># Subdir with metadata about picsets (each dir is like {group}/{picset}/*.json)</span>
+models_dir:<span class="w"> </span><span class="s1">&#39;models&#39;</span><span class="w">      </span><span class="c1"># Subdir for training experiments that contains trained models (each experiment contains logs, checkpoints, models, etc)</span>
+inference_models_dir:<span class="w"> </span><span class="s1">&#39;inference_models&#39;</span>
+segments_dir:<span class="w"> </span><span class="s1">&#39;segments&#39;</span><span class="w">  </span><span class="c1"># Subdir for json files with image segmentation information (format: bbox - xyxy, segments - xyn)</span>
+pictures_info_db_url:<span class="w"> </span><span class="s1">&#39;postgresql+psycopg2://psql_user:root@172.20.0.1:5432/psql_db&#39;</span>
+
+<span class="c1">### A storage for testing results</span>
+inference_dir:<span class="w"> </span><span class="s1">&#39;inference&#39;</span><span class="w">  </span><span class="c1"># Subdir for inference results</span>
+
+<span class="c1">### A storage for temporary data that is used for marking up (e.g. for badlist creating)</span>
+masks_dir:<span class="w"> </span><span class="s1">&#39;masks&#39;</span><span class="w">  </span><span class="c1"># Subdir for image masks</span>
+</pre></div>
+</div>
+</section>
+<section id="id10">
+<h2>Структура данных<a class="headerlink" href="#id10" title="Permalink to this heading">¶</a></h2>
+<p>Каждая бутылка данных содержит следующие компоненты:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Исходные данные:</dt><dd><p>Подпапка /pictures
+Содержит изображения, скачанные из различных источников.</p>
+</dd>
+<dt>Метаданные:</dt><dd><p>Подпапка /meta
+Включает файлы, описывающие исходные данные (например, источники данных, авторские права, описательные теги).</p>
+</dd>
+<dt>Датасеты:</dt><dd><p>Подпапка /datasets
+Включает json-файлы, описывающие датасеты</p>
+</dd>
+<dt>Обученные модели:</dt><dd><p>Подпапка /models
+Содержит модели нейросетей, обученные на основе исходных данных, включая файлы конфигурации и весов.</p>
+</dd>
+</dl>
+</div></blockquote>
 </section>
 </section>
 
