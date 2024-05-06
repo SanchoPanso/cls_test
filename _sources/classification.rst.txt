@@ -1,25 +1,6 @@
 Классификация
 =============
 
-Для модели классификации рабочий процесс выглядит следющим образом:
-
-- :ref:`download`
-- :ref:`segment_build`
-- :ref:`train`
-- :ref:`upload`
-
-Также модуль имеет дополнительную функциональность:
-
-- :ref:`mask_build`
-- :ref:`inference`
-- :ref:`download_wandb`
-
-
-Далее в пимерах в качестве группы используется `tits_size`. Группа может быть заменена на любую доступную.
-Все команды в примерах запускаются из корневой папки репозитория. 
-Структура файлов соответствует дефолтной из файла `cls/classification/cfg/configuration.yaml`.
-Подробнее о конфигурации: :ref:`cls_configuration`.
-
 .. _download:
 
 Скачивание данных
@@ -137,8 +118,6 @@
 
     python cls/classification/mask_bulder.py --group test
 
-Ntrcn
-
 .. _inference:
 
 Инференс
@@ -154,6 +133,8 @@ Ntrcn
 Запуск инференса по папке c изображениями::
     
     python cls/classification/inference.py --source DIR_PATH --model MODEL_PATH
+
+.. _cls_postgres:
 
 PostgreSQL
 ----------
@@ -172,8 +153,6 @@ PostgreSQL
         segments jsonb DEFAULT NULL
     );
 
-
-.. _cls_postgres:
 
 Настройка подключения
 ^^^^^^^^^^^^^^^^^^^^^
