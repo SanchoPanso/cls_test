@@ -1,7 +1,7 @@
 # Документация к ML части HDsex.org
 
 Документация по обучению и развертыванию нейросетей для hdsex.org.
-Она доступна по ссылке: https://sanchopanso.github.io/cls_test.
+Она доступна по ссылке: https://sanchopanso.github.io/hdsex_ml_docs/.
 
 Документация написана на языке разметки 
 [reStructuredText](https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html) 
