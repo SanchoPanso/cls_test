@@ -24,7 +24,7 @@
    source venv/bin/activate
    pip install poetry
    poetry config virtualenvs.in-project true
-   poetry install .
+   poetry install
 
 Настройка подключения к PostgreSQL
 ----------------------------------
