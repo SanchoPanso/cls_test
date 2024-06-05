@@ -36,16 +36,28 @@
     scp -P 4000 user@0.0.0.0:/storage/other/segmentation_dataset.zip segmentation_data_test/initial_datasets/segmentation_dataset.zip
     unzip segmentation_data/initial_datasets/segmentation_dataset.zip -d segmentation_data/initial_datasets/
 
+Подготовка датасета
+-----------------------------
+
+Предполагается, что датасет после разметки представляет собой один или несколько архивов с разметкой в COCO формате. 
+Сперва эти  архивы необходимо правильно распарсить. Для этого все архивы для текущей итерации обучения надо
+разместить в одной папке, например segmentation_data/archives. Затем запустить скрипт для их парсинга:
+
+.. code-block:: bash
+
+    python cls/instance_segmentation/parse_archives.py --input_dir <путь до папки с архивами> --output_dir <путь до папки с промежуточным датасетом> 
+
+Предположим что --input_dir segmentation_data/archives, а --output_dir segmentation_data/initial_datasets
 
 Создание датасета в формате YOLO
 --------------------------------
 
 Скрипт create_yolo_dataset.py предназначен для конвертации датасетов, аннотированных в формате COCO, 
 в формат, совместимый с моделью YOLO. 
-Это первый шаг в подготовке данных для обучения.
+Это следующий шаг в подготовке данных для обучения.
 
 Итак, мы имеем исходные данные в папке segmentation_data/initial_datasets. 
-В этой папке для всех датасетов должна быть следующая структура:
+В этой папке для всех датасетов должна быть следующая структура (названия датасетов могут быть другими):
 
 .. code-block:: bash
     
@@ -61,18 +73,23 @@
         -...
 
 
-Для того, чтобы прочитать все исходные датасеты и сложить подготовленный датасет в папку `segmentation_data/prepared_datasets`, воспользуйтесь следующей командной:
+Для того, чтобы прочитать все исходные датасеты и сложить подготовленный датасет в папку `segmentation_data/hds_person_04052024`, воспользуйтесь следующей командной:
 
 .. code-block:: bash
 
-    python cls/instance_segmentation/create_yolo_dataset.py
+    python cls/instance_segmentation/create_yolo_dataset.py --src_dir <путь до папки с распаршенным датасетом в COCO> --dst_dir  <путь до желаемой папки с итоговым датасетом> --existing_datasets  <путь до папки с данными предыдущей итерации обучения (если есть)>
+
+В данном случае: 
+--src_dir segmentation_data/initial_datasets;
+--dst_dir segmentation_data/hds_person_25042024;
+--existing_datasets segmentation_data/hds_person_04052024
 
 
 В итоге должна получиться папка со следующей структурой:
 
 .. code-block:: bash
 
-    - segmentation_data/prepared_datasets/yolo_dataset/
+    - segmentation_data/hds_050624/
         - train/
             - images/
             - labels/
@@ -101,7 +118,7 @@
 
 .. code-block:: bash
 
-    python cls/instance_segmentation/train_yolo_seg.py --model yolov8s-seg.pt --epochs 1
+    python cls/instance_segmentation/train_yolo_seg.py --data segmentation_data/hds_person_04052024/data.yaml --model yolov8s-seg.pt --epochs 1
 
 .. note::
 
@@ -129,7 +146,7 @@
 
 .. code-block:: bash
 
-    python cls/instance_segmentation/export_to_trt.py
+    python cls/instance_segmentation/export_to_trt.py --src_path segmentation_data/models/train/weights/best.pt --dst_path segmentation_data/models/train/infer
 
 
 После этого в segmentation_data/inference_models/instance_segmentation_model появятся модели в формате TensorRT 
@@ -144,7 +161,7 @@
         - model_onnx.zip
         - model_trt.zip
 
-Чтобы отправить trt-модель в общее хранилище, с присвоением версии (к примеру, 0.0.2), 
+Чтобы отправить trt-модель в общее хранилище, с присвоением версии (к примеру, 0.0.3), 
 воспользуйтесь API от model storage:
 
 .. code-block:: bash
@@ -153,11 +170,11 @@
     'http://localhost:8300/upload_new_version/' \
     -H 'accept: application/json' \
     -H 'Content-Type: multipart/form-data' \
-    -F 'src_file=@segmentation_data/inference_models/instance_segmentation_model/model_trt.zip;type=application/x-zip-compressed' \
-    -F 'model_name=tits_size' \
-    -F 'model_version=0.0.2'
+    -F 'src_file=@segmentation_data/models/train/infer/model_trt.zip;type=application/x-zip-compressed' \
+    -F 'model_name=detection' \
+    -F 'model_version=0.0.3'
 
-В ответ должно вернуться {"version": "0.0.2"}, что скажет об успешной доставке модели в хранилище.
+В ответ должно вернуться {"version": "0.0.3"}, что скажет об успешной доставке модели в хранилище.
 
 .. note::
 
